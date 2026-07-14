@@ -1,0 +1,1461 @@
+/* ============================================================
+   VRF KITCHEN — DYNAMIC THEME  (v5)
+   ------------------------------------------------------------
+   Colour is NOT hard-coded here. Every hue resolves from the
+   custom properties written onto :root by assets/themes.js.
+   Switching a preset or toggling dark mode re-skins the whole
+   app with no CSS changes.
+
+   Token contract (set by themes.js):
+     --primary --primary-2
+     --accent  --accent-2  --accent-soft
+     --gold    --gold-soft
+     --canvas  --canvas-2  --surface
+     --ink     --ink-2     --line
+     --shadow-rgb
+   ============================================================ */
+
+:root{
+  /* Fallbacks — themes.js overwrites these before first paint.
+     Kept so the page still renders correctly if JS is blocked. */
+  --primary:#0F5132;  --primary-2:#0B3F27;
+  --accent:#B4874B;   --accent-2:#866131;  --accent-soft:#F3E9DA;
+  --accent-on:#946F3D;   /* accent as a solid fill under white text (WCAG AA) */
+  --gold:#C9A55F;     --gold-soft:#F4EADA;
+  --canvas:#F7F5F1;   --canvas-2:#EFEBE3;  --surface:#FFFFFF;
+  --ink:#16211D;      --ink-2:#67716C;     --line:#E4E0D7;
+  --shadow-rgb:22,33,29;
+
+  /* ---- derived: tints of the live theme colours ---- */
+  --primary-tint:color-mix(in srgb, var(--primary) 8%, transparent);
+  --primary-ring:color-mix(in srgb, var(--primary) 14%, transparent);
+  --accent-tint:color-mix(in srgb, var(--accent) 10%, transparent);
+
+  /* ---- elevation: one honest, restrained ramp ----
+     Neutral + tight, so cards read as paper on a desk rather
+     than plastic floating in space. */
+  --e1:0 1px 2px rgba(var(--shadow-rgb),.05),
+       0 1px 3px rgba(var(--shadow-rgb),.04);
+  --e2:0 2px 4px rgba(var(--shadow-rgb),.04),
+       0 8px 20px -8px rgba(var(--shadow-rgb),.12);
+  --e3:0 4px 8px rgba(var(--shadow-rgb),.05),
+       0 20px 40px -16px rgba(var(--shadow-rgb),.18);
+  /* legacy aliases — older markup still references these */
+  --shadow-sm:var(--e1);
+  --shadow-md:var(--e2);
+  --shadow-lg:var(--e3);
+
+  /* ---- geometry: one radius scale, used everywhere ---- */
+  --r-sm:10px; --r-md:14px; --r-lg:18px; --r-xl:22px;
+
+  /* ---- motion: one curve, one duration scale ---- */
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t-fast:.16s; --t-base:.24s; --t-slow:.4s;
+}
+
+/* Dark mode adjusts the elevation ramp: shadows read weakly on a
+   dark canvas, so lean on luminous borders instead. */
+:root[data-mode="dark"]{
+  --e1:0 1px 2px rgba(0,0,0,.4);
+  --e2:0 4px 16px -6px rgba(0,0,0,.55);
+  --e3:0 12px 36px -12px rgba(0,0,0,.7);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*{-webkit-tap-highlight-color:transparent}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  background:var(--canvas);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-.01em;
+  overflow-x:hidden;
+  /* recolour cleanly when the theme flips */
+  transition:background-color var(--t-base) ease,color var(--t-base) ease;
+}
+img{max-width:100%}
+main,header,footer,section{max-width:100vw}
+
+.display{font-family:'Fraunces',serif;font-optical-sizing:auto;letter-spacing:-.02em}
+.script{font-family:'Fraunces',serif;font-style:italic}
+.tnum{font-variant-numeric:tabular-nums}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+
+/* Selection + focus ring follow the live theme */
+::selection{background:var(--primary-ring);color:var(--ink)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+
+/* ============================================================
+   TAILWIND SURFACE BRIDGE
+   Pages use Tailwind's `bg-white`, `text-white`, `border-…`.
+   Remap those literals to theme tokens so dark mode actually
+   goes dark instead of leaving white islands everywhere.
+   ============================================================ */
+/* Tailwind's CDN build resolves arbitrary values like `bg-[var(--ivory)]`
+   ONCE, at scan time, and bakes in the literal colour — it never
+   re-resolves when the variable changes. So a themed background set via
+   a Tailwind utility would stay frozen on the light value forever.
+   Reclaim those utilities and point them at the live tokens.
+
+   Match with ~= (whole space-separated class token), NEVER *= (substring).
+   A substring match would also hit `active:bg-[var(--brand)]` and
+   `hover:…`, permanently painting fills that are only meant to appear on
+   interaction — that turns outline buttons into solid blocks whose label
+   is the same colour as the fill. It would likewise let
+   `bg-[var(--gold)]` swallow `bg-[var(--gold-soft)]`. */
+.bg-white{background-color:var(--surface)!important}
+
+body[class~="bg-[var(--ivory)]"],
+body[class~="bg-[var(--cream)]"],
+body[class~="bg-[var(--canvas)]"]{background-color:var(--canvas)!important}
+
+[class~="bg-[var(--ivory-2)]"],
+[class~="bg-[var(--cream-2)]"],
+[class~="bg-[var(--canvas-2)]"]{background-color:var(--canvas-2)!important}
+
+[class~="bg-[var(--card)]"],
+[class~="bg-[var(--surface)]"]{background-color:var(--surface)!important}
+
+[class~="text-[var(--ink)]"]{color:var(--ink)!important}
+[class~="text-[var(--ink-2)]"]{color:var(--ink-2)!important}
+[class~="text-[var(--green)]"],
+[class~="text-[var(--primary)]"]{color:var(--primary)!important}
+/* Accent as TEXT needs the darkened ramp too — the decorative accent only
+   reaches ~3.2:1 on a white card (e.g. the "ADD +" outline buttons). */
+[class~="text-[var(--brand)]"],
+[class~="text-[var(--accent)]"]{color:var(--accent-on)!important}
+[class~="text-[var(--gold)]"]{color:var(--gold)!important}
+[class~="fill-[var(--gold)]"]{fill:var(--gold)!important}
+
+[class~="bg-[var(--green)]"],
+[class~="bg-[var(--primary)]"]{background-color:var(--primary)!important}
+[class~="bg-[var(--brand)]"],
+[class~="bg-[var(--accent)]"]{background-color:var(--accent-on)!important}
+[class~="bg-[var(--brand-soft)]"],
+[class~="bg-[var(--accent-soft)]"]{background-color:var(--accent-soft)!important}
+[class~="bg-[var(--gold)]"]{background-color:var(--gold)!important}
+[class~="bg-[var(--gold-soft)]"]{background-color:var(--gold-soft)!important}
+
+[class~="border-[var(--line)]"]{border-color:var(--line)!important}
+[class~="border-[var(--green)]"],
+[class~="border-[var(--primary)]"]{border-color:var(--primary)!important}
+[class~="border-[var(--brand)]"],
+[class~="border-[var(--accent)]"]{border-color:var(--accent)!important}
+
+/* ============================================================
+   MARKS & LABELS
+   ============================================================ */
+/* Veg mark: the regulatory green-square-in-a-box. It sits on photos, so
+   it always needs a light plate behind it — never the dark surface. */
+.veg-dot{width:16px;height:16px;border:1.5px solid #1B7A43;border-radius:3px;
+  display:inline-flex;align-items:center;justify-content:center;background:#fff}
+.veg-dot::after{content:"";width:7px;height:7px;border-radius:9999px;background:#1B7A43}
+
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-on)}
+.eyebrow-g{color:var(--primary)}
+.rule-gold{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+/* ============================================================
+   SURFACES
+   ============================================================ */
+.card,.ui-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  box-shadow:var(--e1);
+  transition:background-color var(--t-base) ease,border-color var(--t-base) ease,box-shadow var(--t-base) ease;
+}
+.ui-card-pad{padding:1.25rem}
+.ui-card-lux{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  box-shadow:var(--e2);
+  position:relative;
+}
+.glass{
+  background:color-mix(in srgb, var(--canvas) 82%, transparent);
+  backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+}
+
+/* hover lift — one gentle, consistent motion */
+.lift{transition:transform var(--t-slow) var(--ease),box-shadow var(--t-slow) var(--ease),border-color var(--t-slow) ease}
+@media(hover:hover){
+  .lift:hover{transform:translateY(-3px);box-shadow:var(--e2)}
+  .ui-card.lift:hover{border-color:var(--primary-ring);box-shadow:var(--e2)}
+}
+
+/* image frame zoom */
+.frame,.imgzoom{overflow:hidden}
+.frame img,.imgzoom img{transition:transform .6s var(--ease)}
+@media(hover:hover){
+  .frame:hover img,.imgzoom:hover img{transform:scale(1.05)}
+}
+
+/* press feedback */
+.press{transition:transform var(--t-fast) var(--ease),box-shadow var(--t-base) ease,background-color var(--t-base) ease}
+.press:active{transform:scale(.975)}
+
+/* ============================================================
+   BUTTONS
+   Flat, confident, one shadow. No gloss, no inset highlights —
+   that's what read as plasticky before.
+   ============================================================ */
+.btn-primary,.btn-green,.cta-lux,.pill-green{
+  background:var(--primary);color:#fff;
+  box-shadow:0 6px 16px -8px rgba(var(--shadow-rgb),.4);
+}
+/* Solid accent fills use --accent-on, not --accent: the decorative accent
+   is a mid-tone that only reaches ~3.2:1 under white text. */
+.btn-accent,.btn-brand,.cta-lux-accent,.pill-accent{
+  background:var(--accent-on);color:#fff;
+  box-shadow:0 6px 16px -8px rgba(var(--shadow-rgb),.4);
+}
+.btn-outline{border:1.5px solid var(--primary);color:var(--primary);background:var(--surface)}
+.btn-gold{background:var(--gold);color:var(--ink)}
+@media(hover:hover){
+  .btn-primary:hover,.btn-green:hover,.cta-lux:hover,.pill-green:hover{background:var(--primary-2)}
+  .btn-accent:hover,.btn-brand:hover,.cta-lux-accent:hover,.pill-accent:hover{background:var(--accent-2)}
+  .btn-outline:hover{background:var(--primary-tint)}
+}
+/* dark mode: brand colours are light ramps, so text must flip */
+:root[data-mode="dark"] .btn-primary,
+:root[data-mode="dark"] .btn-green,
+:root[data-mode="dark"] .cta-lux,
+:root[data-mode="dark"] .pill-green,
+:root[data-mode="dark"] .btn-accent,
+:root[data-mode="dark"] .btn-brand,
+:root[data-mode="dark"] .cta-lux-accent,
+:root[data-mode="dark"] .pill-accent,
+:root[data-mode="dark"] .stepper{color:var(--canvas)}
+
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;font-size:.875rem;
+  padding:.85rem 1.5rem;border-radius:9999px;
+  transition:transform var(--t-fast) var(--ease),background-color var(--t-base) ease,box-shadow var(--t-base) ease}
+
+/* one unified physical press across every button type */
+.pill:active,.btn-primary:active,.btn-accent:active,.btn-brand:active,.btn-green:active,
+.cta-lux:active,.cta-lux-accent:active,.btn-gold:active,.stepper button:active{
+  transform:translateY(1px) scale(.985)
+}
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+.fld{
+  width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);
+  padding:.85rem 1rem;font-size:.9rem;color:var(--ink);outline:none;
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease,background-color var(--t-base) ease;
+}
+.fld::placeholder{color:var(--ink-2)}
+.fld:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-tint)}
+.fld-wrap{position:relative}
+.fld-wrap .fld{padding-left:2.75rem}
+.fld-wrap>.fld-ico{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--ink-2);pointer-events:none}
+.fld-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:.4rem;display:block}
+
+.opt-row{display:flex;align-items:center;gap:.85rem;padding:1rem;cursor:pointer;position:relative;
+  border-radius:var(--r-md);transition:background-color var(--t-base) ease}
+.opt-row:active{background:var(--canvas-2)}
+.opt-row.is-sel{background:var(--primary-tint)}
+.opt-check{width:22px;height:22px;border-radius:9999px;border:2px solid var(--line);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  transition:background-color var(--t-base) ease,border-color var(--t-base) ease}
+.opt-row.is-sel .opt-check{background:var(--primary);border-color:var(--primary)}
+
+/* ============================================================
+   TYPOGRAPHY BLOCKS
+   ============================================================ */
+.sec-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.25rem;letter-spacing:-.015em;color:var(--ink)}
+.sec-head{display:flex;align-items:center;gap:.85rem}
+.sec-head::after{content:"";flex:1;height:1px;background:var(--line)}
+.div-label{display:flex;align-items:center;gap:1rem;color:var(--ink-2);font-size:11px;font-weight:700;letter-spacing:.14em}
+.div-label::before,.div-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ============================================================
+   BADGES · CHIPS · TILES
+   ============================================================ */
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;
+  padding:.28rem .65rem;border-radius:9999px}
+.badge-green{background:var(--primary-tint);color:var(--primary)}
+.badge-accent{background:var(--accent-soft);color:var(--accent-2)}
+.badge-gold{background:var(--gold-soft);color:var(--ink)}
+:root[data-mode="dark"] .badge-accent{color:var(--accent)}
+
+.ichip{width:44px;height:44px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ichip-green{background:var(--primary-tint);color:var(--primary)}
+.ichip-brand{background:var(--accent-soft);color:var(--accent-2)}
+.ichip-gold{background:var(--gold-soft);color:var(--ink)}
+:root[data-mode="dark"] .ichip-brand{color:var(--accent)}
+:root[data-mode="dark"] .ichip-gold{color:var(--gold)}
+
+.stat-tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:1rem .75rem;text-align:center;box-shadow:var(--e1);
+  transition:transform var(--t-base) var(--ease),border-color var(--t-base) ease,box-shadow var(--t-base) ease}
+@media(hover:hover){.stat-tile:hover{transform:translateY(-2px);border-color:var(--primary-ring);box-shadow:var(--e2)}}
+
+.stepper{display:inline-flex;align-items:center;gap:.25rem;background:var(--primary);color:#fff;
+  border-radius:var(--r-sm);font-weight:700;font-size:.9rem;overflow:hidden;
+  box-shadow:0 6px 14px -8px rgba(var(--shadow-rgb),.45)}
+.stepper button{padding:.35rem .7rem;transition:background-color var(--t-base) ease}
+.stepper button:active{background:var(--primary-2)}
+
+.krow{display:flex;justify-content:space-between;align-items:center;font-size:.875rem}
+
+/* ---- category chips (rail under the app-bar) ---- */
+.cat-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem .5rem .55rem;border-radius:9999px;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:.85rem;font-weight:600;line-height:1;
+  box-shadow:var(--e1);
+  transition:transform var(--t-fast) var(--ease),background-color var(--t-base) ease,color var(--t-base) ease,
+             border-color var(--t-base) ease,box-shadow var(--t-base) ease}
+.cat-chip:active{transform:scale(.95)}
+.cat-chip-ico{width:26px;height:26px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--canvas-2);color:var(--primary);transition:background-color var(--t-base) ease,color var(--t-base) ease}
+.cat-chip-ico i{width:15px;height:15px}
+.cat-chip.is-active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:var(--e2)}
+.cat-chip.is-active .cat-chip-ico{background:rgba(255,255,255,.18);color:var(--gold)}
+:root[data-mode="dark"] .cat-chip.is-active{color:var(--canvas)}
+:root[data-mode="dark"] .cat-chip.is-active .cat-chip-ico{background:rgba(0,0,0,.2);color:var(--canvas)}
+
+/* ============================================================
+   APP-BAR
+   ============================================================ */
+.appbar{
+  position:fixed;top:0;left:0;right:0;z-index:45;
+  background:color-mix(in srgb, var(--canvas) 85%, transparent);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+  transition:background-color var(--t-base) ease,border-color var(--t-base) ease;
+}
+body:has(.appbar){padding-top:68px}
+.appbar-inner{max-width:72rem;margin:0 auto;padding:.7rem 1rem;position:relative}
+.appbar-inner.narrow{max-width:72rem}
+.appbar-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--ink);letter-spacing:-.015em}
+
+.ibtn{width:42px;height:42px;border-radius:var(--r-md);display:inline-flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink);box-shadow:var(--e1);position:relative;
+  transition:transform var(--t-fast) var(--ease),box-shadow var(--t-base) ease,
+             background-color var(--t-base) ease,border-color var(--t-base) ease,color var(--t-base) ease}
+.ibtn:active{transform:scale(.92)}
+@media(hover:hover){.ibtn:hover{color:var(--primary);border-color:var(--primary-ring);box-shadow:var(--e2);transform:translateY(-1px)}}
+.ibtn-ghost{background:color-mix(in srgb, var(--surface) 55%, transparent)}
+
+.ibtn-badge{position:absolute;top:-6px;right:-6px;background:var(--accent-on);color:#fff;font-size:10px;font-weight:700;
+  border-radius:9999px;min-width:19px;height:19px;padding:0 4px;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--canvas);line-height:1}
+:root[data-mode="dark"] .ibtn-badge{color:var(--canvas)}
+
+.appbar-search{display:flex;align-items:center;gap:.55rem;flex:1;min-width:0;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:.62rem .95rem;box-shadow:var(--e1);
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease,background-color var(--t-base) ease}
+.appbar-search:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint)}
+.appbar-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:.875rem;color:var(--ink)}
+.appbar-search input::placeholder{color:var(--ink-2)}
+
+/* ============================================================
+   BOTTOM NAV DOCK
+   ============================================================ */
+#bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:0 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none}
+.nav-dock{pointer-events:auto;max-width:30rem;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
+  background:color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);
+  border:1px solid var(--line);border-radius:var(--r-xl);padding:8px;
+  box-shadow:var(--e3);
+  transition:background-color var(--t-base) ease,border-color var(--t-base) ease}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:var(--r-md);
+  color:var(--ink-2);text-decoration:none;transition:color var(--t-base) ease}
+.nav-ico{width:42px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);
+  transition:background-color var(--t-base) var(--ease),transform var(--t-base) var(--ease),color var(--t-base) ease}
+.nav-ico i{width:21px;height:21px}
+.nav-lbl{font-size:10px;font-weight:700;letter-spacing:.02em}
+.nav-item.is-active{color:var(--primary)}
+.nav-item.is-active .nav-ico{background:var(--primary);color:#fff;transform:translateY(-2px);
+  box-shadow:0 6px 14px -6px rgba(var(--shadow-rgb),.5)}
+:root[data-mode="dark"] .nav-item.is-active .nav-ico{color:var(--canvas)}
+.nav-item:active .nav-ico{transform:scale(.9)}
+
+/* ============================================================
+   ADDRESS CARD
+   ============================================================ */
+.addr-card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-xl);padding:1rem;cursor:pointer;
+  box-shadow:var(--e1);
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease,transform var(--t-fast) var(--ease)}
+.addr-card:active{transform:scale(.99)}
+.addr-card.is-on{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint),var(--e2)}
+.addr-ico{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:var(--canvas-2);color:var(--primary);transition:background-color var(--t-base) ease,color var(--t-base) ease}
+.addr-ico i{width:20px;height:20px}
+.addr-card.is-on .addr-ico{background:var(--primary-tint);color:var(--primary)}
+.addr-radio{width:22px;height:22px;border-radius:9999px;border:2px solid var(--line);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  transition:background-color var(--t-base) ease,border-color var(--t-base) ease}
+.addr-radio.is-on{background:var(--primary);border-color:var(--primary)}
+:root[data-mode="dark"] .addr-radio.is-on{color:var(--canvas)}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-wrap{text-align:center;padding:3.5rem 1.5rem}
+.empty-emoji{width:88px;height:88px;margin:0 auto 1rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;
+  font-size:40px;background:var(--canvas-2);border:1px solid var(--line)}
+.empty-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;color:var(--ink)}
+.empty-sub{color:var(--ink-2);font-size:.875rem;margin-top:.35rem;max-width:18rem;margin-left:auto;margin-right:auto}
+
+/* ============================================================
+   HERO
+   Restrained: one soft wash behind the frame, no throbbing glow.
+   ============================================================ */
+.hero3d{position:relative;transition:transform var(--t-base) var(--ease)}
+.hero3d-frame{border-radius:var(--r-xl);position:relative;overflow:hidden;box-shadow:var(--e3)}
+.hero3d-glow{
+  position:absolute;inset:-6% -4% -10% -4%;z-index:-1;border-radius:32px;filter:blur(40px);opacity:.5;
+  background:
+    radial-gradient(60% 70% at 25% 30%, var(--accent-tint), transparent 65%),
+    radial-gradient(60% 70% at 80% 75%, var(--primary-tint), transparent 65%);
+}
+.hero-float{position:absolute;z-index:6;font-size:34px;line-height:1;pointer-events:none;
+  filter:drop-shadow(0 8px 12px rgba(var(--shadow-rgb),.25));animation:drift 6s ease-in-out infinite}
+.hero-float.f2{animation-duration:7s;animation-delay:-1.5s}
+.hero-float.f3{animation-duration:8s;animation-delay:-3s}
+.hero-chip{position:absolute;z-index:7;display:inline-flex;align-items:center;gap:.45rem;
+  padding:.5rem .8rem;border-radius:var(--r-md);font-size:12px;font-weight:700;color:var(--ink);
+  background:color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--line);box-shadow:var(--e2)}
+
+/* ------------------------------------------------------------
+   BRAND PANELS IN DARK MODE
+   A brand fill is right for a BUTTON (small, wants to pop) but wrong
+   for a large PANEL: in dark mode --primary is a light ramp, so a hero
+   or offer strip painted with it becomes a glaring slab of mint.
+   Large panels instead get a deep, brand-tinted surface — dark like the
+   rest of the UI, with the brand present as tint, border and accents.
+   Scoped by size (:not on the small button classes) so CTAs keep their fill.
+   ------------------------------------------------------------ */
+:root[data-mode="dark"] :is(.cta-lux,.cta-lux-accent,.on-brand):not(.pill):not(button):not(a.pill){
+  background:linear-gradient(150deg,
+    color-mix(in srgb, var(--primary) 22%, var(--surface)),
+    var(--surface) 78%)!important;
+  border:1px solid color-mix(in srgb, var(--primary) 30%, var(--line));
+  color:var(--ink);
+}
+/* text inside those panels returns to normal ink, not canvas-on-brand */
+:root[data-mode="dark"] :is(.cta-lux,.cta-lux-accent,.on-brand):not(.pill):not(button):not(a.pill)
+  :is([class*="text-white"],.text-white){
+  color:var(--ink)!important;
+}
+
+/* subtle brand wash behind all content */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(55% 45% at 12% -4%, var(--gold-soft), transparent 62%),
+    radial-gradient(50% 45% at 100% 4%, var(--accent-soft), transparent 65%);
+  opacity:.55;
+  transition:opacity var(--t-base) ease;
+}
+:root[data-mode="dark"] body::before{opacity:.3}
+
+.tex-dots{background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:26px 26px}
+.card-topline{position:relative;overflow:hidden}
+.card-topline::before{content:"";position:absolute;top:0;left:1.25rem;right:1.25rem;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.8}
+
+.logo-tile{background:var(--accent);border-radius:var(--r-md);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.logo-tile img{width:135%;max-width:none;object-fit:cover}
+
+.fly{position:fixed;width:20px;height:20px;border-radius:9999px;background:var(--primary);z-index:90;
+  pointer-events:none;box-shadow:var(--e2)}
+
+/* Toast: always the inverse of the canvas, so it reads in both modes.
+   (It used to be bg-[var(--ink)] + text-white — which in dark mode is
+   near-white text on a near-white pill.) */
+.vrf-toast{background:var(--ink);color:var(--canvas);box-shadow:var(--e3)}
+
+/* ------------------------------------------------------------
+   ON-BRAND TEXT IN DARK MODE
+   In light mode the brand fills (--primary / --accent) are DARK,
+   so white text sits on them correctly. In dark mode those same
+   tokens flip to LIGHT ramps — and the pages' hard-coded
+   `text-white` then lands white-on-light: unreadable.
+
+   Any element painted with a brand fill is a "brand panel"; inside
+   one, text must resolve to the canvas colour, not white. Marking
+   the fills rather than every text node keeps this to one rule.
+   ------------------------------------------------------------ */
+:root[data-mode="dark"] :is(
+  .on-brand,
+  [class~="bg-[var(--green)]"],
+  [class~="bg-[var(--primary)]"],
+  [class~="bg-[var(--brand)]"],
+  [class~="bg-[var(--accent)]"],
+  [class~="bg-[var(--gold)]"],
+  .btn-primary, .btn-green, .btn-accent, .btn-brand, .btn-gold,
+  .pill-green, .pill-accent, .cta-lux, .cta-lux-accent, .stepper
+){
+  color:var(--canvas);
+}
+/* …and any descendant that hard-codes white / white/NN */
+:root[data-mode="dark"] :is(
+  .on-brand,
+  [class~="bg-[var(--green)]"],
+  [class~="bg-[var(--primary)]"],
+  [class~="bg-[var(--brand)]"],
+  [class~="bg-[var(--accent)]"],
+  [class~="bg-[var(--gold)]"],
+  .btn-primary, .btn-green, .btn-accent, .btn-brand, .btn-gold,
+  .pill-green, .pill-accent, .cta-lux, .cta-lux-accent, .stepper
+) :is([class*="text-white"], .text-white){
+  color:var(--canvas)!important;
+}
+
+/* ============================================================
+   MOTION
+   ============================================================ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes ringPulse{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.9);opacity:0}}
+@keyframes barFill{from{width:0}to{width:100%}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes steamRise{0%{transform:translateY(2px);opacity:0}30%{opacity:.7}100%{transform:translateY(-40px);opacity:0}}
+
+.a-fadeup,.anim-fadeup{animation:fadeUp .6s var(--ease) both}
+.a-fadein,.anim-fadein{animation:fadeIn .5s ease both}
+.a-scalein,.anim-scalein,.anim-pop{animation:scaleIn .45s var(--ease) both}
+.a-sheet,.anim-slidedown{animation:sheetUp .45s var(--ease) both}
+.drift,.bob,.float{animation:drift 6s ease-in-out infinite}
+.page-enter{animation:fadeIn .35s ease both}
+
+.reveal{opacity:0;transform:translateY(18px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.07s}.reveal[data-d="2"]{transition-delay:.14s}
+.reveal[data-d="3"]{transition-delay:.21s}.reveal[data-d="4"]{transition-delay:.28s}
+
+.stagger>*{opacity:0;animation:fadeUp .55s var(--ease) forwards}
+.stagger>*:nth-child(1){animation-delay:.04s}.stagger>*:nth-child(2){animation-delay:.1s}
+.stagger>*:nth-child(3){animation-delay:.16s}.stagger>*:nth-child(4){animation-delay:.22s}
+.stagger>*:nth-child(5){animation-delay:.28s}.stagger>*:nth-child(6){animation-delay:.34s}
+.stagger>*:nth-child(7){animation-delay:.4s}.stagger>*:nth-child(8){animation-delay:.46s}
+
+.skel{position:relative;overflow:hidden;background:var(--canvas-2)}
+.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 70%,transparent),transparent);
+  animation:shimmer 1.5s infinite}
+
+.steam{width:6px;border-radius:9999px;background:currentColor;animation:steamRise 2.8s ease-out infinite}
+.ripple{position:relative;overflow:hidden}
+.foil{color:var(--gold)}
+.card-hover{transition:transform var(--t-slow) var(--ease),box-shadow var(--t-slow) ease}
+@media(hover:hover){.card-hover:hover{transform:translateY(-3px);box-shadow:var(--e2)}}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ============================================================
+   THEME SWITCHER  (floating control + panel)
+   ============================================================ */
+.tsw-fab{
+  position:fixed;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:70;
+  width:46px;height:46px;border-radius:9999px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink);
+  box-shadow:var(--e2);cursor:pointer;
+  transition:transform var(--t-base) var(--ease),box-shadow var(--t-base) ease,color var(--t-base) ease;
+}
+@media(min-width:768px){.tsw-fab{bottom:24px}}
+.tsw-fab:hover{transform:translateY(-2px) rotate(15deg);color:var(--primary);box-shadow:var(--e3)}
+.tsw-fab:active{transform:scale(.92)}
+.tsw-fab i{width:20px;height:20px}
+
+.tsw-scrim{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.35);
+  backdrop-filter:blur(2px);opacity:0;transition:opacity var(--t-base) ease}
+.tsw-scrim.is-open{opacity:1}
+
+.tsw-panel{
+  position:fixed;right:16px;bottom:calc(152px + env(safe-area-inset-bottom));z-index:81;
+  width:min(300px,calc(100vw - 32px));
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);
+  box-shadow:var(--e3);padding:1rem;
+  transform:translateY(10px) scale(.97);opacity:0;
+  transition:transform var(--t-base) var(--ease),opacity var(--t-base) ease;
+}
+@media(min-width:768px){.tsw-panel{bottom:80px}}
+.tsw-panel.is-open{transform:none;opacity:1}
+.tsw-head{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:.7rem}
+
+.tsw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.tsw-opt{
+  display:flex;align-items:center;gap:.55rem;padding:.6rem;border-radius:var(--r-md);
+  background:var(--canvas);border:1.5px solid var(--line);cursor:pointer;
+  font-size:.8rem;font-weight:600;color:var(--ink);text-align:left;
+  transition:border-color var(--t-base) ease,background-color var(--t-base) ease,transform var(--t-fast) var(--ease);
+}
+.tsw-opt:hover{border-color:var(--primary-ring)}
+.tsw-opt:active{transform:scale(.97)}
+.tsw-opt.is-on{border-color:var(--primary);background:var(--primary-tint)}
+.tsw-dots{display:flex;flex-shrink:0}
+.tsw-dots span{width:14px;height:14px;border-radius:9999px;border:1.5px solid var(--surface)}
+.tsw-dots span+span{margin-left:-5px}
+
+.tsw-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;
+  background:var(--canvas);border:1px solid var(--line);border-radius:var(--r-md);padding:.25rem}
+.tsw-mode{display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.45rem;border-radius:var(--r-sm);
+  font-size:.75rem;font-weight:700;color:var(--ink-2);cursor:pointer;
+  transition:background-color var(--t-base) ease,color var(--t-base) ease}
+.tsw-mode i{width:14px;height:14px}
+.tsw-mode.is-on{background:var(--primary);color:#fff}
+:root[data-mode="dark"] .tsw-mode.is-on{color:var(--canvas)}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.grid-products{display:grid;gap:.75rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:560px){.grid-products{grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}}
+@media(min-width:900px){.grid-products{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.grid-cats{display:grid;gap:.75rem;grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(min-width:560px){.grid-cats{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(min-width:900px){.grid-cats{grid-template-columns:repeat(8,minmax(0,1fr))}}
+.grid-2up{display:grid;gap:.75rem;grid-template-columns:1fr}
+@media(min-width:720px){.grid-2up{grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}}
+
+.wrap-6xl{max-width:72rem;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}
+@media(min-width:1024px){
+  .appbar-inner,main{padding-left:1.5rem;padding-right:1.5rem}
+  .lg-2col{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:2rem;align-items:start}
+  .lg-2col-wide{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:2rem;align-items:start}
+  .lg-aside{position:sticky;top:88px}
+  .lg-2up{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem 2rem;align-items:start}
+}
+@media(max-width:400px){
+  .sec-title{font-size:1.15rem}
+  .empty-emoji{width:76px;height:76px;font-size:34px}
+}
+.no-scrollbar{scroll-snap-type:x proximity}
+.no-scrollbar>*{scroll-snap-align:start}
+
+/* ============================================================
+   BACK-COMPAT ALIASES
+   Older markup still references v1/v2 tokens by name. Point
+   them at the live theme so nothing renders with a dead colour.
+   ============================================================ */
+:root{
+  --brand:var(--accent);        --brand-2:var(--accent-2);
+  --brand-dark:var(--accent-2); --brand-soft:var(--accent-soft);
+  --green:var(--primary);       --green-2:var(--primary-2);
+  --green-glow:var(--primary-2);
+  --gold-2:var(--gold);         --saffron:var(--gold);
+  --ivory:var(--canvas);        --ivory-2:var(--canvas-2);
+  --cream:var(--canvas);        --cream-2:var(--canvas-2);
+  --card:var(--surface);
+  --persp:1000px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ▓▓  POLISH LAYER (v6)
+   Refines every shared component: buttons, cards, rails,
+   rhythm and motion. Loaded last so it wins cleanly.
+   ════════════════════════════════════════════════════════════ */
+
+/* ------------------------------------------------------------
+   1 · BUTTONS — crisper geometry, real states
+   ------------------------------------------------------------ */
+.pill,.btn-primary,.btn-accent,.btn-brand,.btn-green,
+.cta-lux,.cta-lux-accent,.btn-gold,.btn-outline{
+  position:relative;
+  font-weight:700;
+  letter-spacing:-.005em;
+  border-radius:var(--r-md);
+  transition:background-color var(--t-base) ease,
+             color var(--t-base) ease,
+             box-shadow var(--t-base) ease,
+             transform var(--t-fast) var(--ease),
+             border-color var(--t-base) ease;
+}
+.pill{border-radius:9999px}
+
+/* Lift on hover instead of just changing colour — reads as tactile
+   without the old glossy plastic look. */
+@media(hover:hover){
+  .pill:hover,.btn-primary:hover,.btn-accent:hover,.btn-brand:hover,
+  .btn-green:hover,.cta-lux:hover,.cta-lux-accent:hover,.btn-gold:hover{
+    transform:translateY(-1.5px);
+    box-shadow:0 10px 22px -10px rgba(var(--shadow-rgb),.45);
+  }
+}
+
+/* Keyboard focus: a visible ring in the theme colour, never a browser blue */
+.pill:focus-visible,.btn-primary:focus-visible,.btn-accent:focus-visible,
+.btn-outline:focus-visible,.cta-lux:focus-visible,.cta-lux-accent:focus-visible,
+.ibtn:focus-visible,.cat-chip:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px var(--canvas),0 0 0 5px var(--primary);
+}
+
+/* Ghost / tertiary button — for "See all", "Skip", secondary rows */
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.6rem 1rem;border-radius:var(--r-md);
+  font-weight:700;font-size:.85rem;color:var(--ink-2);
+  background:transparent;border:1px solid transparent;
+  transition:background-color var(--t-base) ease,color var(--t-base) ease,border-color var(--t-base) ease;
+}
+@media(hover:hover){
+  .btn-ghost:hover{background:var(--canvas-2);color:var(--ink);border-color:var(--line)}
+}
+
+/* Disabled state — one consistent look everywhere */
+.pill:disabled,.btn-primary:disabled,.btn-accent:disabled,
+.cta-lux:disabled,.cta-lux-accent:disabled,button:disabled{
+  opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important;
+}
+
+/* Icons inside buttons keep optical alignment */
+.pill i,.btn-primary i,.btn-accent i,.cta-lux i,.cta-lux-accent i{
+  flex-shrink:0;
+}
+
+/* ------------------------------------------------------------
+   2 · CARDS — quieter borders, richer interior rhythm
+   ------------------------------------------------------------ */
+.ui-card,.ui-card-lux,.card{
+  border-radius:var(--r-xl);
+  overflow:hidden;                    /* clips media to the radius */
+}
+.ui-card-pad{padding:1.15rem 1.25rem}
+
+/* The gold hairline on top of feature cards: thinner, calmer */
+.card-topline::before{
+  height:1.5px;left:1.25rem;right:1.25rem;opacity:.55;
+}
+
+/* Product / content card: media flush to the edge, text on a rhythm */
+.pcard{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:var(--e1);
+  transition:transform var(--t-slow) var(--ease),
+             box-shadow var(--t-slow) var(--ease),
+             border-color var(--t-slow) ease;
+}
+@media(hover:hover){
+  .pcard:hover{transform:translateY(-4px);box-shadow:var(--e2);border-color:var(--primary-ring)}
+  .pcard:hover .pcard-media img{transform:scale(1.06)}
+}
+.pcard-media{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--canvas-2)}
+.pcard-media img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
+.pcard-body{padding:.9rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.pcard-foot{margin-top:auto;padding-top:.7rem}
+
+/* Media scrim so overlaid badges/labels stay legible on any photo */
+.media-scrim::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,0) 45%);
+}
+
+/* ------------------------------------------------------------
+   3 · SECTION RHYTHM — consistent vertical spacing
+   ------------------------------------------------------------ */
+.sec{margin-top:2.75rem}
+@media(min-width:768px){.sec{margin-top:3.5rem}}
+.sec-head{display:flex;align-items:center;gap:.85rem;margin-bottom:1.15rem}
+.sec-title{font-size:1.35rem;line-height:1.25}
+@media(min-width:768px){.sec-title{font-size:1.5rem}}
+
+/* ------------------------------------------------------------
+   4 · MOTION — a calmer, staged entrance
+   ------------------------------------------------------------ */
+@keyframes rise{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+/* Longer stagger chain: earlier CSS only defined 8 steps, so the 9th
+   card onward popped in with no delay and broke the cascade. */
+.stagger>*{opacity:0;animation:rise .55s var(--ease) forwards}
+.stagger>*:nth-child(1){animation-delay:.03s}
+.stagger>*:nth-child(2){animation-delay:.07s}
+.stagger>*:nth-child(3){animation-delay:.11s}
+.stagger>*:nth-child(4){animation-delay:.15s}
+.stagger>*:nth-child(5){animation-delay:.19s}
+.stagger>*:nth-child(6){animation-delay:.23s}
+.stagger>*:nth-child(7){animation-delay:.27s}
+.stagger>*:nth-child(8){animation-delay:.31s}
+.stagger>*:nth-child(9){animation-delay:.35s}
+.stagger>*:nth-child(10){animation-delay:.39s}
+.stagger>*:nth-child(11){animation-delay:.43s}
+.stagger>*:nth-child(12){animation-delay:.47s}
+.stagger>*:nth-child(n+13){animation-delay:.5s}
+
+/* Scroll reveal: shorter travel, softer curve */
+.reveal{opacity:0;transform:translateY(14px);
+  transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* ------------------------------------------------------------
+   5 · SCROLL RAILS — edge fade instead of a hard cut
+   ------------------------------------------------------------ */
+.rail{
+  display:flex;gap:.75rem;overflow-x:auto;
+  scroll-snap-type:x proximity;
+  -ms-overflow-style:none;scrollbar-width:none;
+  padding-block:.25rem;
+  /* a trailing spacer so the last card can scroll fully clear of the
+     column edge instead of being sliced by the container */
+  scroll-padding-inline:.25rem;
+}
+.rail::after{content:"";flex:0 0 .25rem}
+.rail::-webkit-scrollbar{display:none}
+.rail>*{scroll-snap-align:start;flex:0 0 auto}
+
+/* ------------------------------------------------------------
+   6 · FORMS — clearer affordance
+   ------------------------------------------------------------ */
+.fld:hover{border-color:color-mix(in srgb, var(--primary) 28%, var(--line))}
+.fld:disabled{background:var(--canvas-2);color:var(--ink-2);cursor:not-allowed}
+
+/* ------------------------------------------------------------
+   7 · APP-BAR — settles onto a hairline once you scroll
+   ------------------------------------------------------------ */
+.appbar{box-shadow:none;transition:box-shadow var(--t-base) ease,background-color var(--t-base) ease}
+.appbar.is-stuck{box-shadow:0 1px 0 var(--line),0 8px 24px -20px rgba(var(--shadow-rgb),.5)}
+
+/* ------------------------------------------------------------
+   8 · SKELETON — matches the new radii
+   ------------------------------------------------------------ */
+.skel{border-radius:var(--r-md)}
+
+/* Respect reduced-motion for every new animation too */
+@media(prefers-reduced-motion:reduce){
+  .stagger>*{opacity:1;animation:none}
+  .reveal{opacity:1;transform:none}
+}
+
+
+/* ------------------------------------------------------------
+   10 · CART — two-column checkout on desktop
+   Everything used to span the full 6xl width, so a cart row's
+   stepper ended up ~1000px from its product name, and the bill
+   card ran under the fixed checkout bar.
+   ------------------------------------------------------------ */
+.cart-layout{display:grid;gap:1.5rem;grid-template-columns:1fr;align-items:start}
+@media(min-width:1024px){
+  .cart-layout{grid-template-columns:minmax(0,1fr) 380px;gap:2rem}
+  .cart-aside{position:sticky;top:88px}
+}
+/* the fixed checkout bar must never overlap the last card */
+body:has(#checkout-bar:not(.hidden)){padding-bottom:11rem}
+@media(min-width:768px){
+  body:has(#checkout-bar:not(.hidden)){padding-bottom:9rem}
+}
+
+/* Add-on rail cards: fixed width so they don't stretch */
+#fbt>*{width:9.5rem}
+
+/* Fallback tile for a photo that failed to load — a calm branded
+   placeholder rather than a broken-image glyph and stray alt text. */
+.img-fallback{
+  background:
+    linear-gradient(135deg, var(--canvas-2), var(--surface)),
+    var(--canvas-2);
+  position:relative;
+  color:transparent!important;      /* hides the alt text */
+  font-size:0!important;
+}
+.img-fallback::after{
+  content:"🍽";
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;opacity:.35;
+}
+
+/* ------------------------------------------------------------
+   11 · PRODUCT PAGE
+   The hero photo was sized `h-[calc(100vh-92px)]`, so on desktop a
+   single dish filled the entire viewport height and the white
+   `min-h-screen` wrapper left a slab hanging below the fold.
+   Now: a contained gallery frame beside a scrollable detail column.
+   ------------------------------------------------------------ */
+.product-layout{display:grid;gap:1.5rem;grid-template-columns:1fr;align-items:start}
+@media(min-width:1024px){
+  .product-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.5rem}
+}
+.product-media{
+  position:relative;overflow:hidden;
+  border-radius:var(--r-xl);
+  aspect-ratio:4/3;
+  background:var(--canvas-2);
+  box-shadow:var(--e2);
+}
+@media(min-width:1024px){
+  .product-media{aspect-ratio:1/1}
+}
+/* the fixed add-to-cart bar must not sit on top of the last section.
+   Scoped to the product page only — a bare .fixed.bottom-0 would also
+   match the bottom nav dock on every other page. */
+body:has(#addbtn){padding-bottom:9.5rem}
+
+/* Rails fade out at their right edge, so a partially-visible card reads
+   as "scroll for more" rather than as a card sliced by the container. */
+.rail-wrap{position:relative}
+.rail-wrap::after{
+  content:"";position:absolute;top:0;bottom:0;right:0;width:2.5rem;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--canvas));
+}
+
+/* ------------------------------------------------------------
+   12 · BADGES ON BRAND PANELS
+   .badge-green is a tinted pill: 8%-alpha primary background with
+   primary-coloured text. That reads correctly on the page canvas,
+   but on a dark brand panel (the category hero, promo strips) it
+   becomes dark-green-on-dark-green and all but disappears.
+   Inside a brand panel, flip it to a solid light pill.
+   ------------------------------------------------------------ */
+:is(.cta-lux,.cta-lux-accent,.on-brand) .badge-green{
+  background:rgba(255,255,255,.94);
+  color:#0F5132;
+}
+:is(.cta-lux,.cta-lux-accent,.on-brand) .badge-gold{
+  background:var(--gold);
+  color:#16211D;
+}
+/* dark mode: those panels are dark tinted surfaces, so the normal
+   tinted badge is legible again — leave it alone. */
+:root[data-mode="dark"] :is(.cta-lux,.cta-lux-accent,.on-brand) .badge-green{
+  background:color-mix(in srgb, var(--primary) 20%, transparent);
+  color:var(--primary);
+}
+
+/* The floating cart bar hovers over the page; give the content room to
+   scroll clear of it so the last section is never permanently covered. */
+body:has(#sticky-cart:not(.translate-y-40)){padding-bottom:7rem}
+
+/* ------------------------------------------------------------
+   13 · PRODUCT-CARD ACTIONS
+   "ADD" is the primary action on a card, so it wears the brand
+   green. Previously it used the brass accent while the sticky cart,
+   nav and prices were green — two competing action colours.
+   ------------------------------------------------------------ */
+.btn-add{
+  width:100%;
+  display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
+  border:1.5px solid var(--primary);
+  color:var(--primary);
+  background:var(--surface);
+  font-weight:700;font-size:.75rem;letter-spacing:.06em;
+  padding:.6rem 0;
+  border-radius:var(--r-md);
+  transition:background-color var(--t-base) ease,color var(--t-base) ease,
+             border-color var(--t-base) ease,transform var(--t-fast) var(--ease);
+}
+@media(hover:hover){
+  .btn-add:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+  :root[data-mode="dark"] .btn-add:hover{color:var(--canvas)}
+}
+.btn-add:active{transform:scale(.97)}
+
+/* quantity bar — the ADD button's filled counterpart, same footprint */
+.qty-bar{
+  width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--primary);color:#fff;
+  border:1.5px solid var(--primary);
+  border-radius:var(--r-md);
+  font-weight:700;font-size:.85rem;
+  overflow:hidden;
+}
+:root[data-mode="dark"] .qty-bar{color:var(--canvas)}
+.qty-bar button{padding:.5rem .9rem;line-height:1;transition:background-color var(--t-base) ease}
+.qty-bar button:hover{background:var(--primary-2)}
+
+/* ════════════════════════════════════════════════════════════
+   ▓▓  ACCOUNT PAGE  (redesigned)
+   The old layout split into a near-empty left column ("Saved
+   orders", usually a single empty-state card) and an overloaded
+   right column holding every link — so the page read as lopsided
+   and mostly whitespace. Now: one identity card with the stats
+   built in, a row of quick-action tiles, then a balanced body.
+   ════════════════════════════════════════════════════════════ */
+.acct-hero{
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:var(--e2);
+  background:var(--surface);
+}
+.acct-hero-top{position:relative;padding:1.5rem;color:#fff}
+.acct-hero-sheen{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(60% 90% at 100% 0%, color-mix(in srgb, var(--gold) 20%, transparent), transparent 62%),
+    linear-gradient(90deg, color-mix(in srgb, var(--gold) 60%, transparent), transparent 55%) top/100% 2px no-repeat;
+}
+.acct-vegtag{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.4rem .75rem;border-radius:9999px;
+  font-size:11px;font-weight:700;
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  backdrop-filter:blur(6px);
+}
+
+/* stats sit INSIDE the identity card — one object, not two */
+.acct-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  background:var(--surface);
+}
+.acct-stat{
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  padding:1rem .5rem;
+  text-align:center;
+}
+.acct-stat + .acct-stat{border-left:1px solid var(--line)}
+.acct-stat-ico{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:.15rem;
+}
+.acct-stat-ico.ichip-green{background:var(--primary-tint);color:var(--primary)}
+.acct-stat-ico.ichip-gold{background:var(--gold-soft);color:var(--accent-on)}
+.acct-stat-ico.ichip-brand{background:var(--accent-soft);color:var(--accent-on)}
+:root[data-mode="dark"] .acct-stat-ico.ichip-gold,
+:root[data-mode="dark"] .acct-stat-ico.ichip-brand{color:var(--accent)}
+.acct-stat-num{
+  font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;
+  line-height:1;color:var(--ink);
+}
+.acct-stat-lbl{
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);
+}
+
+/* quick actions */
+.acct-quick{
+  display:grid;gap:.75rem;margin-top:1rem;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+@media(min-width:640px){.acct-quick{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.qtile{
+  display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;
+  padding:1rem;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--e1);
+  transition:transform var(--t-base) var(--ease),
+             box-shadow var(--t-base) ease,
+             border-color var(--t-base) ease;
+}
+@media(hover:hover){
+  .qtile:hover{transform:translateY(-3px);box-shadow:var(--e2);border-color:var(--primary-ring)}
+}
+.qtile:active{transform:scale(.98)}
+.qtile-ico{
+  width:38px;height:38px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:.45rem;
+}
+.qtile-lbl{font-weight:700;font-size:.875rem;color:var(--ink);line-height:1.2}
+.qtile-sub{font-size:11px;color:var(--ink-2);font-weight:600}
+
+/* body grid — both columns carry real weight */
+.acct-grid{
+  display:grid;gap:2rem;margin-top:2.25rem;
+  grid-template-columns:1fr;
+}
+@media(min-width:1024px){
+  .acct-grid{grid-template-columns:minmax(0,1fr) 360px;align-items:start}
+}
+
+/* settings rows */
+.acct-row{
+  width:100%;
+  display:flex;align-items:center;gap:.9rem;
+  padding:.9rem 1rem;
+  text-align:left;
+  transition:background-color var(--t-base) ease;
+}
+.acct-row + .acct-row{border-top:1px solid var(--line)}
+@media(hover:hover){.acct-row:hover{background:var(--canvas-2)}}
+.acct-row-t{display:block;font-weight:700;font-size:.875rem;color:var(--ink);line-height:1.25}
+.acct-row-s{display:block;font-size:11.5px;color:var(--ink-2);font-weight:600;margin-top:1px}
+
+/* appearance switch */
+.acct-switch{
+  width:42px;height:24px;border-radius:9999px;flex-shrink:0;
+  background:var(--line);
+  position:relative;
+  transition:background-color var(--t-base) ease;
+}
+.acct-switch>span{
+  position:absolute;top:3px;left:3px;
+  width:18px;height:18px;border-radius:9999px;
+  background:var(--surface);
+  box-shadow:0 1px 3px rgba(var(--shadow-rgb),.35);
+  transition:transform var(--t-base) var(--ease);
+}
+.acct-switch.is-on{background:var(--primary)}
+.acct-switch.is-on>span{transform:translateX(18px)}
+
+/* In dark mode --primary is a LIGHT ramp, so the identity banner's gradient
+   becomes a glaring mint slab. Deepen it into a brand-tinted dark surface,
+   the same treatment large brand panels get elsewhere. */
+:root[data-mode="dark"] .acct-hero-top{
+  background:linear-gradient(140deg,
+    color-mix(in srgb, var(--primary) 30%, var(--surface)),
+    var(--surface) 85%)!important;
+  border-bottom:1px solid var(--line);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ▓▓  LOGIN — premium split screen
+   The brand panel was a flat green slab and the form side plain
+   white. Now: a layered editorial panel (photo, vignette, gold
+   hairline, glass stat rail) against a card-mounted form.
+   ════════════════════════════════════════════════════════════ */
+.auth{min-height:100svh;display:grid;grid-template-columns:1fr}
+@media(min-width:1024px){
+  .auth{grid-template-columns:1.05fr 1fr}
+}
+
+/* ---------- LEFT: brand panel ---------- */
+.auth-brand{
+  position:relative;overflow:hidden;
+  display:none;
+  padding:3rem;
+  color:#fff;
+  isolation:isolate;
+}
+@media(min-width:1024px){.auth-brand{display:flex;flex-direction:column;justify-content:space-between}}
+
+/* the dish photograph, dimmed into the brand colour */
+.auth-brand-photo{
+  position:absolute;inset:0;z-index:-3;
+  background-size:cover;background-position:center;
+  transform:scale(1.06);
+  animation:authPan 26s ease-in-out infinite alternate;
+}
+@keyframes authPan{from{transform:scale(1.06) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-1.5%,-1.5%,0)}}
+
+/* deep brand wash so the photo reads as texture, never as clutter */
+.auth-brand-wash{
+  position:absolute;inset:0;z-index:-2;
+  /* Keep the photo as TEXTURE only. A lighter wash let the dish read as a
+     washed-out stock image and bleached the brand green out of the panel. */
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--primary) 97%, transparent),
+      color-mix(in srgb, var(--primary) 93%, transparent) 42%,
+      color-mix(in srgb, #051009 96%, transparent));
+}
+/* corner light + vignette give it depth */
+.auth-brand-glow{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(46% 40% at 88% 6%, color-mix(in srgb, var(--gold) 26%, transparent), transparent 66%),
+    radial-gradient(50% 45% at 4% 96%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 68%),
+    radial-gradient(120% 100% at 50% 50%, transparent 42%, rgba(0,0,0,.42));
+}
+/* a single gold hairline down the seam — the "premium" tell */
+.auth-brand::after{
+  content:"";position:absolute;top:0;bottom:0;right:0;width:1px;
+  background:linear-gradient(180deg,transparent,var(--gold) 22%,var(--gold) 78%,transparent);
+  opacity:.55;
+}
+
+.auth-eyebrow{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);
+}
+.auth-eyebrow::before{content:"";width:26px;height:1px;background:var(--gold);opacity:.8}
+
+.auth-head{
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:clamp(2rem,3.2vw,2.6rem);
+  line-height:1.12;letter-spacing:-.02em;
+  margin-top:.75rem;
+}
+
+/* glass stat rail at the foot of the panel */
+.auth-stats{
+  display:flex;align-items:stretch;gap:0;
+  margin-top:2.25rem;
+  border-radius:var(--r-lg);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  overflow:hidden;
+  width:fit-content;
+}
+.auth-stat{padding:.85rem 1.25rem;text-align:left}
+.auth-stat + .auth-stat{border-left:1px solid rgba(255,255,255,.14)}
+.auth-stat-n{
+  font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;line-height:1;
+  display:flex;align-items:center;gap:.35rem;
+}
+.auth-stat-n i{width:15px;height:15px;color:var(--gold)}
+.auth-stat-l{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-top:.3rem}
+
+.auth-trust{
+  display:flex;align-items:center;gap:.5rem;
+  font-size:11.5px;font-weight:600;color:rgba(255,255,255,.66);
+}
+
+/* ---------- RIGHT: the form ---------- */
+.auth-form{
+  position:relative;
+  display:flex;flex-direction:column;
+  padding:1.5rem;
+  background:var(--canvas);
+}
+@media(min-width:1024px){.auth-form{padding:2rem 3rem}}
+/* a soft warm bloom behind the card, so the panel isn't dead flat */
+.auth-form::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(60% 40% at 80% 0%, var(--gold-soft), transparent 60%),
+    radial-gradient(50% 40% at 0% 100%, var(--accent-soft), transparent 62%);
+  opacity:.5;
+}
+:root[data-mode="dark"] .auth-form::before{opacity:.22}
+
+.auth-card{
+  position:relative;
+  width:100%;max-width:27rem;margin:auto;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  box-shadow:var(--e2);
+  padding:1.75rem;
+}
+@media(min-width:1024px){.auth-card{padding:2.25rem}}
+/* gold hairline across the top of the card */
+.auth-card::before{
+  content:"";position:absolute;top:0;left:2rem;right:2rem;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.8;
+}
+
+/* location chip */
+.auth-loc{
+  display:flex;align-items:center;gap:.5rem;
+  margin:1.15rem auto 0;
+  padding:.4rem .5rem .4rem .4rem;
+  border-radius:9999px;
+  border:1px solid var(--line);
+  background:var(--canvas);
+  max-width:100%;
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease;
+}
+@media(hover:hover){.auth-loc:hover{border-color:var(--primary-ring);box-shadow:var(--e1)}}
+.auth-loc-ico{
+  width:24px;height:24px;border-radius:9999px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--primary-tint);color:var(--primary);
+}
+.auth-loc-txt{font-size:12px;font-weight:600;color:var(--ink);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-loc-cta{
+  font-size:11px;font-weight:700;color:var(--primary);flex-shrink:0;
+  padding-left:.5rem;border-left:1px solid var(--line);
+}
+
+/* phone field */
+.auth-field{
+  display:flex;align-items:center;
+  background:var(--surface);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-md);
+  padding:0 1rem;
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease;
+}
+.auth-field:focus-within{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px var(--primary-tint);
+}
+.auth-field input{
+  flex:1;min-width:0;background:transparent;border:0;outline:0;
+  padding:.95rem 0;
+  font-weight:600;font-size:1.0625rem;letter-spacing:.02em;color:var(--ink);
+}
+.auth-field input::placeholder{font-weight:400;font-size:.9375rem;letter-spacing:normal;color:var(--ink-2)}
+.auth-cc{font-weight:700;color:var(--ink)}
+.auth-div{width:1px;height:22px;background:var(--line);margin:0 .8rem}
+
+/* OTP boxes */
+.auth-otp{
+  width:100%;aspect-ratio:1;max-width:52px;
+  text-align:center;
+  font-family:'Fraunces',serif;font-weight:700;font-size:1.4rem;
+  color:var(--ink);
+  background:var(--canvas);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-md);
+  outline:none;
+  transition:border-color var(--t-base) ease,box-shadow var(--t-base) ease,
+             transform var(--t-fast) var(--ease),background-color var(--t-base) ease;
+}
+.auth-otp:focus{
+  border-color:var(--primary);
+  background:var(--surface);
+  box-shadow:0 0 0 4px var(--primary-tint);
+  transform:translateY(-2px);
+}
+.auth-otp.filled{border-color:var(--primary);background:var(--surface)}
+
+/* mobile brand strip (the panel is desktop-only) */
+.auth-mini{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  margin-bottom:1.5rem;
+}
+@media(min-width:1024px){.auth-mini{display:none}}
+
+/* ════════════════════════════════════════════════════════════
+   ▓▓  CATEGORY / MENU PAGE
+   ════════════════════════════════════════════════════════════ */
+/* ---------- hero: photo-textured brand panel ---------- */
+.menu-hero{
+  position:relative;overflow:hidden;isolation:isolate;
+  border-radius:var(--r-xl);
+  padding:1.5rem 1.4rem;
+  color:#fff;
+  box-shadow:var(--e2);
+}
+@media(min-width:768px){.menu-hero{padding:1.9rem 1.75rem}}
+.menu-hero-photo{
+  position:absolute;inset:0;z-index:-3;
+  background-size:cover;background-position:center 62%;
+  transform:scale(1.05);
+}
+.menu-hero-wash{
+  position:absolute;inset:0;z-index:-2;
+  background:linear-gradient(105deg,
+    color-mix(in srgb, var(--primary) 97%, transparent),
+    color-mix(in srgb, var(--primary) 94%, transparent) 58%,
+    color-mix(in srgb, var(--primary) 86%, transparent));
+}
+.menu-hero-glow{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(46% 70% at 92% 8%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 68%),
+    linear-gradient(90deg, var(--gold), transparent 42%) top/100% 2px no-repeat;
+}
+.menu-hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:10px;font-weight:700;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--gold);
+}
+.menu-hero-title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+  font-size:1.85rem;line-height:1.05;letter-spacing:-.015em;
+  margin-top:.4rem;
+}
+@media(min-width:768px){.menu-hero-title{font-size:2.15rem}}
+.menu-hero-chip{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.42rem .8rem;border-radius:9999px;
+  font-size:11px;font-weight:700;
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.menu-hero-chip i{color:var(--gold)}
+
+/* ---------- filter chips ---------- */
+.fchip{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.5rem .9rem;border-radius:9999px;
+  font-size:.75rem;font-weight:700;
+  color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:var(--e1);
+  transition:background-color var(--t-base) ease,color var(--t-base) ease,
+             border-color var(--t-base) ease,transform var(--t-fast) var(--ease);
+}
+@media(hover:hover){.fchip:hover{border-color:var(--primary-ring)}}
+.fchip:active{transform:scale(.95)}
+.fchip.is-on{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:#fff;
+}
+:root[data-mode="dark"] .fchip.is-on{color:var(--canvas)}
+
+/* ---------- coupon ticket ---------- */
+.ticket{
+  position:relative;
+  display:flex;align-items:center;gap:.9rem;
+  padding:.85rem 1rem;
+  border-radius:var(--r-lg);
+  background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:var(--e1);
+  overflow:hidden;
+}
+/* dashed perforation, like a real coupon stub */
+.ticket::before{
+  content:"";position:absolute;left:3.6rem;top:.55rem;bottom:.55rem;width:2px;
+  background:repeating-linear-gradient(180deg,
+    color-mix(in srgb, var(--ink-2) 45%, transparent) 0 4px,
+    transparent 4px 9px);
+}
+.ticket-stub{
+  width:40px;height:40px;border-radius:11px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gold-soft);color:var(--accent-on);
+}
+:root[data-mode="dark"] .ticket-stub{color:var(--gold)}
+.ticket-t{font-weight:700;font-size:.875rem;color:var(--ink);line-height:1.25}
+.ticket-s{font-size:11.5px;color:var(--ink-2);font-weight:600;margin-top:1px}
+.ticket-code{
+  font-weight:800;letter-spacing:.04em;
+  color:var(--primary);
+}
+.ticket-save{
+  font-size:11px;font-weight:800;letter-spacing:.02em;
+  padding:.35rem .7rem;border-radius:9999px;
+  background:var(--primary-tint);color:var(--primary);
+}
+
+/* In dark mode --primary is a LIGHT ramp, so a wash built from it turns the
+   brand panels into pale mint slabs sitting next to a near-black form. Both
+   the login panel and the menu hero need a genuinely dark wash instead —
+   the brand colour stays present as a tint, not as the whole surface. */
+:root[data-mode="dark"] .auth-brand-wash{
+  background:linear-gradient(155deg,
+    color-mix(in srgb, var(--primary) 26%, #0A0F0C),
+    color-mix(in srgb, var(--primary) 16%, #070B08) 55%,
+    #05080600);
+  background-color:#080C09;
+}
+:root[data-mode="dark"] .menu-hero-wash{
+  background:linear-gradient(105deg,
+    color-mix(in srgb, var(--primary) 28%, #0B100D),
+    color-mix(in srgb, var(--primary) 20%, #0A0E0B) 58%,
+    color-mix(in srgb, var(--primary) 14%, #0A0E0B));
+}
+/* the photo can carry a touch more presence against the darker wash */
+:root[data-mode="dark"] .auth-brand-photo,
+:root[data-mode="dark"] .menu-hero-photo{opacity:.55}

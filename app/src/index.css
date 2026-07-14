@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* theme.css is imported AFTER this file in main.tsx — exactly as the HTML
+   loaded assets/theme.css after the Tailwind CDN, so the brand design system
+   wins every specificity tie against a Tailwind utility. */

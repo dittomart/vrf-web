@@ -1,0 +1,24 @@
+/* Ported verbatim from location.html's <style> block.
+   `ringPulse` already lives in theme.css — only these two rules are page-local.
+   not-serviceable.html declares the same `.field` with a tighter radius; that
+   page reuses this class and overrides border-radius inline. */
+.radar span {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--green);
+  animation: ringPulse 1.8s ease-out infinite;
+}
+
+.field {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.field:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+}

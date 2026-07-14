@@ -1,0 +1,1 @@
+import{I as n}from"./_seed-CGb-Y5Vi.js";function a(t){return"₹"+Number(t).toLocaleString("en-IN")}function i(t,o=400,r=300){return`https://images.unsplash.com/photo-${t}?w=${o}&h=${r}&fit=crop&crop=entropy&auto=format&q=75`}function e(t,o=400,r=300){return i(n[t.id]||t.img,o,r)}function m(t,o){return Math.round((1-t/o)*100)}export{m as d,i,a as m,e as p};
