@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Address — VRF Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="assets/theme.css" rel="stylesheet">
+</head>
+<body class="bg-[var(--cream)] text-[var(--ink)] pb-32">
+
+<header class="appbar">
+  <div class="appbar-inner narrow flex items-center gap-3">
+    <a href="cart.html" class="ibtn ibtn-ghost shrink-0"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <h1 class="appbar-title">Delivery Address</h1>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 pt-6">
+  <!-- delivery banner -->
+  <div class="ui-card-lux card-topline ui-card-pad flex items-center gap-3.5 mb-6 reveal" style="background:linear-gradient(120deg,rgba(14,77,49,.05),rgba(233,200,119,.11))">
+    <div class="ichip ichip-green w-11 h-11 bg-white shadow-sm"><i data-lucide="bike" class="w-5 h-5"></i></div>
+    <div class="flex-1"><p class="font-bold text-sm">Free delivery above ₹349</p><p class="text-xs text-[var(--ink-2)] mt-0.5">Delivered hot within 35 minutes</p></div>
+    <span class="badge badge-gold">FRESH</span>
+  </div>
+
+  <!-- saved -->
+  <div class="reveal mb-4 sec-head" data-d="1">
+    <span class="ichip ichip-brand"><i data-lucide="map-pin" class="w-5 h-5"></i></span>
+    <div><p class="eyebrow-g eyebrow">Where to deliver</p><h2 class="sec-title leading-tight">Choose an address</h2></div>
+  </div>
+  <div id="saved" class="reveal grid gap-3 md:grid-cols-2" data-d="2"></div>
+
+  <!-- empty state -->
+  <div id="addr-empty" class="hidden ui-card ui-card-pad text-center reveal" style="padding:2.5rem 1.5rem">
+    <div class="empty-emoji" style="width:70px;height:70px"><i data-lucide="map-pin" class="w-8 h-8 text-[var(--brand)]"></i></div>
+    <p class="empty-title" style="font-size:1.15rem">No saved addresses</p>
+    <p class="empty-sub">Add your first delivery address to continue.</p>
+  </div>
+
+  <button id="add-new" class="w-full mt-4 flex items-center gap-2.5 justify-center border-2 border-dashed border-[var(--brand)] text-[var(--brand)] font-bold py-4 rounded-[20px] press reveal hover:bg-[var(--brand-soft)] transition" data-d="3">
+    <span class="w-7 h-7 rounded-full bg-[var(--brand-soft)] flex items-center justify-center"><i data-lucide="plus" class="w-4 h-4"></i></span> Add a new address
+  </button>
+</main>
+
+<!-- Add address sheet -->
+<div id="sheet" class="fixed inset-0 z-50 hidden items-end justify-center bg-black/50 p-0 md:p-4">
+  <div class="bg-[var(--card)] w-full max-w-2xl rounded-t-[26px] md:rounded-[26px] p-5 max-h-[90vh] overflow-y-auto anim-slidedown border border-[var(--line)]">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <p class="eyebrow-g eyebrow">New location</p>
+        <h2 class="sec-title mt-0.5">Add address</h2>
+      </div>
+      <button onclick="closeSheet()" class="ibtn ibtn-ghost shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <!-- coordinate capture -->
+    <p class="text-xs font-bold text-[var(--ink-2)] mb-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> We need exact coordinates for delivery *</p>
+    <button id="gps" class="w-full flex items-center justify-center gap-2 cta-lux shine ripple font-bold py-4 rounded-2xl press">
+      <i data-lucide="navigation" class="w-5 h-5"></i> <span id="gps-lbl">Detect my location (GPS)</span>
+    </button>
+    <div class="div-label my-4">OR SEARCH MANUALLY</div>
+    <div class="fld-wrap">
+      <i data-lucide="search" class="fld-ico w-4 h-4"></i>
+      <input id="addr-search" placeholder="Search your area / landmark" class="fld">
+      <div id="addr-results" class="hidden mt-2 rounded-xl border border-[var(--line)] overflow-hidden divide-y divide-[var(--line)] shadow-[var(--shadow-md)]"></div>
+    </div>
+
+    <!-- captured coords indicator -->
+    <div id="coord-box" class="hidden mt-3 rounded-xl p-3.5 flex items-center gap-3 border" style="background:rgba(14,77,49,.06);border-color:rgba(14,77,49,.2)">
+      <span class="ichip ichip-green w-9 h-9"><i data-lucide="check-circle" class="w-5 h-5"></i></span>
+      <div class="text-xs min-w-0"><p class="font-bold truncate" id="coord-addr"></p><p class="mt-0.5" id="coord-latlng"></p></div>
+    </div>
+
+    <!-- details -->
+    <div class="mt-5 space-y-3.5">
+      <div><label class="fld-label">Flat / House no, Floor *</label><input id="flat" placeholder="e.g. 12A, 2nd floor" class="fld"></div>
+      <div><label class="fld-label">Landmark (optional)</label><input id="landmark" placeholder="e.g. near Bharathi Park" class="fld"></div>
+      <div><label class="fld-label">Save address as</label>
+      <div class="flex gap-2">
+        <button data-tag="Home" class="tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-2.5 text-sm font-semibold"><i data-lucide="house" class="w-4 h-4"></i> Home</button>
+        <button data-tag="Work" class="tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-2.5 text-sm font-semibold"><i data-lucide="briefcase" class="w-4 h-4"></i> Work</button>
+        <button data-tag="Other" class="tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-2.5 text-sm font-semibold"><i data-lucide="map-pin" class="w-4 h-4"></i> Other</button>
+      </div></div>
+    </div>
+
+    <button id="save" disabled class="w-full mt-5 py-3.5 rounded-2xl font-bold text-white transition cursor-not-allowed" style="background:var(--ink-2);opacity:.55">Save address</button>
+    <p class="text-[11px] text-[var(--ink-2)] text-center mt-2">Save unlocks once GPS/search captures your coordinates.</p>
+  </div>
+</div>
+
+<!-- proceed bar -->
+<div id="proceed-bar" class="hidden fixed bottom-0 inset-x-0 z-30 glass border-t border-[var(--line)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+  <button id="proceed" class="max-w-6xl mx-auto w-full cta-lux-accent shine ripple font-bold py-4 rounded-2xl press flex items-center justify-center gap-2">Deliver here <i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+  requireLocation();
+  const areas=[
+    {name:"R.S. Puram, Coimbatore",lat:11.0069,lng:76.9497},
+    {name:"Gandhipuram, Coimbatore",lat:11.0183,lng:76.9725},
+    {name:"Peelamedu, Coimbatore",lat:11.0269,lng:77.0027},
+    {name:"Saibaba Colony, Coimbatore",lat:11.0233,lng:76.9420},
+  ];
+  function getAddrs(){try{return JSON.parse(localStorage.getItem("vrf_addresses"))||[]}catch(e){return[]}}
+  function saveAddrs(a){localStorage.setItem("vrf_addresses",JSON.stringify(a));}
+  let selectedId=localStorage.getItem("vrf_selected_addr");
+
+  // Seed a starter address ONLY for a logged-in user who has none yet.
+  // (After logout, vrf_addresses is cleared and we must NOT re-seed — show empty state.)
+  if(isLoggedIn() && getAddrs().length===0){
+    let loc=null; try{loc=JSON.parse(localStorage.getItem("dittomart_location"))}catch(e){}
+    if(loc && loc.address){
+      saveAddrs([{ id:"a1", tag:"Home", line:"Home", area: loc.address, lat: loc.lat, lng: loc.lng }]);
+    }
+  }
+
+  const TAG_ICON={Home:"house",Work:"briefcase",Other:"map-pin"};
+  function renderSaved(){
+    const list=getAddrs();
+    if(!selectedId && list[0]) selectedId=list[0].id;
+    document.getElementById("saved").innerHTML=list.map(a=>{
+      const on=selectedId===a.id;
+      return `
+      <div onclick="selectAddr('${a.id}')" class="addr-card ${on?'is-on':''}">
+        <div class="flex items-start gap-3">
+          <span class="addr-ico"><i data-lucide="${TAG_ICON[a.tag]||'map-pin'}"></i></span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <p class="font-bold text-[15px] truncate">${a.tag}</p>
+              ${on?'<span class="badge badge-green"><i data-lucide="check" class="w-3 h-3"></i> Selected</span>':''}
+            </div>
+            <p class="text-sm text-[var(--ink)] mt-1 leading-snug">${a.line}</p>
+            <p class="text-xs text-[var(--ink-2)] mt-0.5">${a.area}</p>
+            <p class="text-[11px] text-[var(--green)] font-semibold mt-2 flex items-center gap-1"><i data-lucide="bike" class="w-3.5 h-3.5"></i> Delivers in ~35 min</p>
+          </div>
+          <span class="addr-radio ${on?'is-on':''}">${on?'<i data-lucide="check" class="w-3.5 h-3.5"></i>':''}</span>
+        </div>
+        <div class="flex gap-2 mt-3 pt-3 border-t border-[var(--line)]">
+          <button onclick="event.stopPropagation();delAddr('${a.id}')" class="flex-1 text-xs font-bold text-[var(--ink-2)] py-1.5 rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--brand)]"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove</button>
+          <div class="w-px bg-[var(--line)]"></div>
+          <a href="tel:9372381280" onclick="event.stopPropagation()" class="flex-1 text-xs font-bold text-[var(--ink-2)] py-1.5 rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--green)]"><i data-lucide="phone" class="w-3.5 h-3.5"></i> Contact</a>
+        </div>
+      </div>`;}).join("");
+    document.getElementById("proceed-bar").classList.toggle("hidden",list.length===0);
+    document.getElementById("addr-empty").classList.toggle("hidden",list.length>0);
+    lucide.createIcons();
+  }
+  window.selectAddr=(id)=>{selectedId=id;renderSaved();};
+  window.delAddr=(id)=>{
+    let list=getAddrs().filter(a=>a.id!==id); saveAddrs(list);
+    if(selectedId===id) selectedId=list[0]?.id||null;
+    renderSaved(); toast("Address removed","trash-2");
+  };
+
+  // sheet
+  const sheet=document.getElementById("sheet");
+  let coords=null, tag="Home";
+  function openSheet(){sheet.classList.remove("hidden");sheet.classList.add("flex");lucide.createIcons();}
+  window.closeSheet=()=>{sheet.classList.add("hidden");sheet.classList.remove("flex");};
+  document.getElementById("add-new").onclick=openSheet;
+
+  function setCoords(a){
+    coords=a;
+    document.getElementById("coord-box").classList.remove("hidden");
+    document.getElementById("coord-addr").textContent=a.name;
+    document.getElementById("coord-latlng").innerHTML='<span class="inline-flex items-center gap-1 text-[var(--green)] font-semibold"><i data-lucide="check-circle" class="w-3 h-3"></i> GPS verified · location captured</span>';
+    document.getElementById("addr-search").value=a.name;
+    validate(); lucide.createIcons();
+  }
+  const toRad=d=>d*Math.PI/180;
+  function distKm(a,b){const R=6371,dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng);const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
+  document.getElementById("gps").onclick=()=>{
+    const l=document.getElementById("gps-lbl");
+    if(!navigator.geolocation || !window.isSecureContext){
+      // file:// or unsupported → fall back to first area so the flow still works
+      toast("GPS unavailable here — using a nearby area","map-pin"); setCoords(areas[0]); return;
+    }
+    l.textContent="Detecting…";
+    navigator.geolocation.getCurrentPosition(
+      async pos=>{
+        try{
+          const pt={lat:pos.coords.latitude,lng:pos.coords.longitude};
+          l.textContent="Finding your area…";
+          // real place name (never hangs — 4s timeout race)
+          let label = await Promise.race([reverseGeo(pt.lat,pt.lng).catch(()=>null), new Promise(r=>setTimeout(()=>r(null),4000))]);
+          if(!label){
+            label = "My current location";
+          }
+          l.textContent="Detect my location (GPS)";
+          setCoords({name:label, lat:pt.lat, lng:pt.lng});
+          toast("Location captured ✓","check-circle");
+        }catch(e){ l.textContent="Detect my location (GPS)"; toast("Something went wrong — search below","alert-circle"); }
+      },
+      err=>{
+        l.textContent="Detect my location (GPS)";
+        toast(err.code===1?"Location blocked — search your area below":"Couldn't detect — search below","alert-circle");
+      },
+      {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+    );
+  };
+  const asearch=document.getElementById("addr-search"), ares=document.getElementById("addr-results");
+  asearch.addEventListener("input",()=>{
+    const q=asearch.value.toLowerCase();coords=null;document.getElementById("coord-box").classList.add("hidden");validate();
+    if(!q){ares.classList.add("hidden");return;}
+    const m=areas.filter(a=>a.name.toLowerCase().includes(q));
+    ares.innerHTML=m.map(a=>`<button class="w-full text-left px-4 py-3 hover:bg-[var(--ivory-2)] flex items-center gap-2 text-sm bg-[var(--card)]"><i data-lucide="map-pin" class="w-4 h-4 text-[var(--brand)]"></i>${a.name}</button>`).join("")||'<p class="px-4 py-3 text-sm text-[var(--ink-2)] bg-[var(--card)]">No match</p>';
+    ares.classList.remove("hidden");lucide.createIcons();
+    ares.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{setCoords(m[i]);ares.classList.add("hidden");});
+  });
+
+  document.querySelectorAll(".tagbtn").forEach(b=>b.onclick=()=>{
+    tag=b.dataset.tag;
+    document.querySelectorAll(".tagbtn").forEach(x=>{x.className="tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-2.5 text-sm font-semibold";x.style.background="";});
+    b.className="tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--brand)] text-[var(--brand)] rounded-xl py-2.5 text-sm font-semibold";b.style.background="var(--brand-soft)";
+    lucide.createIcons();
+  });
+  document.querySelector('.tagbtn').click();
+
+  const flat=document.getElementById("flat"), saveBtn=document.getElementById("save");
+  function validate(){
+    const ok = coords && flat.value.trim().length>0;
+    saveBtn.disabled=!ok;
+    saveBtn.className = ok
+      ? "w-full mt-5 btn-brand ripple font-bold py-3.5 rounded-2xl press anim-scalein"
+      : "w-full mt-5 py-3.5 rounded-2xl font-bold text-white cursor-not-allowed";
+    saveBtn.style.background = ok ? "" : "var(--ink-2)";
+    saveBtn.style.opacity = ok ? "" : ".55";
+  }
+  flat.addEventListener("input",validate);
+
+  saveBtn.onclick=()=>{
+    if(!coords) return;
+    const list=getAddrs();
+    const id="a"+Date.now();
+    list.push({id,tag,line:flat.value.trim()+(document.getElementById("landmark").value?", "+document.getElementById("landmark").value:""),area:coords.name,lat:coords.lat,lng:coords.lng});
+    saveAddrs(list); selectedId=id; closeSheet(); renderSaved();
+    toast("Address saved");
+    // reset
+    coords=null;flat.value="";document.getElementById("landmark").value="";document.getElementById("addr-search").value="";document.getElementById("coord-box").classList.add("hidden");validate();
+  };
+
+  document.getElementById("proceed").onclick=()=>{
+    localStorage.setItem("vrf_selected_addr",selectedId);
+    // Conditional login gate
+    if(isLoggedIn()) location.href="payment.html";
+    else location.href="login.html";
+  };
+
+  renderSaved(); lucide.createIcons();
+</script>
+</body>
+</html>

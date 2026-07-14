@@ -1,0 +1,492 @@
+/* ============================================================
+   VRF KITCHEN — Editorial Premium Theme  (v2)
+   Warm ivory canvas · forest-green primary · burnt-orange accent
+   Refined, professional, restrained motion.
+   ============================================================ */
+:root{
+  --brand:#E8590C;      /* logo orange — accent only */
+  --brand-soft:#FBEAD9;
+  --green:#0E4D31;      /* logo pot green — PRIMARY */
+  --green-2:#13603D;
+  --gold:#E9C877;       /* logo script gold */
+  --gold-soft:#F4E3B8;
+  --ivory:#FBF7EF;      /* page canvas */
+  --ivory-2:#F4ECDD;
+  --card:#FFFFFF;
+  --ink:#20180F;
+  --ink-2:#6B5D4C;
+  --line:#EBE2D2;
+  /* minimal-luxury: softer, quieter shadows */
+  --shadow-sm:0 1px 3px rgba(32,24,15,.05),0 1px 2px rgba(32,24,15,.03);
+  --shadow-md:0 10px 30px -18px rgba(32,24,15,.18);
+  --shadow-lg:0 22px 50px -30px rgba(14,77,49,.28);
+}
+*{-webkit-tap-highlight-color:transparent}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ivory);color:var(--ink);
+  -webkit-font-smoothing:antialiased;letter-spacing:-.01em;overflow-x:hidden}
+img{max-width:100%}
+/* never let anything cause a horizontal scrollbar */
+main,header,footer,section{max-width:100vw}
+/* fluid type: scales gently between phone and desktop */
+@media(min-width:1024px){
+  .display{letter-spacing:-.02em}
+}
+.display{font-family:'Fraunces',serif;font-optical-sizing:auto}
+.script{font-family:'Fraunces',serif;font-style:italic}
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---- veg mark ---- */
+.veg-dot{width:16px;height:16px;border:1.5px solid var(--green);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;background:#fff}
+.veg-dot::after{content:"";width:7px;height:7px;border-radius:9999px;background:var(--green)}
+
+/* ---- eyebrow label (minimal: refined tracking, quieter weight) ---- */
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--brand)}
+.eyebrow-g{color:var(--green)}
+.sec-title{letter-spacing:-.02em}
+
+/* ---- gold hairline divider ---- */
+.rule-gold{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+/* ---- surfaces ---- */
+.card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.glass{background:rgba(251,247,239,.82);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3)}
+
+/* ---- buttons ---- */
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 12px 26px -14px rgba(14,77,49,.7)}
+.btn-primary:active{background:var(--green-2)}
+.btn-accent{background:var(--brand);color:#fff;box-shadow:0 12px 26px -14px rgba(232,89,12,.6)}
+.btn-outline{border:1.5px solid var(--green);color:var(--green);background:#fff}
+.btn-gold{background:var(--gold);color:var(--ink)}
+
+/* press feedback (subtle) */
+.press{transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .25s,background .2s}
+.press:active{transform:scale(.975)}
+
+/* card hover lift (gentle) */
+.lift{transition:transform .4s cubic-bezier(.2,.7,.3,1),box-shadow .4s}
+@media(hover:hover){.lift:hover{transform:translateY(-5px);box-shadow:var(--shadow-md)}}
+
+/* image frame zoom */
+.frame{overflow:hidden}
+.frame img{transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+@media(hover:hover){.frame:hover img{transform:scale(1.06)}}
+
+/* ============ MOTION (restrained, professional) ============ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes ringPulse{0%{transform:scale(.85);opacity:.55}100%{transform:scale(1.9);opacity:0}}
+@keyframes barFill{from{width:0}to{width:100%}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes steamRise{0%{transform:translateY(2px);opacity:0}30%{opacity:.7}100%{transform:translateY(-40px);opacity:0}}
+
+.a-fadeup{animation:fadeUp .7s cubic-bezier(.2,.7,.3,1) both}
+.a-fadein{animation:fadeIn .6s ease both}
+.a-scalein{animation:scaleIn .5s cubic-bezier(.2,.7,.3,1) both}
+.a-sheet{animation:sheetUp .5s cubic-bezier(.2,.7,.3,1) both}
+.drift{animation:drift 5s ease-in-out infinite}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}
+.reveal[data-d="3"]{transition-delay:.24s}.reveal[data-d="4"]{transition-delay:.32s}
+
+/* stagger */
+.stagger>*{opacity:0;animation:fadeUp .6s cubic-bezier(.2,.7,.3,1) forwards}
+.stagger>*:nth-child(1){animation-delay:.05s}.stagger>*:nth-child(2){animation-delay:.11s}
+.stagger>*:nth-child(3){animation-delay:.17s}.stagger>*:nth-child(4){animation-delay:.23s}
+.stagger>*:nth-child(5){animation-delay:.29s}.stagger>*:nth-child(6){animation-delay:.35s}
+.stagger>*:nth-child(7){animation-delay:.41s}.stagger>*:nth-child(8){animation-delay:.47s}
+
+/* skeleton */
+.skel{position:relative;overflow:hidden;background:var(--ivory-2)}
+.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:shimmer 1.5s infinite}
+
+/* steam */
+.steam{width:6px;border-radius:9999px;background:currentColor;animation:steamRise 2.8s ease-out infinite}
+
+/* fly dot */
+.fly{position:fixed;width:20px;height:20px;border-radius:9999px;background:var(--green);z-index:90;pointer-events:none;box-shadow:var(--shadow-md)}
+
+/* logo helpers */
+.logo-tile{background:var(--brand);border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.logo-tile img{width:135%;max-width:none;object-fit:cover}   /* zoom onto pot mark */
+
+.page-enter{animation:fadeIn .45s ease both}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ============================================================
+   BACK-COMPAT aliases (older pages still using v1 tokens/classes)
+   ============================================================ */
+:root{
+  --brand-dark:#C0490A; --brand-2:#F0630F; --green-glow:#177245;
+  --gold-2:#E0B75E; --saffron:#E9C877;
+  --cream:var(--ivory); --cream-2:var(--ivory-2);
+}
+.btn-brand{background:var(--brand);color:#fff;box-shadow:0 12px 26px -14px rgba(232,89,12,.55)}
+.btn-green{background:var(--green);color:#fff}
+.foil{color:var(--gold)}
+.card-hover{transition:transform .4s cubic-bezier(.2,.7,.3,1),box-shadow .4s}
+@media(hover:hover){.card-hover:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}}
+.imgzoom{overflow:hidden}.imgzoom img{transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+@media(hover:hover){.imgzoom:hover img{transform:scale(1.06)}}
+.anim-pop{animation:scaleIn .55s cubic-bezier(.2,.7,.3,1) both}
+.anim-fadein{animation:fadeIn .6s ease both}
+.anim-scalein{animation:scaleIn .5s cubic-bezier(.2,.7,.3,1) both}
+.anim-slidedown{animation:sheetUp .5s cubic-bezier(.2,.7,.3,1) both}
+.bob{animation:drift 4s ease-in-out infinite}
+.float{animation:drift 5s ease-in-out infinite}
+.ripple{position:relative;overflow:hidden}
+
+/* ============================================================
+   UNIFIED APP-BAR  (premium branded header on every page)
+   ============================================================ */
+.appbar{
+  position:fixed;top:0;left:0;right:0;z-index:45;
+  background:rgba(251,247,239,.82);
+  backdrop-filter:blur(20px) saturate(1.5);
+  -webkit-backdrop-filter:blur(20px) saturate(1.5);
+  border-bottom:1px solid var(--line);
+}
+/* reserve space so fixed navbar never covers page content */
+body:has(.appbar){padding-top:68px}
+/* thin gold identity strip under every bar (minimal: subtle) */
+.appbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,var(--gold) 0%,transparent 55%);opacity:.5}
+.appbar-inner{max-width:72rem;margin:0 auto;padding:.7rem 1rem;position:relative}
+.appbar-inner.narrow{max-width:72rem}
+.appbar-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--ink);letter-spacing:-.015em}
+
+/* circular icon button — back / cart / actions */
+.ibtn{width:42px;height:42px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;
+  background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:var(--shadow-sm);position:relative;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .25s,background .2s,color .2s}
+.ibtn:active{transform:scale(.9)}
+@media(hover:hover){.ibtn:hover{color:var(--green);border-color:var(--green);box-shadow:var(--shadow-md)}}
+.ibtn-ghost{background:rgba(255,255,255,.5);border-color:var(--line)}
+
+/* pill search field inside app-bar */
+.appbar-search{display:flex;align-items:center;gap:.55rem;flex:1;min-width:0;
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:.62rem .95rem;box-shadow:var(--shadow-sm);
+  transition:border-color .2s,box-shadow .2s}
+.appbar-search:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(14,77,49,.1)}
+.appbar-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:.875rem;color:var(--ink)}
+.appbar-search input::placeholder{color:var(--ink-2)}
+
+/* cart badge on icon buttons */
+.ibtn-badge{position:absolute;top:-6px;right:-6px;background:var(--brand);color:#fff;font-size:10px;font-weight:700;
+  border-radius:9999px;min-width:19px;height:19px;padding:0 4px;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--ivory);line-height:1;box-shadow:0 4px 10px -3px rgba(232,89,12,.6)}
+
+/* ============================================================
+   FLOATING BOTTOM DOCK  (premium nav, replaces flat bar)
+   ============================================================ */
+#bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:0 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none}
+.nav-dock{pointer-events:auto;max-width:30rem;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
+  background:rgba(255,255,255,.86);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);
+  border:1px solid rgba(235,226,210,.9);border-radius:22px;padding:8px 8px;
+  box-shadow:0 18px 40px -16px rgba(14,77,49,.32),0 2px 8px -4px rgba(32,24,15,.2),0 1px 0 rgba(255,255,255,.7) inset}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:15px;
+  color:var(--ink-2);text-decoration:none;transition:color .25s,background .25s}
+.nav-ico{width:42px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:13px;
+  transition:background .3s cubic-bezier(.2,.7,.3,1),transform .3s cubic-bezier(.2,.7,.3,1),color .25s}
+.nav-ico i{width:21px;height:21px;transition:transform .3s cubic-bezier(.2,.7,.3,1)}
+.nav-lbl{font-size:10px;font-weight:700;letter-spacing:.02em}
+.nav-item.is-active{color:var(--green)}
+.nav-item.is-active .nav-ico{background:linear-gradient(160deg,var(--green),var(--green-2));color:#fff;
+  box-shadow:0 8px 18px -6px rgba(14,77,49,.55);transform:translateY(-2px)}
+.nav-item:active .nav-ico{transform:scale(.88)}
+
+/* ============================================================
+   CATEGORY CHIPS  (rail below the navbar)
+   ============================================================ */
+.cat-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem .5rem .55rem;border-radius:9999px;
+  background:#fff;border:1px solid var(--line);color:var(--ink);font-size:.85rem;font-weight:600;line-height:1;
+  box-shadow:var(--shadow-sm);transition:transform .18s cubic-bezier(.2,.7,.3,1),background .25s,color .25s,border-color .25s,box-shadow .25s}
+.cat-chip:active{transform:scale(.94)}
+.cat-chip-ico{width:26px;height:26px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--ivory-2);color:var(--green);transition:background .25s,color .25s}
+.cat-chip-ico i{width:15px;height:15px}
+.cat-chip.is-active{background:var(--green);border-color:var(--green);color:#fff;
+  box-shadow:0 10px 22px -10px rgba(14,77,49,.6)}
+.cat-chip.is-active .cat-chip-ico{background:rgba(255,255,255,.18);color:var(--gold)}
+
+/* ============================================================
+   PREMIUM COMPONENT LAYER  (shared across all pages)
+   ============================================================ */
+/* surface card — the one true card (minimal-luxury: quiet, clean) */
+.ui-card{background:var(--card);border:1px solid var(--line);border-radius:20px;
+  box-shadow:0 1px 2px rgba(32,24,15,.03)}
+.ui-card-pad{padding:1.25rem}
+@media(hover:hover){.ui-card.lift{transition:box-shadow .35s,border-color .35s,transform .35s cubic-bezier(.2,.7,.3,1)}
+  .ui-card.lift:hover{border-color:rgba(14,77,49,.18);box-shadow:var(--shadow-md);transform:translateY(-2px)}}
+
+/* premium form field — used across address/checkout forms */
+.fld{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:.85rem 1rem;
+  font-size:.9rem;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s}
+.fld::placeholder{color:var(--ink-2)}
+.fld:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(14,77,49,.09)}
+.fld-wrap{position:relative}
+.fld-wrap .fld{padding-left:2.75rem}
+.fld-wrap>.fld-ico{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--ink-2);pointer-events:none}
+.fld-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-bottom:.4rem;display:block}
+
+/* selectable option row (payment methods, tags) */
+.opt-row{display:flex;align-items:center;gap:.85rem;padding:1rem;cursor:pointer;position:relative;
+  transition:background .2s}
+.opt-row:active{background:var(--ivory-2)}
+.opt-row.is-sel{background:linear-gradient(90deg,rgba(14,77,49,.05),transparent)}
+.opt-check{width:22px;height:22px;border-radius:9999px;border:2px solid var(--line);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;transition:all .2s}
+.opt-row.is-sel .opt-check{background:var(--green);border-color:var(--green)}
+/* section heading block */
+.sec-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.25rem;letter-spacing:-.015em;color:var(--ink)}
+/* premium empty-state */
+.empty-wrap{text-align:center;padding:3.5rem 1.5rem}
+.empty-emoji{width:88px;height:88px;margin:0 auto 1rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;
+  font-size:40px;background:radial-gradient(120% 120% at 30% 20%,var(--brand-soft),var(--ivory-2));border:1px solid var(--line)}
+.empty-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;color:var(--ink)}
+.empty-sub{color:var(--ink-2);font-size:.875rem;margin-top:.35rem;max-width:18rem;margin-left:auto;margin-right:auto}
+/* pill button */
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;font-size:.875rem;padding:.85rem 1.5rem;border-radius:9999px;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .25s,filter .2s}
+.pill:active{transform:scale(.96)}
+.pill-green{background:var(--green);color:#fff;box-shadow:0 8px 20px -12px rgba(14,77,49,.5)}
+.pill-accent{background:var(--brand);color:#fff;box-shadow:0 8px 20px -12px rgba(232,89,12,.45)}
+/* soft qty stepper */
+.stepper{display:inline-flex;align-items:center;gap:.25rem;background:var(--green);color:#fff;border-radius:12px;
+  font-weight:700;font-size:.9rem;overflow:hidden;box-shadow:0 8px 18px -10px rgba(14,77,49,.6)}
+.stepper button{padding:.35rem .7rem;transition:background .2s}
+.stepper button:active{background:var(--green-2)}
+/* status pill */
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.28rem .65rem;border-radius:9999px}
+.badge-green{background:rgba(14,77,49,.09);color:var(--green)}
+.badge-accent{background:var(--brand-soft);color:var(--brand)}
+.badge-gold{background:var(--gold-soft);color:var(--ink)}
+/* labelled bill/list row */
+.krow{display:flex;justify-content:space-between;align-items:center;font-size:.875rem}
+/* section eyebrow reuse already exists (.eyebrow) */
+
+/* ============================================================
+   ADDRESS CARD  (selectable saved-address tile)
+   ============================================================ */
+.addr-card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:1rem;cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:border-color .2s,box-shadow .25s,transform .18s cubic-bezier(.2,.7,.3,1)}
+.addr-card:active{transform:scale(.99)}
+.addr-card.is-on{border-color:var(--brand);box-shadow:0 12px 30px -16px rgba(232,89,12,.45),0 0 0 3px rgba(232,89,12,.08)}
+.addr-ico{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:var(--ivory-2);color:var(--green);transition:background .25s,color .25s}
+.addr-ico i{width:20px;height:20px}
+.addr-card.is-on .addr-ico{background:var(--brand-soft);color:var(--brand)}
+.addr-radio{width:22px;height:22px;border-radius:9999px;border:2px solid var(--line);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s,border-color .2s}
+.addr-radio.is-on{background:var(--brand);border-color:var(--brand)}
+
+/* ============================================================
+   RESPONSIVE GRIDS  (fluid across phone → tablet → desktop)
+   ============================================================ */
+/* product grid: auto-fills columns as width grows */
+.grid-products{display:grid;gap:.75rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:560px){.grid-products{grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}}
+@media(min-width:900px){.grid-products{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* category tiles */
+.grid-cats{display:grid;gap:.75rem 0.75rem;grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(min-width:560px){.grid-cats{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(min-width:900px){.grid-cats{grid-template-columns:repeat(8,minmax(0,1fr))}}
+/* two-up on tablet+ for lists that are single-column on phone */
+.grid-2up{display:grid;gap:.75rem;grid-template-columns:1fr}
+@media(min-width:720px){.grid-2up{grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}}
+
+/* safe-area + comfortable desktop gutters */
+@media(min-width:1024px){
+  .appbar-inner,main{padding-left:1.5rem;padding-right:1.5rem}
+}
+
+/* responsive section rhythm — tighten on phone, open up on desktop */
+@media(max-width:400px){
+  .sec-title{font-size:1.15rem}
+  .empty-emoji{width:76px;height:76px;font-size:34px}
+}
+/* horizontal scroll rails: show a hint of the next card on phone, more on desktop */
+.no-scrollbar{scroll-snap-type:x proximity}
+.no-scrollbar>*{scroll-snap-align:start}
+
+/* ============================================================
+   PREMIUM VISUAL UPGRADE  (v3 — richer depth & finish)
+   ============================================================ */
+/* elevated card variant (minimal-luxury: barely-there lift) */
+.ui-card-lux{background:var(--card);border:1px solid var(--line);border-radius:22px;
+  box-shadow:var(--shadow-md);position:relative}
+/* refined thin gold hairline accent — subtle, not loud */
+.card-topline{position:relative;overflow:hidden}
+.card-topline::before{content:"";position:absolute;top:0;left:1.25rem;right:1.25rem;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.7}
+/* section header with decorative side rule */
+.sec-head{display:flex;align-items:center;gap:.85rem}
+.sec-head::after{content:"";flex:1;height:1px;background:var(--line);opacity:.7}
+/* number/stat tile (minimal: clean white, hairline) */
+.stat-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem .75rem;text-align:center;
+  transition:border-color .3s,box-shadow .3s}
+@media(hover:hover){.stat-tile:hover{border-color:rgba(14,77,49,.18);box-shadow:var(--shadow-sm)}}
+/* refined solid CTA — elegant, quiet depth (minimal-luxury) */
+.cta-lux{background:var(--green);color:#fff;box-shadow:0 8px 22px -12px rgba(14,77,49,.5)}
+.cta-lux-accent{background:var(--brand);color:#fff;box-shadow:0 8px 22px -12px rgba(232,89,12,.5)}
+@media(hover:hover){.cta-lux:hover{background:var(--green-2)}.cta-lux-accent:hover{filter:brightness(1.04)}}
+/* soft dotted texture overlay for hero areas (minimal: very faint) */
+.tex-dots{background-image:radial-gradient(rgba(233,200,119,.09) 1px,transparent 1px);background-size:26px 26px}
+/* animated shine sweep on premium buttons */
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;top:0;left:-60%;width:35%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);
+  animation:shineSweep 6s ease-in-out infinite}
+@keyframes shineSweep{0%,60%{left:-60%}80%,100%{left:130%}}
+/* refined divider with centered label */
+.div-label{display:flex;align-items:center;gap:1rem;color:var(--ink-2);font-size:11px;font-weight:700;letter-spacing:.14em}
+.div-label::before,.div-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+/* icon chip (rounded square with tinted bg) */
+.ichip{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ichip-green{background:rgba(14,77,49,.09);color:var(--green)}
+.ichip-brand{background:var(--brand-soft);color:var(--brand)}
+.ichip-gold{background:var(--gold-soft);color:var(--ink)}
+
+/* neutralize old loud gradient headers → refined glass */
+
+/* ============================================================
+   3D DEPTH SYSTEM  (v4 — tactile, layered, "wow" but professional)
+   Applies site-wide via shared classes. Brand colours preserved.
+   ============================================================ */
+:root{
+  --persp:1000px;
+  /* realistic multi-layer elevation (contact + mid + ambient brand glow) */
+  --e1:0 1px 2px rgba(32,24,15,.05),0 3px 6px -3px rgba(32,24,15,.10);
+  --e2:0 2px 4px rgba(32,24,15,.05),0 10px 20px -8px rgba(32,24,15,.14),0 20px 44px -20px rgba(14,77,49,.18);
+  --e3:0 4px 8px rgba(32,24,15,.06),0 18px 34px -12px rgba(32,24,15,.18),0 40px 70px -28px rgba(14,77,49,.30);
+  --gloss-top:inset 0 1px 0 rgba(255,255,255,.45);
+  --gloss-bottom:inset 0 -2px 6px rgba(0,0,0,.14);
+}
+
+/* ambient depth: soft brand light pools behind all content (every page) */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(58% 46% at 12% -4%, rgba(233,200,119,.16), transparent 60%),
+    radial-gradient(46% 40% at 104% 6%, rgba(232,89,12,.10), transparent 62%),
+    radial-gradient(70% 60% at 50% 116%, rgba(14,77,49,.09), transparent 70%);
+}
+
+/* a stage that gives its children real perspective */
+.scene{perspective:var(--persp);perspective-origin:50% 35%}
+
+/* interactive tilt targets — JS drives inline transform, CSS smooths return */
+.lift,[data-tilt]{transform-style:preserve-3d;will-change:transform;backface-visibility:hidden}
+@media(hover:hover){
+  .lift{transition:transform .2s cubic-bezier(.2,.7,.3,1),box-shadow .35s cubic-bezier(.2,.7,.3,1),border-color .35s}
+  .lift.is-tilting{box-shadow:var(--e3);z-index:5}
+}
+
+/* deepen the shared card elevations into true 3D stacks */
+.ui-card{box-shadow:var(--e1)}
+.ui-card-lux{box-shadow:var(--e2)}
+@media(hover:hover){
+  .ui-card.lift:hover{box-shadow:var(--e2);border-color:rgba(14,77,49,.16)}
+}
+:root{--shadow-md:var(--e2);--shadow-lg:var(--e3)}
+
+/* ---- glossy, physical buttons (top light + bottom shade + colour glow) ---- */
+.pill-green,.btn-primary,.btn-green,.cta-lux{
+  box-shadow:0 10px 24px -12px rgba(14,77,49,.6),var(--gloss-top),var(--gloss-bottom)}
+.pill-accent,.btn-accent,.btn-brand,.cta-lux-accent{
+  box-shadow:0 10px 24px -12px rgba(232,89,12,.55),var(--gloss-top),var(--gloss-bottom)}
+.btn-gold,.pill.btn-gold{
+  box-shadow:0 10px 24px -12px rgba(233,200,119,.75),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 6px rgba(0,0,0,.10)}
+.stepper{box-shadow:0 10px 20px -10px rgba(14,77,49,.6),var(--gloss-top),var(--gloss-bottom)}
+
+/* unified physical press — depresses into the surface */
+.press:active,.pill:active,.btn-primary:active,.btn-accent:active,.cta-lux:active,
+.cta-lux-accent:active,.btn-gold:active,.stepper button:active{
+  transform:translateY(1.5px) scale(.98)}
+
+/* ---- raised 3D icon buttons + chips ---- */
+.ibtn{box-shadow:var(--e1),var(--gloss-top)}
+@media(hover:hover){.ibtn:hover{box-shadow:var(--e2),var(--gloss-top);transform:translateY(-2px)}}
+.cat-chip{box-shadow:var(--e1),inset 0 1px 0 rgba(255,255,255,.5)}
+.cat-chip.is-active{box-shadow:0 12px 24px -12px rgba(14,77,49,.6),var(--gloss-top)}
+.stat-tile{box-shadow:var(--e1)}
+@media(hover:hover){.stat-tile{transition:transform .3s cubic-bezier(.2,.7,.3,1),box-shadow .3s}
+  .stat-tile:hover{transform:translateY(-3px);box-shadow:var(--e2)}}
+
+/* icon chips get a soft embossed pop */
+.ichip{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 14px -8px rgba(32,24,15,.28)}
+
+/* ---- floating 3D nav dock: raised off the page, glossy rim ---- */
+.nav-dock{
+  box-shadow:
+    0 26px 50px -18px rgba(14,77,49,.40),
+    0 8px 18px -8px rgba(32,24,15,.28),
+    inset 0 1px 0 rgba(255,255,255,.85),
+    inset 0 -8px 20px -12px rgba(14,77,49,.12)}
+.nav-item.is-active .nav-ico{box-shadow:0 10px 20px -6px rgba(14,77,49,.6),inset 0 1px 0 rgba(255,255,255,.35)}
+
+/* app-bar sits on a subtle raised plane */
+.appbar{box-shadow:0 6px 24px -18px rgba(14,77,49,.5)}
+
+/* ============================================================
+   HERO 3D SHOWCASE  (flagship — floating dish frame w/ depth)
+   ============================================================ */
+.hero3d{position:relative;transform-style:preserve-3d;transition:transform .3s cubic-bezier(.2,.7,.3,1)}
+.hero3d-frame{
+  border-radius:28px;position:relative;transform:translateZ(0);
+  box-shadow:var(--e3),inset 0 0 0 1px rgba(255,255,255,.14)}
+/* glow pool behind the frame */
+.hero3d-glow{
+  content:"";position:absolute;inset:-8% -6% -14% -6%;z-index:-1;border-radius:36px;filter:blur(30px);
+  background:
+    radial-gradient(60% 70% at 22% 30%, rgba(232,89,12,.42), transparent 62%),
+    radial-gradient(60% 70% at 82% 74%, rgba(14,77,49,.42), transparent 62%);
+  opacity:.85;animation:glowPulse 7s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:.95;transform:scale(1.04)}}
+/* floating garnish that hovers above the frame in 3D */
+.hero-float{position:absolute;z-index:6;font-size:34px;line-height:1;pointer-events:none;
+  filter:drop-shadow(0 10px 14px rgba(32,24,15,.35));animation:drift 5.5s ease-in-out infinite}
+.hero-float.f2{animation-duration:6.5s;animation-delay:-1.5s}
+.hero-float.f3{animation-duration:7.5s;animation-delay:-3s}
+/* floating glass info chip on the hero */
+.hero-chip{position:absolute;z-index:7;display:inline-flex;align-items:center;gap:.45rem;
+  padding:.5rem .8rem;border-radius:14px;font-size:12px;font-weight:700;color:var(--ink);
+  background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:var(--e2),inset 0 1px 0 rgba(255,255,255,.8);animation:drift 6s ease-in-out infinite}
+
+/* ---- generic depth-float utility (parallax layers) ---- */
+.floaty{will-change:transform}
+
+@media(prefers-reduced-motion:reduce){
+  .hero3d-glow,.hero-float,.hero-chip{animation:none!important}
+  .lift,[data-tilt]{transform:none!important}
+}
+
+/* ============================================================
+   UNIFORM PAGE WIDTH + DESKTOP APP SHELL
+   Every content page shares the home 6xl (72rem) width. On wide
+   screens, linear flows split into a content column + sticky aside
+   so nothing stretches awkwardly.
+   ============================================================ */
+.wrap-6xl{max-width:72rem;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}
+@media(min-width:1024px){
+  /* content + fixed-width sidebar (cart, payment, product, tracking) */
+  .lg-2col{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:2rem;align-items:start}
+  .lg-2col-wide{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:2rem;align-items:start}
+  .lg-aside{position:sticky;top:88px}
+  /* even two-up for balanced sections */
+  .lg-2up{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem 2rem;align-items:start}
+}
+

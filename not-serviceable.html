@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Not Serviceable — VRF Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="assets/theme.css" rel="stylesheet">
+<style>
+  .field{background:#fff;border:1px solid var(--line);border-radius:.85rem;transition:border-color .2s,box-shadow .2s}
+  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(14,77,49,.1)}
+</style>
+</head>
+<body class="min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
+<div class="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center px-8 text-center py-12">
+
+  <div class="logo-tile w-16 h-16 mb-8 a-scalein" style="box-shadow:var(--shadow-md)">
+    <img src="assets/image.png" alt="VRF Kitchen">
+  </div>
+
+  <div class="empty-emoji drift anim-pop">
+    <i data-lucide="map-pin-off" class="w-11 h-11 text-[var(--brand)]"></i>
+  </div>
+
+  <h1 class="display text-3xl font-semibold anim-fadein leading-tight">We're not there<br><span class="script text-[var(--brand)]">just yet</span></h1>
+  <p class="text-[var(--ink-2)] mt-3 leading-relaxed">VRF Kitchen isn't delivering to <b class="text-[var(--ink)]" id="ns-area">your area</b> yet. We're expanding fast — you'll be the first to know.</p>
+
+  <div class="mt-7 w-full ui-card ui-card-pad text-left" style="padding:1.25rem">
+    <p class="text-sm font-semibold mb-1 flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-[var(--green)]"></i> Get notified when we reach you</p>
+    <p class="text-[12px] text-[var(--ink-2)] mb-3">We'll ping you the moment your area goes live.</p>
+    <div class="flex gap-2">
+      <div class="field flex-1 flex items-center px-3.5">
+        <input placeholder="Your mobile number" type="tel" class="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-[var(--ink-2)]">
+      </div>
+      <button onclick="this.textContent='Added ✓'" class="pill pill-green ripple press" style="padding:.75rem 1.15rem">Notify me</button>
+    </div>
+  </div>
+
+  <a href="location.html" class="w-full mt-4 pill pill-accent ripple press justify-center" style="padding-top:1rem;padding-bottom:1rem">
+    <i data-lucide="navigation" class="w-5 h-5"></i> Try a different location
+  </a>
+  <a href="https://wa.me/919372381280" class="mt-4 text-sm text-[var(--ink-2)] flex items-center gap-1.5 press"><i data-lucide="message-circle" class="w-4 h-4 text-[var(--green)]"></i> Chat with us on WhatsApp</a>
+</div>
+<script>
+  try{const l=JSON.parse(localStorage.getItem("dittomart_location"));if(l&&l.address)document.getElementById("ns-area").textContent=l.address.split(",").slice(0,2).join(", ");}catch(e){}
+  lucide.createIcons();
+</script>
+</body>
+</html>

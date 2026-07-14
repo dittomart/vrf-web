@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — VRF Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="assets/theme.css" rel="stylesheet">
+</head>
+<body class="bg-[var(--cream)] text-[var(--ink)] pb-28 md:pb-10">
+
+<header class="appbar">
+  <div class="appbar-inner narrow flex items-center gap-3">
+    <a href="home.html" class="ibtn ibtn-ghost shrink-0"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <h1 class="appbar-title">My Orders</h1>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 pt-6">
+  <!-- hero header -->
+  <div class="relative ui-card ui-card-lux card-topline ui-card-pad overflow-hidden mb-5 reveal">
+    <div class="tex-dots absolute inset-0 opacity-60 pointer-events-none"></div>
+    <div class="absolute -top-10 -left-8 w-32 h-32 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(14,77,49,.18),transparent 70%)"></div>
+    <div class="relative flex items-center gap-3.5">
+      <span class="ichip ichip-green w-12 h-12"><i data-lucide="receipt-text" class="w-6 h-6"></i></span>
+      <div class="flex-1 min-w-0">
+        <p class="eyebrow eyebrow-g">Your history</p>
+        <h2 class="sec-title leading-tight">Past orders</h2>
+        <p class="text-xs text-[var(--ink-2)] mt-0.5">Tap reorder to add favourites back in one tap</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head mb-3 reveal"><p class="eyebrow eyebrow-g">All orders</p></div>
+  <div id="orders" class="grid gap-4 md:grid-cols-2 stagger"></div>
+  <div id="empty" class="hidden empty-wrap">
+    <div class="empty-emoji"><i data-lucide="receipt-text" class="w-9 h-9 text-[var(--brand)]"></i></div>
+    <p class="empty-title">No orders yet</p>
+    <p class="empty-sub">Your past orders will appear here for one-tap reordering.</p>
+    <a href="category.html" class="pill pill-accent mt-5">Order now <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+  </div>
+</main>
+
+<div id="sticky-cart" class="fixed bottom-28 md:bottom-4 inset-x-0 z-30 px-4 transition-transform duration-300 translate-y-40">
+  <a href="cart.html" class="max-w-6xl mx-auto flex items-center justify-between cta-lux shine text-white rounded-2xl px-5 py-3.5 shadow-2xl">
+    <span class="flex items-center gap-2 text-sm font-semibold"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span data-sc-count>0 items</span></span>
+    <span class="flex items-center gap-2 font-bold"><span data-sc-total>₹0</span><i data-lucide="arrow-right" class="w-5 h-5"></i></span>
+  </a>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+  requireLocation();
+  let orders=getHistory();
+  // seed demo if empty
+  if(orders.length===0){
+    orders=[
+      {id:"VRF204817",status:"Delivered",ts:"Yesterday, 8:42 PM",total:498,items:[{id:"p5",name:"Veg Dum Biryani",qty:1,price:220},{id:"p8",name:"Paneer Butter Masala",qty:1,price:230}]},
+      {id:"VRF198320",status:"Delivered",ts:"3 days ago",total:310,items:[{id:"p15",name:"Masala Dosa",qty:2,price:90},{id:"p20",name:"Filter Coffee",qty:1,price:40}]},
+      {id:"VRF187645",status:"Delivered",ts:"Last week",total:180,items:[{id:"p23",name:"Meals Combo (Unlimited)",qty:1,price:180}]},
+    ];
+  }
+  const wrap=document.getElementById("orders");
+  document.getElementById("empty").classList.toggle("hidden",orders.length>0);
+
+  wrap.innerHTML=orders.map(o=>{
+    const isLive=o.status && o.status!=="Delivered";
+    return `<div class="ui-card ui-card-lux card-topline ui-card-pad lift">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="ichip ${isLive?'ichip-brand':'ichip-green'}"><i data-lucide="receipt-text" class="w-5 h-5"></i></span>
+          <div class="min-w-0">
+            <p class="font-bold text-sm tnum">#${o.id}</p>
+            <p class="text-xs text-[var(--ink-2)]">${o.ts||"just now"}</p>
+          </div>
+        </div>
+        <span class="badge ${isLive?'badge-accent':'badge-green'} shrink-0">${isLive?'<i data-lucide="bike" class="w-3 h-3"></i> '+o.status:'<i data-lucide="check" class="w-3 h-3"></i> Delivered'}</span>
+      </div>
+      <div class="div-label mt-3.5 mb-2.5">${o.items.length} item${o.items.length>1?'s':''}</div>
+      <div class="flex gap-2 overflow-x-auto no-scrollbar">
+        ${o.items.map(i=>{const p=getProduct(i.id);return `<div class="frame rounded-xl shrink-0"><img src="${p?prodImg(p,120,120):imgUrl('1589302168068-964664d93dc0',120,120)}" class="w-12 h-12 rounded-xl object-cover" alt=""></div>`;}).join("")}
+        <div class="flex-1 min-w-0 flex items-center"><p class="text-xs text-[var(--ink-2)] line-clamp-2 ml-1">${o.items.map(i=>i.qty+"× "+i.name).join(", ")}</p></div>
+      </div>
+      <div class="flex items-center justify-between mt-3.5 pt-3.5 border-t border-dashed border-[var(--line)]">
+        <div><p class="eyebrow eyebrow-g mb-0.5">Paid</p><span class="display font-bold text-base tnum text-[var(--green)] leading-none">${money(o.total)}</span></div>
+        <div class="flex gap-2">
+          ${isLive?`<a href="tracking.html" class="text-xs font-bold btn-outline px-4 py-2.5 rounded-xl press">Track</a>`:''}
+          <button onclick='reorder(${JSON.stringify(o.items)})' class="text-xs font-bold cta-lux-accent px-4 py-2.5 rounded-xl flex items-center gap-1.5 press ripple"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reorder</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  window.reorder=(items)=>{
+    items.forEach(i=>addToCart(i.id,i.qty));
+    toast("Order added to cart","rotate-ccw");
+    setTimeout(()=>location.href="cart.html",600);
+  };
+
+  injectChrome("orders"); lucide.createIcons(); updateCartBadges();
+</script>
+</body>
+</html>

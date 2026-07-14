@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart — VRF Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="assets/theme.css" rel="stylesheet">
+</head>
+<body class="bg-[var(--cream)] text-[var(--ink)] pb-40">
+
+<header class="appbar">
+  <div class="appbar-inner narrow flex items-center gap-3">
+    <a href="javascript:history.back()" class="ibtn ibtn-ghost shrink-0"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <h1 class="appbar-title">Your Cart</h1>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 pt-4">
+  <!-- delivery eta hero -->
+  <div class="relative ui-card ui-card-lux card-topline ui-card-pad overflow-hidden mb-5 reveal">
+    <div class="tex-dots absolute inset-0 opacity-70 pointer-events-none"></div>
+    <div class="absolute -top-10 -right-8 w-32 h-32 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.35),transparent 70%)"></div>
+    <div class="relative flex items-center gap-3.5">
+      <div class="ichip ichip-brand w-12 h-12 bob"><i data-lucide="bike" class="w-6 h-6"></i></div>
+      <div class="flex-1 min-w-0">
+        <p class="eyebrow eyebrow-g mb-0.5">Estimated arrival</p>
+        <p class="display font-bold text-lg leading-tight">Delivery in 35 minutes</p>
+        <p class="text-xs text-[var(--ink-2)] truncate mt-0.5" id="deliver-to">to your saved location</p>
+      </div>
+      <span class="badge badge-gold shrink-0"><i data-lucide="zap" class="w-3 h-3"></i> Fast</span>
+    </div>
+    <div class="relative mt-3.5 pt-3 border-t border-dashed border-[var(--line)] flex items-center gap-2 flex-wrap">
+      <span class="badge badge-green"><i data-lucide="leaf" class="w-3 h-3"></i> 100% Pure Veg</span>
+      <span class="badge badge-green"><i data-lucide="flame" class="w-3 h-3"></i> Cooked fresh</span>
+      <span class="badge badge-accent"><i data-lucide="bike" class="w-3 h-3"></i> Live tracking</span>
+    </div>
+  </div>
+
+  <div class="sec-head mb-3 reveal">
+    <span class="ichip ichip-green w-9 h-9 rounded-xl"><i data-lucide="shopping-bag" class="w-[18px] h-[18px]"></i></span>
+    <div>
+      <p class="eyebrow eyebrow-g">Your selection</p>
+      <p class="display font-bold text-lg leading-none">In your basket</p>
+    </div>
+  </div>
+
+  <div id="cart-items" class="space-y-3"></div>
+
+  <!-- empty state -->
+  <div id="empty" class="hidden empty-wrap">
+    <div class="empty-emoji"><i data-lucide="shopping-bag" class="w-9 h-9 text-[var(--brand)]"></i></div>
+    <p class="empty-title">Your cart is empty</p>
+    <p class="empty-sub">Add some delicious home-style veg dishes to get started!</p>
+    <a href="category.html" class="pill pill-accent mt-5">Browse the menu <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+  </div>
+
+  <div id="cart-body" class="hidden">
+    <!-- FBT -->
+    <div class="mt-7 reveal">
+      <div class="sec-head mb-3">
+        <p class="eyebrow eyebrow-g">Add ons</p>
+        <p class="display font-bold text-lg leading-none">Complete your meal</p>
+      </div>
+      <div id="fbt" class="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1"></div>
+    </div>
+
+    <div class="lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
+    <!-- Coupon -->
+    <div class="mt-6 lg:mt-0 ui-card ui-card-lux card-topline ui-card-pad reveal">
+      <div class="flex items-center gap-2.5 mb-1">
+        <span class="ichip ichip-brand w-9 h-9 rounded-xl"><i data-lucide="ticket-percent" class="w-[18px] h-[18px]"></i></span>
+        <div>
+          <p class="eyebrow mb-0">Save more</p>
+          <p class="font-bold text-sm leading-tight">Apply a coupon</p>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <div class="fld-wrap flex-1"><span class="fld-ico"><i data-lucide="tag" class="w-4 h-4"></i></span>
+          <input id="coupon" placeholder="Enter code (try VRF20)" class="fld uppercase tracking-wide font-semibold"></div>
+        <button id="apply-coupon" class="px-6 pill pill-green ripple shine text-sm">Apply</button>
+      </div>
+      <p id="coupon-msg" class="text-xs mt-2"></p>
+      <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+        <button class="chip shrink-0 text-[11px] font-bold border border-dashed border-[var(--brand)] text-[var(--brand)] px-2.5 py-1.5 rounded-lg" data-code="VRF20">VRF20 · 20% off</button>
+        <button class="chip shrink-0 text-[11px] font-bold border border-dashed border-[var(--brand)] text-[var(--brand)] px-2.5 py-1.5 rounded-lg" data-code="FIRST50">FIRST50 · ₹50 off</button>
+      </div>
+    </div>
+
+    <!-- Bill -->
+    <div class="mt-4 lg:mt-0 ui-card ui-card-lux card-topline ui-card-pad reveal">
+      <div class="sec-head mb-3.5">
+        <span class="ichip ichip-green w-8 h-8 rounded-lg"><i data-lucide="receipt" class="w-4 h-4"></i></span>
+        <p class="eyebrow eyebrow-g">Bill details</p>
+      </div>
+      <div class="space-y-2.5">
+        <div class="krow"><span class="text-[var(--ink-2)]">Item total</span><span class="font-semibold" id="b-sub"></span></div>
+        <div class="krow" id="b-disc-row"><span class="text-[var(--green)] font-semibold">Coupon discount</span><span id="b-disc" class="text-[var(--green)] font-semibold"></span></div>
+        <div class="krow"><span class="text-[var(--ink-2)]">Delivery charge</span><span class="font-semibold" id="b-del"></span></div>
+        <div class="krow"><span class="text-[var(--ink-2)]">Taxes & charges (5%)</span><span class="font-semibold" id="b-tax"></span></div>
+        <div class="border-t border-dashed border-[var(--line)] pt-3 mt-1 krow font-bold text-base"><span>To pay</span><span id="b-total" class="display text-lg"></span></div>
+      </div>
+      <p id="free-del-hint" class="text-[11px] text-[var(--brand)] font-bold mt-3"></p>
+    </div>
+    </div>
+
+    <p class="text-[11px] text-[var(--ink-2)] text-center mt-4">Demo preview · sample menu &amp; prices</p>
+  </div>
+</main>
+
+<!-- checkout bar -->
+<div id="checkout-bar" class="hidden fixed bottom-0 inset-x-0 z-30 glass border-t border-[var(--line)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center gap-3">
+      <div class="shrink-0"><p class="eyebrow eyebrow-g mb-0.5">Total</p><p class="display font-bold text-xl tnum leading-none" id="bar-total"></p></div>
+      <button onclick="location.href='address.html'" class="flex-1 pill cta-lux-accent ripple shine justify-center">Choose address <i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+    </div>
+    <p class="text-[11px] text-[var(--ink-2)] flex items-center justify-center gap-1.5 mt-2.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-[var(--green)]"></i> Safe &amp; secure checkout · Inclusive of all taxes</p>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+  const LOC=requireLocation();
+  if(LOC) document.getElementById("deliver-to").textContent="to "+LOC.address.split(",")[0];
+  let coupon=null;
+  const COUPONS={VRF20:{type:"pct",val:20,min:399,label:"20% off"},FIRST50:{type:"flat",val:50,min:199,label:"₹50 off"}};
+
+  function calc(){
+    const sub=cartSubtotal();
+    let disc=0;
+    if(coupon){const c=COUPONS[coupon]; if(sub>=c.min){ disc=c.type==="pct"?Math.round(sub*c.val/100):c.val; }}
+    const afterDisc=sub-disc;
+    const del = afterDisc>=VRF.freeDeliveryAbove?0:(sub>0?VRF.deliveryCharge:0);
+    const tax = Math.round(afterDisc*0.05);
+    const total=afterDisc+del+tax;
+    return {sub,disc,del,tax,total};
+  }
+
+  function render(){
+    const cart=getCart(); const ids=Object.keys(cart);
+    const wrap=document.getElementById("cart-items");
+    const hasItems=ids.length>0;
+    document.getElementById("empty").classList.toggle("hidden",hasItems);
+    document.getElementById("cart-body").classList.toggle("hidden",!hasItems);
+    document.getElementById("checkout-bar").classList.toggle("hidden",!hasItems);
+
+    wrap.className="space-y-3 stagger";
+    wrap.innerHTML=ids.map(id=>{const p=getProduct(id);const q=cart[id];return `
+      <div class="ui-card lift card-topline p-2.5 flex gap-3 items-center">
+        <div class="frame rounded-2xl shrink-0 relative"><img src="${prodImg(p,150,150)}" class="w-[72px] h-[72px] rounded-2xl object-cover" alt="${p.name}"><span class="absolute top-1 left-1 veg-dot" style="transform:scale(.8)"></span></div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-sm truncate">${p.name}</p>
+          <p class="text-xs text-[var(--ink-2)] line-clamp-1 mt-0.5">${p.desc}</p>
+          <div class="flex items-center gap-2 mt-1.5">
+            <p class="display font-bold text-base tnum text-[var(--green)] leading-none">${money(p.price*q)}</p>
+            <span class="text-[11px] text-[var(--ink-2)] tnum">${money(p.price)} each</span>
+          </div>
+        </div>
+        <div class="stepper shrink-0">
+          <button onclick="setQty('${id}',${q-1});render()">−</button><span class="min-w-[18px] text-center tnum">${q}</span><button onclick="setQty('${id}',${q+1});render()">+</button>
+        </div>
+      </div>`;}).join("");
+
+    const {sub,disc,del,tax,total}=calc();
+    document.getElementById("b-sub").textContent=money(sub);
+    document.getElementById("b-disc").textContent="−"+money(disc);
+    document.getElementById("b-disc-row").style.display=disc>0?"flex":"none";
+    document.getElementById("b-del").innerHTML=del===0?'<span class="text-[var(--green)] font-semibold">FREE</span>':money(del);
+    document.getElementById("b-tax").textContent=money(tax);
+    document.getElementById("b-total").textContent=money(total);
+    document.getElementById("bar-total").textContent=money(total);
+    const hint=document.getElementById("free-del-hint");
+    const gap=VRF.freeDeliveryAbove-(sub-disc);
+    hint.textContent = del>0 && gap>0 ? `Add ${money(gap)} more for FREE delivery` : (del===0?"You've unlocked free delivery!":"");
+
+    // save totals for checkout
+    localStorage.setItem("vrf_bill",JSON.stringify({sub,disc,del,tax,total,coupon}));
+
+    // FBT
+    const fbt=PRODUCTS.filter(x=>!cart[x.id] && (x.cat==="beverages"||x.cat==="desserts"||x.cat==="breads")).slice(0,6);
+    document.getElementById("fbt").innerHTML=fbt.map(x=>`
+      <div class="shrink-0 w-28 ui-card p-2 lift">
+        <div class="frame rounded-xl"><img src="${prodImg(x,150,120)}" class="w-full h-16 object-cover rounded-xl" alt="${x.name}"></div>
+        <p class="text-[11px] font-bold mt-1.5 line-clamp-1">${x.name}</p>
+        <div class="flex items-center justify-between mt-1"><span class="text-[11px] font-bold tnum text-[var(--green)]">${money(x.price)}</span>
+        <button onclick="addToCart('${x.id}');toast('Added');render()" class="w-7 h-7 rounded-full btn-accent text-white text-sm font-bold press flex items-center justify-center">+</button></div>
+      </div>`).join("");
+    lucide.createIcons(); updateCartBadges();
+  }
+
+  function applyCode(code){
+    code=code.toUpperCase().trim();
+    const msg=document.getElementById("coupon-msg");
+    if(!COUPONS[code]){ coupon=null; msg.innerHTML='<span class="text-red-500">Invalid coupon code</span>'; render(); return; }
+    const c=COUPONS[code];
+    if(cartSubtotal()<c.min){ coupon=null; msg.innerHTML=`<span class="text-orange-500">Add items worth ${money(c.min)} to use this</span>`; render(); return; }
+    coupon=code; msg.innerHTML=`<span class="text-[var(--green)] font-semibold">✓ ${c.label} applied! You saved ${money(calc().disc)}</span>`;
+    document.getElementById("coupon").value=code; render();
+  }
+  document.getElementById("apply-coupon").onclick=()=>applyCode(document.getElementById("coupon").value);
+  document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>applyCode(b.dataset.code));
+
+  render();
+</script>
+</body>
+</html>

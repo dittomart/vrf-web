@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dish — VRF Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="assets/theme.css" rel="stylesheet">
+<style>.veg-dot{width:18px;height:18px;border-width:2px}.veg-dot::after{width:8px;height:8px}</style>
+</head>
+<body class="pb-28">
+<header class="appbar">
+  <div class="appbar-inner flex items-center gap-3">
+    <a href="javascript:history.back()" class="ibtn ibtn-ghost shrink-0"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <h1 class="appbar-title flex-1 truncate" id="appbar-title">Dish</h1>
+    <a href="cart.html" class="ibtn ibtn-ghost shrink-0 relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span data-cart-badge class="hidden ibtn-badge">0</span></a>
+  </div>
+</header>
+<div class="max-w-6xl mx-auto bg-white min-h-screen">
+  <div class="lg:grid lg:grid-cols-2 lg:items-start">
+  <div class="relative imgzoom lg:sticky lg:top-[76px]">
+    <img id="hero-img" class="w-full h-72 lg:h-[calc(100vh-92px)] object-cover" alt="">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-black/10"></div>
+    <span id="ordered-badge" class="hidden absolute bottom-4 left-4 badge badge-gold shadow-md anim-fadein"></span>
+    <span class="absolute bottom-4 right-4 badge badge-green shadow-md" style="background:rgba(255,255,255,.9)"><i data-lucide="star" class="w-3.5 h-3.5 fill-[var(--gold)] text-[var(--gold)]"></i> 4.8 · 12k+</span>
+  </div>
+
+  <div class="relative px-5 lg:px-8 pt-6 lg:pt-9 -mt-6 lg:mt-0 bg-white rounded-t-[28px] lg:rounded-none anim-fadein">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="badge badge-green mb-2"><span class="veg-dot"></span> PURE VEG</div>
+        <h1 id="p-name" class="display text-[26px] font-extrabold leading-tight"></h1>
+      </div>
+      <button id="fav" class="ibtn shrink-0"><i data-lucide="heart" class="w-5 h-5 text-[var(--ink-2)]"></i></button>
+    </div>
+    <div class="flex items-center flex-wrap gap-2 mt-3">
+      <span class="flex items-center gap-1 text-xs font-bold badge badge-gold"><i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i> 4.8</span>
+      <span class="flex items-center gap-1.5 text-xs font-semibold badge" style="background:var(--ivory-2);color:var(--ink-2)"><i data-lucide="timer" class="w-3.5 h-3.5"></i> 35 min</span>
+      <span class="flex items-center gap-1.5 text-xs font-semibold badge badge-accent"><i data-lucide="flame" class="w-3.5 h-3.5"></i> Home-style</span>
+    </div>
+    <p id="p-desc" class="text-[var(--ink-2)] mt-4 leading-relaxed"></p>
+    <div class="rule-gold my-5"></div>
+    <div class="flex items-end gap-2.5">
+      <span id="p-price" class="display text-[32px] font-bold tnum text-[var(--green)] leading-none"></span>
+      <span id="p-mrp" class="text-[var(--ink-2)] line-through mb-0.5 tnum"></span>
+      <span id="p-off" class="mb-0.5 badge badge-accent"></span>
+    </div>
+    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+      <div class="stat-tile !py-2.5"><i data-lucide="truck" class="w-4 h-4 mx-auto text-[var(--green)]"></i><p class="text-[10px] font-bold mt-1">Free above ₹349</p></div>
+      <div class="stat-tile !py-2.5"><i data-lucide="flame" class="w-4 h-4 mx-auto text-[var(--brand)]"></i><p class="text-[10px] font-bold mt-1">Served hot</p></div>
+      <div class="stat-tile !py-2.5"><i data-lucide="leaf" class="w-4 h-4 mx-auto text-[var(--green)]"></i><p class="text-[10px] font-bold mt-1">No onion garlic opt.</p></div>
+    </div>
+    <div class="mt-6 flex items-center gap-2.5"><span class="ichip ichip-brand shrink-0"><i data-lucide="utensils" class="w-5 h-5"></i></span><div><p class="eyebrow eyebrow-g mb-0.5">Serving size</p><p class="sec-title leading-none">Choose your portion</p></div></div>
+    <div id="variants" class="flex gap-2.5 mt-3"></div>
+    <div class="mt-9">
+      <div class="sec-head mb-3">
+        <span class="ichip ichip-gold shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
+        <div class="shrink-0">
+          <p class="eyebrow eyebrow-g mb-0.5">Pairs well with</p>
+          <p class="sec-title leading-none">Frequently bought together</p>
+        </div>
+      </div>
+      <div id="fbt" class="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-2"></div>
+    </div>
+    <div class="mt-8 grid grid-cols-3 gap-2.5 text-center pb-6 stagger">
+      <div class="ui-card ui-card-lux py-4"><span class="ichip ichip-green mx-auto mb-1.5"><i data-lucide="leaf" class="w-5 h-5"></i></span><p class="text-[11px] font-bold">100% Veg</p></div>
+      <div class="ui-card ui-card-lux py-4"><span class="ichip ichip-brand mx-auto mb-1.5"><i data-lucide="chef-hat" class="w-5 h-5"></i></span><p class="text-[11px] font-bold">Made fresh</p></div>
+      <div class="ui-card ui-card-lux py-4"><span class="ichip ichip-gold mx-auto mb-1.5"><i data-lucide="package-check" class="w-5 h-5"></i></span><p class="text-[11px] font-bold">Hygienic pack</p></div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="fixed bottom-0 inset-x-0 z-30 glass border-t border-[var(--line)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+  <div class="max-w-6xl mx-auto flex items-center gap-3">
+    <div class="stepper text-base shrink-0">
+      <button id="minus" class="px-3.5 py-3">−</button><span id="qty" class="min-w-[20px] text-center tnum">1</span><button id="plus" class="px-3.5 py-3">+</button>
+    </div>
+    <button id="addbtn" class="flex-1 pill cta-lux-accent ripple shine justify-center">Add to cart · <span id="addtotal" class="tnum"></span></button>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+  requireLocation();
+  const id=new URLSearchParams(location.search).get("id")||"p5";
+  const p=getProduct(id)||PRODUCTS[0];
+  let qty=1, priceMult=1, portion="Regular";
+  document.getElementById("hero-img").src=prodImg(p,800,600);
+  document.getElementById("p-name").textContent=p.name;
+  { const at=document.getElementById("appbar-title"); if(at) at.textContent=p.name; }
+  document.getElementById("p-desc").textContent=p.desc;
+  document.getElementById("p-mrp").textContent=money(p.mrp);
+  document.getElementById("p-off").textContent=Math.round((1-p.price/p.mrp)*100)+"% OFF";
+  if(p.best){const b=document.getElementById("ordered-badge");b.classList.remove("hidden");b.innerHTML=`<i data-lucide="flame" class="w-3 h-3"></i> Ordered ${p.ordered} times`;}
+  function paintFav(){
+    const i=document.querySelector("#fav i");
+    const on=inWishlist(p.id);
+    i.classList.toggle("fill-[var(--brand)]",on); i.classList.toggle("text-[var(--brand)]",on);
+    i.classList.toggle("text-[var(--ink-2)]",!on);
+  }
+  document.getElementById("fav").onclick=function(){
+    const saved=toggleWishlist(p.id); paintFav();
+    this.animate([{transform:"scale(1)"},{transform:"scale(1.25)"},{transform:"scale(1)"}],{duration:300});
+    toast(saved?"Saved to wishlist":"Removed from wishlist","heart");
+  };
+  paintFav();
+  const variants=[{n:"Regular",m:1},{n:"Large",m:1.5},{n:"Family",m:2.4}];
+  const vwrap=document.getElementById("variants");
+  function renderVariants(){
+    vwrap.innerHTML=variants.map(v=>`<button data-v="${v.n}" class="flex-1 rounded-xl border-2 py-2.5 text-sm font-bold press transition ${portion===v.n?'border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]':'border-[var(--line)] text-[var(--ink)]'}">${v.n}<br><span class="text-[11px] font-medium text-[var(--ink-2)]">${money(Math.round(p.price*v.m))}</span></button>`).join("");
+    vwrap.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{portion=b.dataset.v;priceMult=variants.find(v=>v.n===portion).m;renderVariants();updateTotal();});
+  }
+  function unitPrice(){return Math.round(p.price*priceMult);}
+  function updateTotal(){
+    document.getElementById("p-price").textContent=money(unitPrice());
+    document.getElementById("addtotal").textContent=money(unitPrice()*qty);
+    const q=document.getElementById("qty");q.textContent=qty;q.animate([{transform:"scale(1.4)"},{transform:"scale(1)"}],{duration:250});
+  }
+  document.getElementById("plus").onclick=()=>{qty++;updateTotal();};
+  document.getElementById("minus").onclick=()=>{if(qty>1){qty--;updateTotal();}};
+  document.getElementById("addbtn").onclick=function(){addToCart(p.id,qty);flyToCart(this);toast(`Added ${qty} × ${p.name}`);setTimeout(()=>location.href="cart.html",700);};
+  const fbt=PRODUCTS.filter(x=>x.id!==p.id && (x.cat==="breads"||x.cat==="beverages"||x.cat==="desserts")).slice(0,5);
+  document.getElementById("fbt").innerHTML=fbt.map(x=>`
+    <div class="shrink-0 w-32 ui-card p-2.5 lift">
+      <a href="product.html?id=${x.id}" class="frame block rounded-xl"><img src="${prodImg(x,200,150)}" class="w-full h-16 object-cover rounded-xl" alt="${x.name}"></a>
+      <p class="text-xs font-bold mt-2 line-clamp-1">${x.name}</p>
+      <div class="flex items-center justify-between mt-1"><span class="text-xs font-bold tnum text-[var(--green)]">${money(x.price)}</span>
+      <button onclick="addToCart('${x.id}');toast('Added ${x.name}');flyToCart(this)" class="w-7 h-7 rounded-full btn-accent text-white text-sm font-bold press flex items-center justify-center">+</button></div>
+    </div>`).join("");
+  renderVariants(); updateTotal(); lucide.createIcons(); updateCartBadges();
+</script>
+</body>
+</html>
