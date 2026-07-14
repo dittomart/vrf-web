@@ -1,1 +1,0 @@
-import{r as s,j as i}from"./index-BZlAHKod.js";function l({className:r="",...a}){const[t,e]=s.useState(!1);return i.jsx("img",{...a,src:t?void 0:a.src,loading:a.loading??"lazy",onError:()=>e(!0),className:t?`${r} img-fallback`:r})}export{l as S};

@@ -1,1 +1,0 @@
-import{l as a,p as d,S as l}from"./index-BZlAHKod.js";const c=a()(d((r,t)=>({ids:[],toggle:s=>{const i=t().ids.includes(s);return r(e=>({ids:i?e.ids.filter(o=>o!==s):[...e.ids,s]})),!i},remove:s=>r(i=>({ids:i.ids.filter(e=>e!==s)})),has:s=>t().ids.includes(s)}),{name:l.wishlist,version:2}));export{c as u};
