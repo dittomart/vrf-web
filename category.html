@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="pb-28 md:pb-10">
@@ -25,42 +26,51 @@
   </div>
 </header>
 
-<!-- RICH HERO / INTRO STRIP -->
+<!-- ============ MENU HERO — photo-textured brand panel ============ -->
 <div class="max-w-6xl mx-auto px-4 pt-4">
-  <div class="cta-lux shine tex-dots rounded-3xl px-5 py-5 relative overflow-hidden">
-    <div class="relative z-10 flex items-start justify-between gap-3">
+  <section class="menu-hero on-brand a-scalein">
+    <div class="menu-hero-photo" id="menu-photo" aria-hidden="true"></div>
+    <div class="menu-hero-wash" aria-hidden="true"></div>
+    <div class="menu-hero-glow" aria-hidden="true"></div>
+
+    <div class="relative flex items-start justify-between gap-4">
       <div class="min-w-0">
-        <p class="eyebrow text-[var(--gold)] mb-1.5">VRF Kitchen · Chef-crafted daily</p>
-        <h1 class="script text-white text-[26px] leading-none mb-1.5">Full Menu</h1>
-        <p id="hero-count" class="text-[13px] text-white/75"></p>
+        <span class="menu-hero-eyebrow">VRF Kitchen · Chef-crafted daily</span>
+        <h1 class="menu-hero-title" id="hero-title">Full Menu</h1>
+        <p id="hero-count" class="text-[13px] text-white/70 mt-1.5"></p>
       </div>
-      <span class="badge badge-green shrink-0 shadow-sm"><span class="veg-dot"></span> 100% Pure Veg</span>
+      <span class="badge badge-green shrink-0"><span class="veg-dot"></span> 100% Pure Veg</span>
     </div>
-    <div class="relative z-10 mt-4 flex flex-wrap gap-2">
-      <span class="ichip ichip-gold !w-auto px-3 gap-1.5 text-[11px] font-bold text-[var(--ink)]"><i data-lucide="leaf" class="w-3.5 h-3.5"></i> No onion · no garlic options</span>
-      <span class="ichip ichip-gold !w-auto px-3 gap-1.5 text-[11px] font-bold text-[var(--ink)]"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 30-min delivery</span>
+
+    <div class="relative mt-5 flex flex-wrap gap-2">
+      <span class="menu-hero-chip"><i data-lucide="leaf" class="w-3.5 h-3.5"></i> No onion · no garlic</span>
+      <span class="menu-hero-chip"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 30-min delivery</span>
+      <span class="menu-hero-chip"><i data-lucide="chef-hat" class="w-3.5 h-3.5"></i> Cooked to order</span>
     </div>
-  </div>
+  </section>
 </div>
 
-<!-- CATEGORY RAIL (below the navbar) -->
-<div class="max-w-6xl mx-auto px-4 pt-4 flex gap-2.5 overflow-x-auto no-scrollbar" id="chips"></div>
+<!-- CATEGORY RAIL -->
+<div class="max-w-6xl mx-auto px-4 pt-5 flex gap-2.5 overflow-x-auto no-scrollbar" id="chips"></div>
 
-<div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-  <button data-sort="pop" class="sortbtn shrink-0 flex items-center gap-1 text-xs font-bold btn-brand px-3.5 py-2 rounded-full press shadow-sm"><i data-lucide="flame" class="w-3.5 h-3.5"></i> Popular</button>
-  <button data-sort="low" class="sortbtn shrink-0 text-xs font-bold bg-white border border-[var(--line)] shadow-sm px-3.5 py-2 rounded-full press">Price ↑</button>
-  <button data-sort="high" class="sortbtn shrink-0 text-xs font-bold bg-white border border-[var(--line)] shadow-sm px-3.5 py-2 rounded-full press">Price ↓</button>
-  <button data-filter="best" class="filterbtn shrink-0 flex items-center gap-1 text-xs font-bold bg-white border border-[var(--line)] shadow-sm px-3.5 py-2 rounded-full press"><i data-lucide="flame" class="w-3.5 h-3.5"></i> Bestsellers</button>
+<!-- FILTER BAR -->
+<div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+  <button data-sort="pop" class="sortbtn fchip is-on shrink-0"><i data-lucide="flame" class="w-3.5 h-3.5"></i> Popular</button>
+  <button data-sort="low" class="sortbtn fchip shrink-0">Price ↑</button>
+  <button data-sort="high" class="sortbtn fchip shrink-0">Price ↓</button>
+  <button data-filter="best" class="filterbtn fchip shrink-0"><i data-lucide="flame" class="w-3.5 h-3.5"></i> Bestsellers</button>
   <span class="shrink-0 ml-auto flex items-center gap-1 text-xs font-bold badge badge-green"><span class="veg-dot"></span> Pure Veg</span>
 </div>
 
-<div class="max-w-6xl mx-auto px-4 pb-3">
-  <div class="cta-lux tex-dots rounded-2xl px-4 py-3 flex items-center gap-3 relative overflow-hidden">
-    <span class="ichip ichip-gold shrink-0 relative z-10"><i data-lucide="ticket-percent" class="w-5 h-5"></i></span>
-    <div class="relative z-10 min-w-0">
-      <p class="text-sm font-bold text-white leading-tight">Flat 20% off your first order</p>
-      <p class="text-[11px] text-white/70">Use code <b class="text-[var(--gold)]">VRF20</b> · Free delivery above ₹349</p>
+<!-- COUPON TICKET -->
+<div class="max-w-6xl mx-auto px-4 pb-4">
+  <div class="ticket">
+    <span class="ticket-stub"><i data-lucide="ticket-percent" class="w-5 h-5"></i></span>
+    <div class="min-w-0 flex-1">
+      <p class="ticket-t">Flat 20% off your first order</p>
+      <p class="ticket-s">Use code <b class="ticket-code">VRF20</b> · Free delivery above ₹349</p>
     </div>
+    <span class="ticket-save shrink-0">Save ₹120</span>
   </div>
 </div>
 
@@ -87,6 +97,11 @@
 <script src="assets/app.js"></script>
 <script>
   requireLocation();
+
+  /* Hero backdrop — a real dish behind the brand wash, so the panel reads as
+     an editorial header rather than a flat colour block. */
+  document.getElementById("menu-photo").style.backgroundImage =
+    `url("${imgUrl("1585937421612-70a008356fbe", 1400, 500)}")`;
   const params=new URLSearchParams(location.search);
   let activeCat=params.get("cat")||"all";
   let sort="pop", onlyBest=false, query="";
@@ -130,10 +145,12 @@
   }
   function stepper(id){
     const c=getCart(); const q=c[id]||0;
-    if(q===0) return `<button onclick="addToCart('${id}');toast('Added');flyToCart(this);render()" class="w-full border border-[var(--brand)] text-[var(--brand)] font-bold text-xs py-2.5 rounded-xl press active:bg-[var(--brand)] active:text-white transition-colors tracking-wide">ADD +</button>`;
-    return `<div class="flex items-center justify-between btn-brand rounded-xl font-bold text-sm px-1 anim-scalein">
-      <button onclick="setQty('${id}',${q-1});render()" class="px-3 py-1.5 press">−</button><span>${q}</span>
-      <button onclick="setQty('${id}',${q+1});render()" class="px-3 py-1.5 press">+</button></div>`;
+    // Adding to cart is THE primary action on a card, so it wears the brand
+    // green — not the brass accent, which is reserved for decoration.
+    if(q===0) return `<button onclick="addToCart('${id}');toast('Added');flyToCart(this);render()" class="btn-add press">ADD <i data-lucide="plus" class="w-3.5 h-3.5"></i></button>`;
+    return `<div class="qty-bar anim-scalein">
+      <button aria-label="Decrease" onclick="setQty('${id}',${q-1});render()" class="press">−</button><span class="tnum">${q}</span>
+      <button aria-label="Increase" onclick="setQty('${id}',${q+1});render()" class="press">+</button></div>`;
   }
   function render(){
     let items=PRODUCTS.slice();
@@ -144,8 +161,10 @@
     else if(sort==="high") items.sort((a,b)=>b.price-a.price);
     else items.sort((a,b)=>b.ordered-a.ordered);
     const cat=CATEGORIES.find(c=>c.id===activeCat);
-    document.getElementById("cat-title").textContent = cat?cat.name : "Full Menu";
+    const title = cat ? cat.name : "Full Menu";
+    document.getElementById("cat-title").textContent = title;
     document.getElementById("cat-count").textContent = `${items.length} pure-veg dishes`;
+    const ht=document.getElementById("hero-title"); if(ht) ht.textContent = title;
     const hc=document.getElementById("hero-count"); if(hc) hc.textContent = `${items.length} dishes · handpicked & freshly made`;
     const list=document.getElementById("list");
     list.className="grid-products stagger";
@@ -155,15 +174,18 @@
     lucide.createIcons(); updateCartBadges();
   }
   document.getElementById("search").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();render();});
+  /* Toggle the active CLASS rather than rewriting className wholesale —
+     the old code rebuilt the class string from scratch on every click, which
+     silently dropped any styling hook the markup added. */
   document.querySelectorAll(".sortbtn").forEach(b=>b.onclick=()=>{
     sort=b.dataset.sort;
-    document.querySelectorAll(".sortbtn").forEach(x=>x.className="sortbtn shrink-0 text-xs font-semibold bg-white shadow-sm px-3 py-2 rounded-full press");
-    b.className="sortbtn shrink-0 flex items-center gap-1 text-xs font-semibold btn-brand px-3 py-2 rounded-full press";
+    document.querySelectorAll(".sortbtn").forEach(x=>x.classList.remove("is-on"));
+    b.classList.add("is-on");
     render();
   });
   document.querySelector(".filterbtn").onclick=function(){
     onlyBest=!onlyBest;
-    this.className="filterbtn shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-full press "+(onlyBest?"btn-brand":"bg-white shadow-sm");
+    this.classList.toggle("is-on",onlyBest);
     render();
   };
   renderChips(); render(); injectChrome("search");

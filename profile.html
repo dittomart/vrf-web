@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="bg-[var(--cream)] text-[var(--ink)] pb-28 md:pb-10">
@@ -19,66 +20,114 @@
   </div>
 </header>
 
-<div class="text-white px-4 pt-6 pb-20 rounded-b-[36px] relative overflow-hidden tex-dots" style="background:radial-gradient(130% 90% at 30% 0%,#177245,#0E4D31 58%,#0b3d27)">
-  <div class="absolute inset-x-0 top-0 h-[3px]" style="background:linear-gradient(90deg,var(--gold),transparent 70%);opacity:.7"></div>
-  <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full" style="background:radial-gradient(circle at 40% 40%,rgba(233,200,119,.18),transparent 70%)"></div>
-  <div class="absolute -left-8 bottom-0 w-32 h-32 rounded-full bg-white/5"></div>
-  <div class="max-w-6xl mx-auto relative">
-    <div class="flex items-center gap-4 mt-1">
-      <div class="relative shrink-0">
-        <div class="logo-tile w-[68px] h-[68px] a-scalein" id="avatar" style="box-shadow:0 14px 30px -12px rgba(0,0,0,.5),0 0 0 3px rgba(233,200,119,.35)"><img src="assets/image.png" alt="VRF"></div>
-        <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--gold)] flex items-center justify-center border-2 border-[#0E4D31]"><i data-lucide="check" class="w-3.5 h-3.5" style="color:var(--green)"></i></span>
-      </div>
-      <div class="min-w-0">
-        <p class="display font-extrabold text-2xl leading-tight truncate" id="uname">Guest</p>
-        <p class="text-white/75 text-sm mt-0.5 flex items-center gap-1.5" id="uphone"><i data-lucide="phone" class="w-3.5 h-3.5"></i> Not logged in</p>
+<main class="max-w-6xl mx-auto px-4 pt-4">
+
+  <!-- ============ IDENTITY: avatar, name, and the three stats in ONE card.
+       Previously the stats were a separate strip and the page below split
+       into a near-empty left column and an overloaded right one. ============ -->
+  <section class="acct-hero a-scalein">
+    <div class="acct-hero-top" style="background:radial-gradient(130% 140% at 15% 0%,var(--primary-2),var(--primary) 60%,var(--primary-2))">
+      <span class="acct-hero-sheen" aria-hidden="true"></span>
+      <div class="relative flex items-center gap-4">
+        <div class="relative shrink-0">
+          <div class="logo-tile w-[62px] h-[62px]" id="avatar" style="box-shadow:0 10px 26px -12px rgba(0,0,0,.5),0 0 0 3px color-mix(in srgb, var(--gold) 38%, transparent)"><img src="assets/image.png" alt="VRF"></div>
+          <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--gold)] flex items-center justify-center border-2" style="border-color:var(--primary)"><i data-lucide="check" class="w-3.5 h-3.5" style="color:var(--primary)"></i></span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="display font-bold text-[25px] leading-tight truncate" id="uname">Guest</p>
+          <p class="text-white/75 text-sm mt-1 flex items-center gap-1.5 truncate" id="uphone"><i data-lucide="phone" class="w-3.5 h-3.5 shrink-0"></i> Not logged in</p>
+        </div>
+        <span class="acct-vegtag shrink-0 hidden sm:inline-flex"><i data-lucide="leaf" class="w-3.5 h-3.5"></i> Pure-veg member</span>
       </div>
     </div>
-  </div>
-</div>
 
-<main class="max-w-6xl mx-auto px-4 -mt-10">
-  <!-- wallet -->
-  <div class="ui-card-lux card-topline p-4 grid grid-cols-3 divide-x divide-[var(--line)] text-center anim-scalein">
-    <div class="px-1"><p class="display font-bold text-2xl text-[var(--brand)] tnum">₹250</p><p class="eyebrow mt-1" style="letter-spacing:.14em">Wallet</p></div>
-    <div class="px-1"><p class="display font-bold text-2xl text-[var(--green)] tnum" id="order-count">0</p><p class="eyebrow-g eyebrow mt-1" style="letter-spacing:.14em">Orders</p></div>
-    <div class="px-1"><p class="display font-bold text-2xl text-[var(--brand)] tnum" id="saved-amt">₹0</p><p class="eyebrow mt-1" style="letter-spacing:.14em">Saved</p></div>
-  </div>
-
-  <div class="lg-2col-wide mt-8">
-  <div>
-  <!-- Favourite / Saved orders -->
-  <div class="mt-0">
-    <div class="sec-head mb-3">
-      <span class="ichip ichip-brand"><i data-lucide="bookmark" class="w-5 h-5"></i></span>
-      <div><p class="eyebrow">Your combos</p><p class="sec-title leading-tight">Saved orders</p></div>
+    <div class="acct-stats">
+      <div class="acct-stat">
+        <span class="acct-stat-ico ichip-green"><i data-lucide="wallet" class="w-[18px] h-[18px]"></i></span>
+        <p class="acct-stat-num tnum">₹250</p>
+        <p class="acct-stat-lbl">Wallet</p>
+      </div>
+      <div class="acct-stat">
+        <span class="acct-stat-ico ichip-gold"><i data-lucide="receipt-text" class="w-[18px] h-[18px]"></i></span>
+        <p class="acct-stat-num tnum" id="order-count">0</p>
+        <p class="acct-stat-lbl">Orders</p>
+      </div>
+      <div class="acct-stat">
+        <span class="acct-stat-ico ichip-brand"><i data-lucide="piggy-bank" class="w-[18px] h-[18px]"></i></span>
+        <p class="acct-stat-num tnum" id="saved-amt">₹0</p>
+        <p class="acct-stat-lbl">Saved</p>
+      </div>
     </div>
-    <div id="favs" class="space-y-3"></div>
-  </div>
-  </div>
+  </section>
 
-  <div class="lg-aside">
-  <!-- menu -->
-  <div class="mt-8 lg:mt-0">
-    <p class="div-label mb-3">ACCOUNT</p>
-  </div>
-  <div class="ui-card-lux overflow-hidden divide-y divide-[var(--line)] stagger">
-    <a href="orders.html" class="flex items-center gap-3.5 p-4 press"><span class="ichip ichip-brand w-10 h-10"><i data-lucide="receipt-text" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">My Orders</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></a>
-    <a href="address.html" class="flex items-center gap-3.5 p-4 press"><span class="ichip ichip-green w-10 h-10"><i data-lucide="map-pin" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">Saved Addresses</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></a>
-    <a href="wishlist.html" class="flex items-center gap-3.5 p-4 press"><span class="ichip ichip-brand w-10 h-10"><i data-lucide="heart" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">Wishlist</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></a>
-    <a href="https://wa.me/919372381280" class="flex items-center gap-3.5 p-4 press"><span class="ichip ichip-green w-10 h-10"><i data-lucide="message-circle" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">Support (WhatsApp)</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></a>
-    <button onclick="openHours()" class="w-full flex items-center gap-3.5 p-4 text-left press"><span class="ichip ichip-gold w-10 h-10"><i data-lucide="clock" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">Store Hours</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></button>
-    <button onclick="location.href='location.html'" class="w-full flex items-center gap-3.5 p-4 text-left press"><span class="ichip ichip-green w-10 h-10"><i data-lucide="navigation" class="w-[19px] h-[19px]"></i></span><span class="flex-1 font-semibold text-sm">Change Location</span><i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)]"></i></button>
-  </div>
+  <!-- ============ QUICK ACTIONS — the four things people actually come here for ============ -->
+  <section class="acct-quick stagger">
+    <a href="orders.html" class="qtile">
+      <span class="qtile-ico ichip-green"><i data-lucide="receipt-text" class="w-5 h-5"></i></span>
+      <span class="qtile-lbl">My Orders</span>
+      <span class="qtile-sub" id="q-orders">Track & reorder</span>
+    </a>
+    <a href="address.html" class="qtile">
+      <span class="qtile-ico ichip-gold"><i data-lucide="map-pin" class="w-5 h-5"></i></span>
+      <span class="qtile-lbl">Addresses</span>
+      <span class="qtile-sub" id="q-addr">Manage</span>
+    </a>
+    <a href="wishlist.html" class="qtile">
+      <span class="qtile-ico ichip-brand"><i data-lucide="heart" class="w-5 h-5"></i></span>
+      <span class="qtile-lbl">Wishlist</span>
+      <span class="qtile-sub" id="q-wish">Saved dishes</span>
+    </a>
+    <a href="https://wa.me/919372381280" class="qtile">
+      <span class="qtile-ico ichip-green"><i data-lucide="message-circle" class="w-5 h-5"></i></span>
+      <span class="qtile-lbl">Support</span>
+      <span class="qtile-sub">WhatsApp us</span>
+    </a>
+  </section>
 
-  <button id="auth-btn" class="w-full mt-5 btn-outline press font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2"></button>
+  <!-- ============ BODY: saved combos | settings ============ -->
+  <div class="acct-grid">
 
-  <div class="mt-7 flex flex-col items-center gap-2">
-    <div class="logo-tile w-10 h-10 opacity-90"><img src="assets/image.png" alt=""></div>
-    <p class="script text-base" style="color:var(--gold)">Taste · Time · Quality</p>
-    <p class="text-center text-[11px] text-[var(--ink-2)]">Demo preview · VRF Kitchen · 93723 81280</p>
-  </div>
-  </div>
+    <section class="min-w-0">
+      <div class="sec-head">
+        <span class="ichip ichip-brand shrink-0"><i data-lucide="bookmark" class="w-5 h-5"></i></span>
+        <div class="min-w-0"><p class="eyebrow">Your combos</p><p class="sec-title leading-tight">Saved orders</p></div>
+      </div>
+      <div id="favs" class="space-y-3"></div>
+    </section>
+
+    <aside class="min-w-0">
+      <div class="sec-head">
+        <span class="ichip ichip-green shrink-0"><i data-lucide="settings-2" class="w-5 h-5"></i></span>
+        <div class="min-w-0"><p class="eyebrow eyebrow-g">Preferences</p><p class="sec-title leading-tight">Settings</p></div>
+      </div>
+
+      <div class="ui-card overflow-hidden">
+        <button onclick="openHours()" class="acct-row press">
+          <span class="ichip ichip-gold w-10 h-10 shrink-0"><i data-lucide="clock" class="w-[19px] h-[19px]"></i></span>
+          <span class="flex-1 min-w-0 text-left"><span class="acct-row-t">Store Hours</span><span class="acct-row-s">11 AM – 11 PM today</span></span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)] shrink-0"></i>
+        </button>
+        <button onclick="location.href='location.html'" class="acct-row press">
+          <span class="ichip ichip-green w-10 h-10 shrink-0"><i data-lucide="navigation" class="w-[19px] h-[19px]"></i></span>
+          <span class="flex-1 min-w-0 text-left"><span class="acct-row-t">Delivery Location</span><span class="acct-row-s truncate" id="cur-loc">Set your area</span></span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-[var(--ink-2)] shrink-0"></i>
+        </button>
+        <button id="mode-row" class="acct-row press">
+          <span class="ichip ichip-brand w-10 h-10 shrink-0"><i data-lucide="moon" class="w-[19px] h-[19px]" id="mode-ico"></i></span>
+          <span class="flex-1 min-w-0 text-left"><span class="acct-row-t">Appearance</span><span class="acct-row-s" id="mode-sub">Light mode</span></span>
+          <span class="acct-switch" id="mode-switch"><span></span></span>
+        </button>
+      </div>
+
+      <button id="auth-btn" class="w-full mt-4 btn-outline press font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2"></button>
+
+      <div class="mt-8 flex flex-col items-center gap-2">
+        <div class="logo-tile w-10 h-10 opacity-90"><img src="assets/image.png" alt=""></div>
+        <p class="script text-base" style="color:var(--gold)">Taste · Time · Quality</p>
+        <p class="text-center text-[11px] text-[var(--ink-2)]">Demo preview · VRF Kitchen · 93723 81280</p>
+      </div>
+    </aside>
+
   </div>
 </main>
 
@@ -101,20 +150,44 @@
 
 <script src="assets/app.js"></script>
 <script>
-  requireLocation();
+  const LOC=requireLocation();
   const logged=isLoggedIn();
   if(logged){
     const ph=localStorage.getItem("vrf_phone")||"9372381280";
     document.getElementById("uname").textContent="Vijay's Customer";
-    document.getElementById("uphone").textContent="+91 "+ph;
+    document.getElementById("uphone").innerHTML='<i data-lucide="phone" class="w-3.5 h-3.5 shrink-0"></i> +91 '+ph;
   }
   // dynamic stats from real order history
   const hist=getHistory();
   document.getElementById("order-count").textContent = hist.length;
   const savedAmt = hist.flatMap(o=>o.items||[]).reduce((s,i)=>{const p=getProduct(i.id);return s+(p?(p.mrp-p.price)*(i.qty||1):0);},0);
   document.getElementById("saved-amt").textContent = money(savedAmt);
+
+  /* quick tiles show live counts rather than static filler */
+  const nOrders=hist.length, nWish=getWishlist().length;
+  let nAddr=0; try{ nAddr=(JSON.parse(localStorage.getItem("vrf_addresses"))||[]).length; }catch(e){}
+  document.getElementById("q-orders").textContent = nOrders ? `${nOrders} order${nOrders>1?"s":""}` : "Track & reorder";
+  document.getElementById("q-addr").textContent   = nAddr   ? `${nAddr} saved` : "Add one";
+  document.getElementById("q-wish").textContent   = nWish   ? `${nWish} saved` : "Nothing yet";
+  if(LOC && LOC.address) document.getElementById("cur-loc").textContent = LOC.address;
+
+  /* Appearance toggle — the palette FAB is gone, so dark mode lives here
+     (the theme engine itself is still loaded on every page). */
+  const modeRow=document.getElementById("mode-row");
+  function paintMode(){
+    const dark = window.VRFTheme && VRFTheme.resolveMode(VRFTheme.getMode())==="dark";
+    document.getElementById("mode-sub").textContent = dark ? "Dark mode" : "Light mode";
+    document.getElementById("mode-ico").setAttribute("data-lucide", dark ? "sun" : "moon");
+    document.getElementById("mode-switch").classList.toggle("is-on", dark);
+    lucide.createIcons();
+  }
+  modeRow.onclick=()=>{ if(window.VRFTheme){ VRFTheme.toggleMode(); paintMode(); } };
+  paintMode();
+
   const authBtn=document.getElementById("auth-btn");
-  authBtn.textContent=logged?"Logout":"Login / Sign up";
+  authBtn.innerHTML=logged
+    ? '<i data-lucide="log-out" class="w-4 h-4"></i> Logout'
+    : '<i data-lucide="log-in" class="w-4 h-4"></i> Login / Sign up';
   authBtn.onclick=()=>{
     if(logged){ logoutUser(); toast("Logged out — all data cleared"); setTimeout(()=>location.href="home.html",600); }
     else location.href="login.html?next=profile.html";

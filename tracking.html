@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="bg-[var(--cream)] text-[var(--ink)] pb-28">
@@ -21,12 +22,12 @@
 
 <main class="max-w-6xl mx-auto px-4 pt-6">
   <!-- map mock -->
-  <div class="relative rounded-[22px] overflow-hidden h-56 ui-card-lux card-topline reveal" style="background:#dfeee2">
+  <div class="relative rounded-[22px] overflow-hidden h-56 ui-card-lux card-topline reveal" style="background:var(--canvas-2)">
     <svg viewBox="0 0 400 200" class="w-full h-full" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="200" fill="#e4efe6"/>
-      <path d="M0 60 H400 M0 130 H400 M120 0 V200 M280 0 V200" stroke="#cadfce" stroke-width="6" fill="none"/>
-      <rect x="150" y="72" width="40" height="34" rx="4" fill="#d3e6d7"/>
-      <rect x="300" y="140" width="46" height="40" rx="4" fill="#d3e6d7"/>
+      <rect width="400" height="200" fill="var(--canvas-2)"/>
+      <path d="M0 60 H400 M0 130 H400 M120 0 V200 M280 0 V200" stroke="var(--canvas-2)" stroke-width="6" fill="none"/>
+      <rect x="150" y="72" width="40" height="34" rx="4" fill="var(--canvas-2)"/>
+      <rect x="300" y="140" width="46" height="40" rx="4" fill="var(--canvas-2)"/>
       <path id="route" d="M60 150 C 140 150, 160 70, 280 60" stroke="var(--brand)" stroke-width="4" fill="none" stroke-dasharray="6 6"/>
       <circle cx="60" cy="150" r="11" fill="var(--green)" opacity=".18"/>
       <circle cx="60" cy="150" r="8" fill="var(--green)"/>
@@ -45,7 +46,6 @@
   <div>
   <!-- status banner -->
   <div class="relative ui-card ui-card-lux card-topline ui-card-pad mt-4 overflow-hidden reveal" data-d="1">
-    <div class="tex-dots absolute inset-0 opacity-60 pointer-events-none"></div>
     <div class="relative flex items-center gap-3.5">
       <div class="w-14 h-14 rounded-2xl flex items-center justify-center bob shrink-0" id="status-emoji" style="background:linear-gradient(135deg,var(--brand-soft),var(--gold-soft))"><i data-lucide="chef-hat" class="w-7 h-7 text-[var(--brand)]"></i></div>
       <div class="flex-1 min-w-0"><p class="eyebrow eyebrow-g mb-0.5">Live status</p><p class="display font-bold text-lg leading-tight" id="status-title">Preparing your food</p><p class="text-xs text-[var(--ink-2)] mt-0.5" id="status-sub">Our chef is cooking it fresh</p></div>
@@ -72,8 +72,8 @@
   </div>
 
   <!-- reorder CTA (shown when delivered) -->
-  <div id="reorder-cta" class="hidden relative cta-lux tex-dots text-white rounded-[22px] p-5 mt-4 flex items-center gap-3.5 shadow-lg overflow-hidden">
-    <div class="absolute -top-8 -right-6 w-28 h-28 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.4),transparent 70%)"></div>
+  <div id="reorder-cta" class="hidden relative cta-lux text-white rounded-[22px] p-5 mt-4 flex items-center gap-3.5 shadow-lg overflow-hidden">
+    <div class="absolute -top-8 -right-6 w-28 h-28 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--gold) 40%, transparent),transparent 70%)"></div>
     <div class="relative w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0"><i data-lucide="rotate-ccw" class="w-6 h-6"></i></div>
     <div class="relative flex-1 min-w-0"><p class="script text-base leading-none" style="color:var(--gold)">Enjoyed your meal?</p><p class="font-bold text-sm mt-1">Reorder the same in one tap</p></div>
     <button id="reorder-btn" class="relative bg-white text-[var(--green)] text-xs font-bold px-4 py-2.5 rounded-xl press shine">Reorder</button>
@@ -132,6 +132,6 @@
   render();
   // auto-advance
   const auto=setInterval(()=>{if(cur<steps.length-1){cur++;render();}else clearInterval(auto);},4000);
-</script>
+</script>
 </body>
 </html>

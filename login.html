@@ -7,140 +7,150 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
-<style>
-  .field{background:#fff;border:1.5px solid var(--line);border-radius:16px;transition:border-color .2s,box-shadow .2s}
-  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 4px rgba(14,77,49,.09)}
-  .otp{background:var(--ivory);border:1.5px solid var(--line);transition:border-color .2s,box-shadow .2s,transform .15s,background .2s}
-  .otp:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(14,77,49,.1);transform:translateY(-2px)}
-  .otp.filled{border-color:var(--green);background:#fff}
-  /* location bar */
-  .locbar{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);transition:box-shadow .2s,border-color .2s}
-  .locbar:active{border-color:var(--green)}
-</style>
 </head>
-<body class="bg-[var(--ivory)] text-[var(--ink)] min-h-screen">
-<div class="max-w-6xl mx-auto min-h-screen lg:grid lg:grid-cols-2">
+<body class="text-[var(--ink)]">
+<div class="auth">
 
-  <!-- LEFT — brand panel (desktop only) -->
-  <aside class="hidden lg:flex lg:min-h-screen relative flex-col justify-between overflow-hidden text-white p-12" style="background:linear-gradient(150deg,var(--green-2),var(--green) 55%,#0b3d27)">
-    <div class="tex-dots absolute inset-0 opacity-50 pointer-events-none"></div>
-    <div class="absolute -top-20 -right-20 w-72 h-72 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.28),transparent 70%)"></div>
-    <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(232,89,12,.18),transparent 70%)"></div>
+  <!-- ============ LEFT — editorial brand panel (desktop) ============ -->
+  <aside class="auth-brand on-brand">
+    <div class="auth-brand-photo" id="auth-photo" aria-hidden="true"></div>
+    <div class="auth-brand-wash" aria-hidden="true"></div>
+    <div class="auth-brand-glow" aria-hidden="true"></div>
+
     <div class="relative flex items-center gap-3">
-      <div class="logo-tile w-12 h-12"><img src="assets/image.png" alt="VRF"></div>
-      <div><p class="display font-bold text-lg leading-none">VRF Kitchen</p><p class="text-[11px] text-white/70 mt-1 tracking-[.14em]">PURE VEGETARIAN · COIMBATORE</p></div>
-    </div>
-    <div class="relative">
-      <p class="script text-[var(--gold)] text-2xl">Home-style, always fresh</p>
-      <h2 class="display text-[34px] font-semibold leading-[1.1] mt-2">Kongu classics,<br>delivered hot<br>in 35 minutes.</h2>
-      <p class="text-white/75 text-sm mt-4 max-w-sm leading-relaxed">Log in to reorder your favourites, track your food live, and check out in seconds.</p>
-      <div class="flex items-center gap-5 mt-7 text-sm font-semibold">
-        <span class="flex items-center gap-1.5"><i data-lucide="timer" class="w-4 h-4 text-[var(--gold)]"></i> 35 min</span>
-        <span class="flex items-center gap-1.5"><i data-lucide="leaf" class="w-4 h-4 text-[var(--gold)]"></i> 100% veg</span>
-        <span class="flex items-center gap-1.5"><i data-lucide="star" class="w-4 h-4 text-[var(--gold)]"></i> 4.8</span>
+      <div class="logo-tile w-12 h-12"><img src="assets/image.png" alt="VRF Kitchen"></div>
+      <div>
+        <p class="display font-bold text-lg leading-none">VRF Kitchen</p>
+        <p class="text-[10.5px] text-white/65 mt-1.5 tracking-[.16em] font-semibold">PURE VEGETARIAN · COIMBATORE</p>
       </div>
     </div>
-    <div class="relative flex items-center gap-2 text-white/70 text-xs font-semibold">
-      <i data-lucide="shield-check" class="w-4 h-4 text-[var(--gold)]"></i> Secured with bank-grade encryption
+
+    <div class="relative max-w-md">
+      <span class="auth-eyebrow">Home-style, always fresh</span>
+      <h2 class="auth-head">Kongu classics,<br>delivered hot in<br>35 minutes.</h2>
+      <p class="text-white/70 text-[15px] mt-5 leading-relaxed max-w-sm">
+        Log in to reorder your favourites, track your food live, and check out in seconds.
+      </p>
+
+      <div class="auth-stats">
+        <div class="auth-stat">
+          <p class="auth-stat-n"><i data-lucide="timer"></i> 35</p>
+          <p class="auth-stat-l">Min delivery</p>
+        </div>
+        <div class="auth-stat">
+          <p class="auth-stat-n"><i data-lucide="leaf"></i> 100%</p>
+          <p class="auth-stat-l">Pure veg</p>
+        </div>
+        <div class="auth-stat">
+          <p class="auth-stat-n"><i data-lucide="star"></i> 4.8</p>
+          <p class="auth-stat-l">12k ratings</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative auth-trust">
+      <i data-lucide="shield-check" class="w-4 h-4" style="color:var(--gold)"></i>
+      Secured with bank-grade encryption
     </div>
   </aside>
 
-  <!-- RIGHT — form -->
-  <div class="min-h-screen flex flex-col px-6 lg:px-12">
+  <!-- ============ RIGHT — the form ============ -->
+  <div class="auth-form">
 
-  <!-- top bar with skip -->
-  <div class="pt-6 flex items-center justify-between">
-    <a href="home.html" class="ibtn ibtn-ghost press" aria-label="Back"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-    <a href="home.html" class="text-[var(--ink-2)] text-sm font-semibold press">Skip</a>
-  </div>
-
-  <div class="flex-1 flex flex-col justify-center pb-10 w-full max-w-md mx-auto">
-
-    <!-- brand mark (centered, calm) with soft decorative halo -->
-    <div class="flex flex-col items-center text-center lg:hidden">
-      <div class="relative flex items-center justify-center">
-        <span class="absolute w-40 h-40 rounded-full pointer-events-none" style="background:radial-gradient(circle at 50% 40%,var(--brand-soft),transparent 68%)"></span>
-        <span class="absolute w-28 h-28 rounded-full tex-dots opacity-70 pointer-events-none"></span>
-        <div class="logo-tile w-16 h-16 relative" style="box-shadow:var(--shadow-md)"><img src="assets/image.png" alt="VRF"></div>
-      </div>
-      <p class="script text-[var(--gold)] text-[13px] font-semibold mt-4 tracking-wide">Pure vegetarian, cooked fresh</p>
-      <p class="display font-bold text-[19px] mt-0.5">VRF Kitchen</p>
-      <div class="mt-2 flex items-center gap-2 text-[11px] text-[var(--ink-2)] font-semibold tracking-wide">
-        <span class="w-5 h-px bg-[var(--gold)]"></span>
-        PURE VEGETARIAN · COIMBATORE
-        <span class="w-5 h-px bg-[var(--gold)]"></span>
-      </div>
+    <div class="relative flex items-center justify-between">
+      <a href="home.html" class="ibtn ibtn-ghost press" aria-label="Back"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <a href="home.html" class="btn-ghost press">Skip</a>
     </div>
 
-    <!-- Phone step -->
-    <div id="step-phone" class="mt-9">
-      <h1 class="display text-[24px] font-semibold leading-tight text-center">Welcome back</h1>
-      <p class="text-[var(--ink-2)] text-sm mt-1.5 text-center">Login with your mobile number to continue</p>
+    <div class="auth-card">
 
-      <!-- LIVE LOCATION (refined inline chip) -->
-      <button id="loc-chip" class="mx-auto mt-5 flex items-center gap-2 max-w-full pl-2 pr-3 py-1.5 rounded-full border border-[var(--line)] bg-white press" style="box-shadow:var(--shadow-sm)">
-        <span id="loc-icon" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style="background:var(--brand-soft)"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[var(--brand)]"></i></span>
-        <span class="text-xs font-semibold text-[var(--ink)] truncate" id="loc-area">Detecting location…</span>
-        <span class="hidden" id="loc-label"></span>
-        <span class="text-[11px] font-bold text-[var(--green)] shrink-0 border-l border-[var(--line)] pl-2">Change</span>
-      </button>
+      <!-- mobile-only brand mark (the left panel is desktop-only) -->
+      <div class="auth-mini">
+        <div class="logo-tile w-14 h-14" style="box-shadow:var(--e2)"><img src="assets/image.png" alt="VRF Kitchen"></div>
+        <p class="script text-[13px] font-semibold mt-3" style="color:var(--gold)">Pure vegetarian, cooked fresh</p>
+        <p class="display font-bold text-[18px] mt-0.5">VRF Kitchen</p>
+      </div>
 
-      <div class="mt-7">
-        <label class="fld-label flex items-center gap-1.5"><i data-lucide="smartphone" class="w-3.5 h-3.5 text-[var(--green)]"></i> Mobile number</label>
-        <div class="field flex items-center px-4">
-          <span class="font-bold text-[var(--ink)]">+91</span>
-          <div class="w-px h-6 bg-[var(--line)] mx-3"></div>
-          <input id="phone" type="tel" maxlength="10" placeholder="Enter 10-digit number" class="flex-1 bg-transparent py-4 outline-none text-[var(--ink)] font-semibold text-[17px] tracking-wide placeholder:font-normal placeholder:text-[15px] placeholder:text-[var(--ink-2)] placeholder:tracking-normal">
-          <i data-lucide="check-circle" class="w-4 h-4 text-[var(--green)] opacity-0 transition-opacity" id="phone-ok"></i>
+      <!-- ---------- Phone step ---------- -->
+      <div id="step-phone">
+        <h1 class="display text-[26px] font-semibold leading-tight text-center">Welcome back</h1>
+        <p class="text-[var(--ink-2)] text-sm mt-1.5 text-center">Login with your mobile number to continue</p>
+
+        <button id="loc-chip" class="auth-loc press">
+          <span id="loc-icon" class="auth-loc-ico"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i></span>
+          <span class="auth-loc-txt" id="loc-area">Detecting location…</span>
+          <span class="hidden" id="loc-label"></span>
+          <span class="auth-loc-cta">Change</span>
+        </button>
+
+        <div class="mt-6">
+          <label class="fld-label flex items-center gap-1.5" for="phone">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5" style="color:var(--primary)"></i> Mobile number
+          </label>
+          <div class="auth-field">
+            <span class="auth-cc">+91</span>
+            <span class="auth-div"></span>
+            <input id="phone" type="tel" maxlength="10" placeholder="Enter 10-digit number" autocomplete="tel">
+            <i data-lucide="check-circle" class="w-4 h-4 opacity-0 transition-opacity shrink-0" style="color:var(--primary)" id="phone-ok"></i>
+          </div>
+          <p class="text-[11px] text-[var(--ink-2)] mt-2 flex items-center gap-1.5">
+            <i data-lucide="message-square" class="w-3 h-3"></i> We'll send a one-time verification code
+          </p>
         </div>
-        <p class="text-[11px] text-[var(--ink-2)] mt-2 flex items-center gap-1.5"><i data-lucide="message-square" class="w-3 h-3"></i> We'll send a one-time verification code</p>
+
+        <button id="send-otp" class="w-full mt-6 pill pill-green ripple justify-center press" style="padding-top:1rem;padding-bottom:1rem">
+          Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <p class="text-[11px] text-[var(--ink-2)] text-center mt-5 leading-relaxed">
+          By continuing you agree to our
+          <span class="font-semibold underline underline-offset-2" style="color:var(--primary)">Terms</span> &amp;
+          <span class="font-semibold underline underline-offset-2" style="color:var(--primary)">Privacy Policy</span>
+        </p>
       </div>
-      <button id="send-otp" class="w-full mt-5 pill pill-green ripple justify-center press" style="padding-top:1.05rem;padding-bottom:1.05rem">
-        Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
-      </button>
 
-      <p class="text-[11px] text-[var(--ink-2)] text-center mt-5 leading-relaxed">By continuing you agree to our <span class="font-semibold text-[var(--green)] underline underline-offset-2">Terms</span> &amp; <span class="font-semibold text-[var(--green)] underline underline-offset-2">Privacy Policy</span></p>
+      <!-- ---------- OTP step ---------- -->
+      <div id="step-otp" class="hidden">
+        <button id="back-phone" class="btn-ghost press mb-4 !px-0"><i data-lucide="arrow-left" class="w-4 h-4"></i> Change number</button>
+        <h1 class="display text-[26px] font-semibold leading-tight text-center">Verify your number</h1>
+        <p class="text-[var(--ink-2)] text-sm mt-1.5 text-center">Enter the 6-digit code sent to +91 <span id="masked" class="font-semibold text-[var(--ink)]"></span></p>
+        <div class="mt-3 text-center"><span class="badge badge-green"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Demo OTP: 123456</span></div>
 
-      <div class="flex items-center justify-center gap-5 mt-8 text-[var(--ink-2)]">
-        <span class="flex items-center gap-1.5 text-[11px] font-semibold"><i data-lucide="timer" class="w-3.5 h-3.5 text-[var(--green)]"></i> 35-min delivery</span>
-        <span class="w-1 h-1 rounded-full bg-[var(--line)]"></span>
-        <span class="flex items-center gap-1.5 text-[11px] font-semibold"><i data-lucide="leaf" class="w-3.5 h-3.5 text-[var(--green)]"></i> 100% veg</span>
-        <span class="w-1 h-1 rounded-full bg-[var(--line)]"></span>
-        <span class="flex items-center gap-1.5 text-[11px] font-semibold"><i data-lucide="star" class="w-3.5 h-3.5 text-[var(--gold)]"></i> 4.8</span>
+        <div class="flex gap-2 mt-6 justify-between" id="otp-boxes">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+          <input maxlength="1" inputmode="numeric" class="auth-otp">
+        </div>
+        <p id="otp-err" class="hidden text-xs mt-3 font-semibold flex items-center gap-1" style="color:var(--accent-on)">
+          <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Incorrect OTP, please try 123456
+        </p>
+        <button id="verify" class="w-full mt-6 pill pill-green ripple justify-center press" style="padding-top:1rem;padding-bottom:1rem">Verify &amp; Continue</button>
+        <p class="text-center text-sm text-[var(--ink-2)] mt-5">Didn't get it? Resend in <span id="timer" class="font-semibold text-[var(--ink)]">0:20</span></p>
+      </div>
+
+      <div class="mt-7 pt-5 border-t border-dashed border-[var(--line)] flex items-center justify-center gap-2 text-[11px] font-semibold text-[var(--ink-2)]">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5" style="color:var(--primary)"></i> Secured with bank-grade encryption
       </div>
     </div>
 
-    <!-- OTP step -->
-    <div id="step-otp" class="hidden">
-      <button id="back-phone" class="text-sm text-[var(--ink-2)] mb-5 flex items-center gap-1 press"><i data-lucide="arrow-left" class="w-4 h-4"></i> Change number</button>
-      <h1 class="display text-[24px] font-semibold leading-tight text-center">Verify your number</h1>
-      <p class="text-[var(--ink-2)] text-sm mt-1.5 text-center">Enter the 6-digit code sent to +91 <span id="masked" class="font-semibold text-[var(--ink)]"></span></p>
-      <div class="mt-3 text-center"><span class="badge badge-green"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Demo OTP: 123456</span></div>
-
-      <div class="flex gap-2 mt-7 justify-between" id="otp-boxes">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-        <input maxlength="1" inputmode="numeric" class="otp w-full aspect-square max-w-[52px] text-center display text-2xl font-bold rounded-xl outline-none">
-      </div>
-      <p id="otp-err" class="hidden text-[var(--brand)] text-xs mt-3 font-semibold flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Incorrect OTP, please try 123456</p>
-      <button id="verify" class="w-full mt-7 pill pill-green ripple justify-center press" style="padding-top:1.05rem;padding-bottom:1.05rem">Verify &amp; Continue</button>
-      <p class="text-center text-sm text-[var(--ink-2)] mt-5">Didn't get it? Resend in <span id="timer" class="font-semibold text-[var(--ink)]">0:20</span></p>
-    </div>
-
-    <div class="mt-8 mx-auto flex items-center justify-center gap-2 text-[11px] font-semibold text-[var(--ink-2)] px-4 py-2 rounded-full border border-[var(--line)] bg-white lg:hidden" style="box-shadow:var(--shadow-sm)">
-      <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[var(--green)]"></i> Secured with bank-grade encryption
-    </div>
-  </div>
+    <div class="relative h-6"></div>
   </div>
 </div>
 
 <script src="assets/app.js"></script>
 <script>
   requireLocation();
+
+  /* Brand panel backdrop — a real dish, dimmed into the brand wash so it
+     reads as texture rather than a stock photo. Uses the same verified
+     Unsplash id as the biryani hero, so it can't 404. */
+  document.getElementById("auth-photo").style.backgroundImage =
+    `url("${imgUrl("1589302168068-964664d93dc0", 1200, 1500)}")`;
 
   /* ---------- LIVE LOCATION BAR (dynamic, graceful) ---------- */
   const AREAS=[
@@ -207,11 +217,11 @@
     if(phone.value.replace(/\D/g,"").length!==10){phone.focus();toast("Enter a valid 10-digit number","alert-circle");return;}
     document.getElementById("masked").textContent=phone.value.replace(/(\d{2})\d{6}(\d{2})/,"$1••••••$2");
     phase.phone.classList.add("hidden");phase.otp.classList.remove("hidden");
-    startTimer();lucide.createIcons();document.querySelector(".otp").focus();
+    startTimer();lucide.createIcons();document.querySelector(".auth-otp").focus();
   };
   document.getElementById("back-phone").onclick=()=>{phase.otp.classList.add("hidden");phase.phone.classList.remove("hidden");};
 
-  const otps=[...document.querySelectorAll(".otp")];
+  const otps=[...document.querySelectorAll(".auth-otp")];
   otps.forEach((el,i)=>{
     el.addEventListener("input",()=>{
       el.value=el.value.replace(/\D/g,"");

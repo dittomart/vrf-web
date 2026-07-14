@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="bg-[var(--cream)] text-[var(--ink)] pb-40">
@@ -19,10 +20,15 @@
 </header>
 
 <main class="max-w-6xl mx-auto px-4 pt-4">
-  <!-- delivery eta hero -->
+  <!-- On desktop: items + add-ons on the left, coupon + bill in a sticky
+       right rail. Previously everything spanned the full 6xl width, which
+       stranded each row's stepper ~1000px from its product name. -->
+  <div class="cart-layout">
+  <div class="cart-main">
+
+  <!-- delivery eta -->
   <div class="relative ui-card ui-card-lux card-topline ui-card-pad overflow-hidden mb-5 reveal">
-    <div class="tex-dots absolute inset-0 opacity-70 pointer-events-none"></div>
-    <div class="absolute -top-10 -right-8 w-32 h-32 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.35),transparent 70%)"></div>
+    <div class="absolute -top-10 -right-8 w-32 h-32 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--gold) 35%, transparent),transparent 70%)"></div>
     <div class="relative flex items-center gap-3.5">
       <div class="ichip ichip-brand w-12 h-12 bob"><i data-lucide="bike" class="w-6 h-6"></i></div>
       <div class="flex-1 min-w-0">
@@ -39,7 +45,7 @@
     </div>
   </div>
 
-  <div class="sec-head mb-3 reveal">
+  <div class="sec-head mb-3 reveal" id="basket-head">
     <span class="ichip ichip-green w-9 h-9 rounded-xl"><i data-lucide="shopping-bag" class="w-[18px] h-[18px]"></i></span>
     <div>
       <p class="eyebrow eyebrow-g">Your selection</p>
@@ -61,15 +67,21 @@
     <!-- FBT -->
     <div class="mt-7 reveal">
       <div class="sec-head mb-3">
-        <p class="eyebrow eyebrow-g">Add ons</p>
-        <p class="display font-bold text-lg leading-none">Complete your meal</p>
+        <span class="ichip ichip-gold w-9 h-9 rounded-xl"><i data-lucide="plus" class="w-[18px] h-[18px]"></i></span>
+        <div>
+          <p class="eyebrow">Add ons</p>
+          <p class="display font-bold text-lg leading-none">Complete your meal</p>
+        </div>
       </div>
-      <div id="fbt" class="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1"></div>
+      <div id="fbt" class="rail -mx-1 px-1"></div>
     </div>
+  </div>
+  </div><!-- /.cart-main -->
 
-    <div class="lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
+  <!-- ===== sticky summary rail ===== -->
+  <aside class="cart-aside" id="cart-summary">
     <!-- Coupon -->
-    <div class="mt-6 lg:mt-0 ui-card ui-card-lux card-topline ui-card-pad reveal">
+    <div class="ui-card ui-card-lux card-topline ui-card-pad reveal">
       <div class="flex items-center gap-2.5 mb-1">
         <span class="ichip ichip-brand w-9 h-9 rounded-xl"><i data-lucide="ticket-percent" class="w-[18px] h-[18px]"></i></span>
         <div>
@@ -90,7 +102,7 @@
     </div>
 
     <!-- Bill -->
-    <div class="mt-4 lg:mt-0 ui-card ui-card-lux card-topline ui-card-pad reveal">
+    <div class="mt-4 ui-card ui-card-lux card-topline ui-card-pad reveal">
       <div class="sec-head mb-3.5">
         <span class="ichip ichip-green w-8 h-8 rounded-lg"><i data-lucide="receipt" class="w-4 h-4"></i></span>
         <p class="eyebrow eyebrow-g">Bill details</p>
@@ -103,11 +115,10 @@
         <div class="border-t border-dashed border-[var(--line)] pt-3 mt-1 krow font-bold text-base"><span>To pay</span><span id="b-total" class="display text-lg"></span></div>
       </div>
       <p id="free-del-hint" class="text-[11px] text-[var(--brand)] font-bold mt-3"></p>
+      <p class="text-[11px] text-[var(--ink-2)] text-center mt-3">Demo preview · sample menu &amp; prices</p>
     </div>
-    </div>
-
-    <p class="text-[11px] text-[var(--ink-2)] text-center mt-4">Demo preview · sample menu &amp; prices</p>
-  </div>
+  </aside>
+  </div><!-- /.cart-layout -->
 </main>
 
 <!-- checkout bar -->
@@ -124,7 +135,7 @@
 <script src="assets/app.js"></script>
 <script>
   const LOC=requireLocation();
-  if(LOC) document.getElementById("deliver-to").textContent="to "+LOC.address.split(",")[0];
+  if(LOC && LOC.address) document.getElementById("deliver-to").textContent="to "+LOC.address.split(",")[0];
   let coupon=null;
   const COUPONS={VRF20:{type:"pct",val:20,min:399,label:"20% off"},FIRST50:{type:"flat",val:50,min:199,label:"₹50 off"}};
 
@@ -145,22 +156,24 @@
     const hasItems=ids.length>0;
     document.getElementById("empty").classList.toggle("hidden",hasItems);
     document.getElementById("cart-body").classList.toggle("hidden",!hasItems);
+    document.getElementById("cart-summary").classList.toggle("hidden",!hasItems);
     document.getElementById("checkout-bar").classList.toggle("hidden",!hasItems);
 
     wrap.className="space-y-3 stagger";
     wrap.innerHTML=ids.map(id=>{const p=getProduct(id);const q=cart[id];return `
-      <div class="ui-card lift card-topline p-2.5 flex gap-3 items-center">
-        <div class="frame rounded-2xl shrink-0 relative"><img src="${prodImg(p,150,150)}" class="w-[72px] h-[72px] rounded-2xl object-cover" alt="${p.name}"><span class="absolute top-1 left-1 veg-dot" style="transform:scale(.8)"></span></div>
+      <div class="ui-card lift p-3 flex gap-3.5 items-center">
+        <div class="frame rounded-xl shrink-0 relative"><img src="${prodImg(p,160,160)}" class="w-[68px] h-[68px] rounded-xl object-cover" alt="${p.name}"><span class="absolute top-1 left-1 veg-dot" style="transform:scale(.75);transform-origin:top left"></span></div>
         <div class="flex-1 min-w-0">
-          <p class="font-bold text-sm truncate">${p.name}</p>
+          <p class="font-bold text-sm leading-snug line-clamp-1">${p.name}</p>
           <p class="text-xs text-[var(--ink-2)] line-clamp-1 mt-0.5">${p.desc}</p>
-          <div class="flex items-center gap-2 mt-1.5">
-            <p class="display font-bold text-base tnum text-[var(--green)] leading-none">${money(p.price*q)}</p>
-            <span class="text-[11px] text-[var(--ink-2)] tnum">${money(p.price)} each</span>
-          </div>
+          <p class="text-[11px] text-[var(--ink-2)] tnum mt-1">${money(p.price)} each</p>
         </div>
-        <div class="stepper shrink-0">
-          <button onclick="setQty('${id}',${q-1});render()">−</button><span class="min-w-[18px] text-center tnum">${q}</span><button onclick="setQty('${id}',${q+1});render()">+</button>
+        <!-- price + stepper travel together, right-aligned -->
+        <div class="shrink-0 flex flex-col items-end gap-2">
+          <p class="display font-bold text-base tnum leading-none">${money(p.price*q)}</p>
+          <div class="stepper">
+            <button aria-label="Decrease" onclick="setQty('${id}',${q-1});render()">−</button><span class="min-w-[20px] text-center tnum">${q}</span><button aria-label="Increase" onclick="setQty('${id}',${q+1});render()">+</button>
+          </div>
         </div>
       </div>`;}).join("");
 
@@ -204,6 +217,6 @@
   document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>applyCode(b.dataset.code));
 
   render();
-</script>
+</script>
 </body>
 </html>

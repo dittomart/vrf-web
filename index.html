@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 <style>
   /* ---- entirely new: light premium splash ---- */
@@ -15,12 +16,12 @@
   /* soft brand light pools */
   .splash::before{content:"";position:absolute;inset:0;pointer-events:none;
     background:
-      radial-gradient(46% 40% at 16% 6%, rgba(232,89,12,.16), transparent 60%),
-      radial-gradient(48% 44% at 86% 94%, rgba(14,77,49,.15), transparent 62%),
-      radial-gradient(64% 54% at 50% 48%, rgba(233,200,119,.12), transparent 72%)}
+      radial-gradient(46% 40% at 16% 6%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+      radial-gradient(48% 44% at 86% 94%, color-mix(in srgb, var(--primary) 15%, transparent), transparent 62%),
+      radial-gradient(64% 54% at 50% 48%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 72%)}
   /* faint dotted texture */
   .splash::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
-    background-image:radial-gradient(rgba(14,77,49,.06) 1.2px,transparent 1.2px);background-size:26px 26px}
+    background-image:radial-gradient(color-mix(in srgb, var(--primary) 6%, transparent) 1.2px,transparent 1.2px);background-size:26px 26px}
 
   /* logo mark + orbiting arc */
   .mark{position:relative;width:158px;height:158px;display:flex;align-items:center;justify-content:center}
@@ -30,7 +31,7 @@
   @keyframes arcspin{to{transform:rotate(360deg)}}
   .mark .tile{width:116px;height:116px;border-radius:30px;overflow:hidden;background:var(--brand);
     display:flex;align-items:center;justify-content:center;position:relative;
-    box-shadow:0 26px 54px -20px rgba(232,89,12,.55),0 0 0 6px #fff,0 0 0 7px var(--line);
+    box-shadow:0 26px 54px -20px color-mix(in srgb, var(--accent) 55%, transparent),0 0 0 6px #fff,0 0 0 7px var(--line);
     animation:markIn 1s cubic-bezier(.2,.8,.25,1.15) both}
   .mark .tile img{width:135%;max-width:none;height:100%;object-fit:cover}
   @keyframes markIn{0%{opacity:0;transform:scale(.62) translateY(18px)}60%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
@@ -94,6 +95,6 @@
     else window.location.replace("location.html");
   }, 2600);
   lucide.createIcons();
-</script>
+</script>
 </body>
 </html>

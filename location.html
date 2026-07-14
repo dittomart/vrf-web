@@ -7,11 +7,12 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 <style>
   .radar span{position:absolute;inset:0;border-radius:9999px;border:2px solid var(--green);animation:ringPulse 1.8s ease-out infinite}
-  .field{background:#fff;border:1px solid var(--line);border-radius:1rem;transition:border-color .2s,box-shadow .2s}
-  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(14,77,49,.1)}
+  .field{background:var(--surface);border:1px solid var(--line);border-radius:1rem;transition:border-color .2s,box-shadow .2s}
+  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent)}
 </style>
 </head>
 <body class="min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
@@ -29,9 +30,8 @@
 
   <div class="flex-1 pt-6 pb-8">
     <div class="relative ui-card-lux card-topline a-fadeup overflow-hidden" style="padding:1.6rem">
-      <div class="tex-dots absolute inset-0 opacity-60 pointer-events-none"></div>
-      <div class="absolute -top-12 -right-10 w-36 h-36 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(14,77,49,.16),transparent 70%)"></div>
-      <div class="absolute -bottom-12 -left-10 w-36 h-36 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.22),transparent 70%)"></div>
+      <div class="absolute -top-12 -right-10 w-36 h-36 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--primary) 16%, transparent),transparent 70%)"></div>
+      <div class="absolute -bottom-12 -left-10 w-36 h-36 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--gold) 22%, transparent),transparent 70%)"></div>
       <div class="relative">
       <div class="flex justify-center mb-4">
         <div class="relative w-16 h-16 rounded-full btn-primary flex items-center justify-center">
@@ -71,10 +71,9 @@
   </div>
 </div>
 
-<div id="gps-modal" class="fixed inset-0 z-50 hidden items-end md:items-center justify-center bg-[rgba(32,24,15,.45)] backdrop-blur-sm p-4">
+<div id="gps-modal" class="fixed inset-0 z-50 hidden items-end md:items-center justify-center bg-[rgba(var(--shadow-rgb),.45)] backdrop-blur-sm p-4">
   <div class="relative ui-card-lux card-topline w-full max-w-sm p-6 text-center anim-scalein overflow-hidden" style="border-radius:28px;box-shadow:var(--shadow-lg)">
-    <div class="tex-dots absolute inset-0 opacity-50 pointer-events-none"></div>
-    <div class="absolute -top-14 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,rgba(14,77,49,.14),transparent 70%)"></div>
+    <div class="absolute -top-14 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--primary) 14%, transparent),transparent 70%)"></div>
     <div class="relative">
     <div class="relative w-16 h-16 mx-auto mb-3 anim-pop">
       <div class="radar"><span></span></div>
@@ -83,7 +82,7 @@
     <p class="eyebrow-g eyebrow">Serviceability check</p>
     <h3 class="display font-semibold text-2xl mt-1 leading-tight">Location detected</h3>
     <p class="script text-base mt-0.5" style="color:var(--gold)">We found you on the map</p>
-    <div class="mt-4 rounded-2xl p-4 text-left flex items-center gap-3 border" style="background:linear-gradient(120deg,rgba(14,77,49,.06),var(--ivory-2));border-color:rgba(14,77,49,.15)">
+    <div class="mt-4 rounded-2xl p-4 text-left flex items-center gap-3 border" style="background:linear-gradient(120deg,color-mix(in srgb, var(--primary) 6%, transparent),var(--ivory-2));border-color:color-mix(in srgb, var(--primary) 15%, transparent)">
       <span class="ichip ichip-green w-11 h-11 shrink-0"><i data-lucide="map-pin" class="w-5 h-5"></i></span>
       <div class="min-w-0 flex-1">
         <p class="eyebrow eyebrow-g mb-0.5">Delivering to</p>
@@ -132,7 +131,12 @@
   function showModal(a){
     pending=a;
     document.getElementById("detected-addr").textContent=a.name;
-    document.getElementById("detected-coords").innerHTML='<span class="inline-flex items-center gap-1 text-[var(--green)] font-semibold"><i data-lucide="check-circle" class="w-3 h-3"></i> GPS verified · your current location</span>';
+    // Show the real GPS accuracy — if the fix is coarse (wifi/cell rather than
+    // satellite) the user can see why the place name may be approximate.
+    const accTxt = a.acc ? ` · accurate to ~${a.acc} m` : "";
+    document.getElementById("detected-coords").innerHTML=
+      '<span class="inline-flex items-center gap-1 text-[var(--green)] font-semibold">'+
+      '<i data-lucide="check-circle" class="w-3 h-3"></i> GPS verified'+accTxt+'</span>';
     const msg=document.getElementById("serv-msg"), btn=document.getElementById("confirm-loc");
     if(a.serviceable){ msg.innerHTML='<b class="text-[var(--green)]">Great! We deliver here</b> in ~35 min'; btn.classList.remove("hidden"); }
     else { msg.innerHTML='<b class="text-[var(--brand)]">Sorry, we don\'t serve this area yet</b>'; btn.classList.add("hidden"); }
@@ -160,15 +164,17 @@
       async pos=>{
         try{
           const pt={lat:pos.coords.latitude, lng:pos.coords.longitude};
+          const acc = Math.round(pos.coords.accuracy || 0);   // metres
           gpsLbl.textContent="Finding your area…";
           let name = await geoName(pt.lat, pt.lng);
+          // Only fall back to the nearest known area if the lookup failed —
+          // never overwrite a real reverse-geocoded place name.
           if(!name){
-            const {area}=nearestArea(pt);
-            const dToKitchen=distKm(pt, KITCHEN);
-            name = "Your current location";
+            const {area, dist} = nearestArea(pt);
+            name = (area && dist < 3) ? area.name : "Your current location";
           }
           resetBtn();
-          showModal({ name, lat: pt.lat, lng: pt.lng, serviceable: true }); // demo: always serviceable
+          showModal({ name, lat: pt.lat, lng: pt.lng, acc, serviceable: true });
         }catch(e){ resetBtn(); toast("Something went wrong — please search below","alert-circle"); }
       },
       err=>{
@@ -211,6 +217,6 @@
   if(navigator.geolocation && window.isSecureContext){
     setTimeout(()=>gpsBtn.click(), 400);
   }
-</script>
+</script>
 </body>
 </html>

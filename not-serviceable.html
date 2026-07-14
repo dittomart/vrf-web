@@ -7,10 +7,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 <style>
-  .field{background:#fff;border:1px solid var(--line);border-radius:.85rem;transition:border-color .2s,box-shadow .2s}
-  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(14,77,49,.1)}
+  .field{background:var(--surface);border:1px solid var(--line);border-radius:.85rem;transition:border-color .2s,box-shadow .2s}
+  .field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent)}
 </style>
 </head>
 <body class="min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
@@ -46,6 +47,6 @@
 <script>
   try{const l=JSON.parse(localStorage.getItem("dittomart_location"));if(l&&l.address)document.getElementById("ns-area").textContent=l.address.split(",").slice(0,2).join(", ");}catch(e){}
   lucide.createIcons();
-</script>
+</script>
 </body>
 </html>

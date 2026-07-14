@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="pb-28 md:pb-12">
@@ -77,8 +78,7 @@
 
   <!-- ============ PROMO ROW ============ -->
   <section class="mt-11 grid sm:grid-cols-2 gap-4">
-    <a href="category.html" class="reveal relative overflow-hidden rounded-2xl p-6 text-white lift shadow-[var(--shadow-md)]" style="background:linear-gradient(120deg,var(--brand),#c0490a)">
-      <div class="tex-dots absolute inset-0 opacity-40 pointer-events-none"></div>
+    <a href="category.html" class="reveal relative overflow-hidden rounded-2xl p-6 text-white lift shadow-[var(--shadow-md)] on-brand" style="background:linear-gradient(120deg,var(--brand),var(--accent-2))">
       <div class="relative">
         <span class="badge badge-gold"><i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i> First order</span>
         <p class="display text-2xl font-bold mt-3 leading-tight">Flat 20% OFF</p>
@@ -86,8 +86,7 @@
         <span class="inline-flex items-center gap-1.5 mt-4 text-sm font-bold">Order now <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
       </div>
     </a>
-    <a href="category.html" class="reveal relative overflow-hidden rounded-2xl p-6 text-white lift shadow-[var(--shadow-md)]" data-d="1" style="background:linear-gradient(120deg,var(--green-2),var(--green) 70%,#0b3d27)">
-      <div class="tex-dots absolute inset-0 opacity-40 pointer-events-none"></div>
+    <a href="category.html" class="reveal relative overflow-hidden rounded-2xl p-6 text-white lift shadow-[var(--shadow-md)]" data-d="1" style="background:linear-gradient(120deg,var(--green-2),var(--green) 70%,var(--primary-2))">
       <div class="relative">
         <span class="badge badge-gold"><i data-lucide="bike" class="w-3.5 h-3.5"></i> Free delivery</span>
         <p class="display text-2xl font-bold mt-3 leading-tight">On orders over ₹349</p>
@@ -114,9 +113,8 @@
 
   <!-- ============ FEATURE BANNER ============ -->
   <section class="mt-12 reveal">
-    <div class="rounded-[26px] overflow-hidden relative text-white grid md:grid-cols-2 shadow-[var(--shadow-lg)]" style="background:linear-gradient(135deg,var(--green-2),var(--green) 60%,#0b3d27)">
-      <div class="tex-dots absolute inset-0 opacity-50 pointer-events-none"></div>
-      <div class="absolute -top-16 -left-16 w-52 h-52 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(233,200,119,.3),transparent 70%)"></div>
+    <div class="rounded-[26px] overflow-hidden relative text-white grid md:grid-cols-2 shadow-[var(--shadow-lg)] on-brand" style="background:linear-gradient(135deg,var(--green-2),var(--green) 60%,var(--primary-2))">
+      <div class="absolute -top-16 -left-16 w-52 h-52 rounded-full pointer-events-none" style="background:radial-gradient(circle,color-mix(in srgb, var(--gold) 30%, transparent),transparent 70%)"></div>
       <div class="p-7 md:p-10 relative z-10">
         <span class="badge badge-gold"><i data-lucide="crown" class="w-3.5 h-3.5"></i> House special</span>
         <p class="script text-[var(--gold)] text-2xl mt-3">The Grand Feast</p>
@@ -184,7 +182,6 @@
   <section class="mt-14 reveal">
     <div class="div-label mb-8">SINCE OUR FIRST POT</div>
     <div class="ui-card-lux card-topline text-center py-11 px-6 relative overflow-hidden">
-      <div class="tex-dots absolute inset-0 opacity-40 pointer-events-none"></div>
       <div class="relative z-10">
         <div class="logo-tile w-20 h-20 mx-auto shadow-md"><img src="assets/image.png" alt="VRF Kitchen"></div>
         <p class="script text-2xl text-[var(--green)] mt-5">Home-style, always fresh</p>
@@ -252,7 +249,7 @@
 <script src="assets/app.js"></script>
 <script>
   const LOC = requireLocation();
-  if(LOC){
+  if(LOC && LOC.address){
     const parts = LOC.address.split(",").map(s=>s.trim()).filter(Boolean);
     document.getElementById("loc-area").textContent = parts.slice(0,2).join(", ") || LOC.address;
   }
@@ -274,7 +271,7 @@
   hero.innerHTML=slides.map(s=>`
     <a href="product.html?id=${s.id}" class="w-1/4 relative block frame aspect-[1200/560] sm:aspect-[1200/460] md:aspect-[1200/400]">
       <img src="${imgUrl(s.img,1200,560)}" class="w-full h-full object-cover" alt="">
-      <div class="absolute inset-0" style="background:linear-gradient(90deg,rgba(14,77,49,.94) 0%,rgba(14,77,49,.6) 45%,transparent 78%)"></div>
+      <div class="absolute inset-0" style="background:linear-gradient(90deg,color-mix(in srgb, var(--primary) 94%, transparent) 0%,color-mix(in srgb, var(--primary) 60%, transparent) 45%,transparent 78%)"></div>
       <div class="absolute inset-0 flex flex-col justify-center p-7 sm:p-10 md:p-12 text-white max-w-[80%]">
         <span class="eyebrow text-[var(--gold)]">${s.tag}</span>
         <h2 class="display text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight mt-2">${s.title}</h2>
@@ -355,6 +352,6 @@
   function closeHours(){const m=document.getElementById("hours-modal");m.classList.add("hidden");m.classList.remove("flex");}
   injectChrome("home");
   lucide.createIcons(); updateCartBadges(); initReveal();
-</script>
+</script>
 </body>
 </html>

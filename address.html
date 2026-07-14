@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="bg-[var(--cream)] text-[var(--ink)] pb-32">
@@ -20,7 +21,7 @@
 
 <main class="max-w-6xl mx-auto px-4 pt-6">
   <!-- delivery banner -->
-  <div class="ui-card-lux card-topline ui-card-pad flex items-center gap-3.5 mb-6 reveal" style="background:linear-gradient(120deg,rgba(14,77,49,.05),rgba(233,200,119,.11))">
+  <div class="ui-card-lux card-topline ui-card-pad flex items-center gap-3.5 mb-6 reveal" style="background:linear-gradient(120deg,color-mix(in srgb, var(--primary) 5%, transparent),color-mix(in srgb, var(--gold) 11%, transparent))">
     <div class="ichip ichip-green w-11 h-11 bg-white shadow-sm"><i data-lucide="bike" class="w-5 h-5"></i></div>
     <div class="flex-1"><p class="font-bold text-sm">Free delivery above ₹349</p><p class="text-xs text-[var(--ink-2)] mt-0.5">Delivered hot within 35 minutes</p></div>
     <span class="badge badge-gold">FRESH</span>
@@ -69,7 +70,7 @@
     </div>
 
     <!-- captured coords indicator -->
-    <div id="coord-box" class="hidden mt-3 rounded-xl p-3.5 flex items-center gap-3 border" style="background:rgba(14,77,49,.06);border-color:rgba(14,77,49,.2)">
+    <div id="coord-box" class="hidden mt-3 rounded-xl p-3.5 flex items-center gap-3 border" style="background:color-mix(in srgb, var(--primary) 6%, transparent);border-color:color-mix(in srgb, var(--primary) 20%, transparent)">
       <span class="ichip ichip-green w-9 h-9"><i data-lucide="check-circle" class="w-5 h-5"></i></span>
       <div class="text-xs min-w-0"><p class="font-bold truncate" id="coord-addr"></p><p class="mt-0.5" id="coord-latlng"></p></div>
     </div>
@@ -251,6 +252,6 @@
   };
 
   renderSaved(); lucide.createIcons();
-</script>
+</script>
 </body>
 </html>

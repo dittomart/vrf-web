@@ -57,7 +57,7 @@ const PRODUCTS = [
   { id: "p17", cat: "southindian",name: "Ghee Pongal",            desc: "Comforting rice-dal pongal loaded with ghee & pepper",    price: 100, mrp: 120, img:"1630409351217-bc4fa6422075", best: false, ordered: 84,  tags:["veg"] },
   // desserts
   { id: "p18", cat: "desserts",   name: "Gulab Jamun (2 pcs)",    desc: "Warm khoya dumplings soaked in cardamom syrup",           price: 60,  mrp: 70,  img:"1601050690597-df0568f70950", best: false, ordered: 167, tags:["veg"] },
-  { id: "p19", cat: "desserts",   name: "Rava Kesari",            desc: "Ghee-rich saffron semolina sweet",                        price: 70,  mrp: 80,  img:"1605197161470-2b4c8d1e2b3f", best: false, ordered: 59,  tags:["veg"] },
+  { id: "p19", cat: "desserts",   name: "Rava Kesari",            desc: "Ghee-rich saffron semolina sweet",                        price: 70,  mrp: 80,  img:"1666190092159-3171cf0fbb12", best: false, ordered: 59,  tags:["veg"] },
   // beverages
   { id: "p20", cat: "beverages",  name: "Filter Coffee",          desc: "Authentic Kongu-style degree filter coffee",              price: 40,  mrp: 45,  img:"1509042239860-f550ce710b93", best: true,  ordered: 289, tags:["veg","bestseller"] },
   { id: "p21", cat: "beverages",  name: "Fresh Lime Soda",        desc: "Sweet & salt lime soda, freshly churned",                 price: 55,  mrp: 60,  img:"1621263764928-df1444c5e859", best: false, ordered: 102, tags:["veg"] },
@@ -91,7 +91,7 @@ const IMG = {
   p16:"1589301760014-d929f3979dbc",// idli
   p17:"1630409351217-bc4fa6422075",// pongal
   p18:"1601050690597-df0568f70950",// gulab jamun
-  p19:"1605197161470-2b4c8d1e2b3f",// kesari
+  p19:"1666190092159-3171cf0fbb12",// kesari
   p20:"1509042239860-f550ce710b93",// coffee
   p21:"1621263764928-df1444c5e859",// lime soda
   p22:"1638176066666-ffb2f013c7dd",// jigarthanda
@@ -109,18 +109,50 @@ function money(n){ return "₹" + Number(n).toLocaleString("en-IN"); }
    REVERSE GEOCODING — real place name from coordinates
    (OpenStreetMap Nominatim, free, no key needed)
    ============================================================ */
+/* Turn GPS coords into the most SPECIFIC place we can name.
+   Previously this asked for zoom=16 (suburb granularity) and then kept only
+   `suburb` — so standing inside a named building returned a generic area
+   ("Ward 24, Coimbatore") and the building itself was discarded. We now ask
+   for zoom=18 and build the label most-specific-first:
+       building / mall / amenity  →  road  →  neighbourhood  →  suburb
+   Nominatim's bare `Ward NN` / `Zone` labels carry no meaning for a user,
+   so they are only used as a last resort. */
 async function reverseGeo(lat, lng){
   try{
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
       {headers:{"Accept":"application/json"}});
     if(!r.ok) throw 0;
     const j = await r.json();
-    const a = j.address||{};
-    const clean = s => (s||"").replace(/\b(Zone|Ward)\s*\d+\b/gi,"").replace(/^[\s,·-]+|[\s,·-]+$/g,"").trim();
-    const area = clean(a.suburb||a.neighbourhood||a.residential||a.village||a.town||a.city_district);
-    const city = clean(a.city||a.town||a.county||a.state_district);
-    const name = [area, city].filter(Boolean).join(", ") || clean(j.display_name?.split(",").slice(0,2).join(",")) || null;
-    return name;
+    const a = j.address || {};
+
+    const clean = s => (s||"").replace(/^[\s,·-]+|[\s,·-]+$/g,"").trim();
+    const isWard = s => /^\s*(ward|zone)\b/i.test(s||"");   // "Ward 24" — useless to a human
+
+    // 1. the exact place: a named POI/building the user is standing in
+    const place = clean(
+      j.name || a.building || a.mall || a.amenity || a.shop ||
+      a.office || a.college || a.university || a.hospital || a.hotel || ""
+    );
+
+    // 2. the street
+    const road = clean(a.road || "");
+    const houseNo = clean(a.house_number || "");
+    const street = road ? (houseNo ? `${houseNo} ${road}` : road) : "";
+
+    // 3. the locality — skip meaningless "Ward NN" labels unless nothing else
+    const localityRaw = a.neighbourhood || a.suburb || a.residential ||
+                        a.village || a.town || a.city_district || "";
+    const locality = isWard(localityRaw) ? "" : clean(localityRaw);
+
+    const city = clean(a.city || a.town || a.municipality || a.county || a.state_district || "");
+
+    // most specific first, then one broader anchor for context
+    const primary = place || street || locality || (isWard(localityRaw) ? clean(localityRaw) : "");
+    const context = (primary && primary !== locality && locality) ? locality : city;
+
+    const name = [primary, context].filter(Boolean).filter((v,i,arr)=>arr.indexOf(v)===i).join(", ");
+    return name || clean((j.display_name||"").split(",").slice(0,2).join(",")) || null;
   }catch(e){ return null; }
 }
 function requireLocation() {
@@ -191,7 +223,7 @@ function toast(msg, icon="check-circle"){
   if(!t){
     t = document.createElement("div");
     t.id = "vrf-toast";
-    t.className = "fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-10 z-[100] flex items-center gap-2 px-4 py-3 rounded-full bg-[var(--ink)] text-white text-sm font-semibold shadow-2xl transition-all duration-300 opacity-0";
+    t.className = "vrf-toast fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-10 z-[100] flex items-center gap-2 px-4 py-3 rounded-full text-sm font-semibold transition-all duration-300 opacity-0";
     document.body.appendChild(t);
   }
   t.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4" style="color:var(--gold)"></i><span>${msg}</span>`;
@@ -244,13 +276,48 @@ function injectChrome(active){
    ANIMATION ENGINE
    ============================================================ */
 /* scroll reveal */
+/* Scroll reveal.
+   Two bugs this guards against — both left elements stuck at opacity:0,
+   i.e. permanently invisible, which read as blank gaps in the page:
+     1. Sections rendered by JS after DOMContentLoaded were never observed,
+        so they never got `.in`. A MutationObserver now picks them up.
+     2. threshold:0.12 can never be met by an element taller than the
+        viewport, so tall sections never fired. Threshold is now 0. */
 function initReveal(){
-  const els = document.querySelectorAll(".reveal");
-  if(!("IntersectionObserver" in window)){ els.forEach(e=>e.classList.add("in")); return; }
+  const reveal = (el)=>el.classList.add("in");
+
+  if(!("IntersectionObserver" in window)){
+    document.querySelectorAll(".reveal").forEach(reveal);
+    return;
+  }
+
   const io = new IntersectionObserver((ents)=>{
-    ents.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
-  }, {threshold:0.12, rootMargin:"0px 0px -40px 0px"});
-  els.forEach(e=>io.observe(e));
+    ents.forEach(e=>{
+      if(e.isIntersecting){ reveal(e.target); io.unobserve(e.target); }
+    });
+  }, {threshold:0, rootMargin:"0px 0px -10% 0px"});
+
+  const observe = (root)=>{
+    if(!(root instanceof Element)) return;
+    if(root.classList && root.classList.contains("reveal") && !root.classList.contains("in")) io.observe(root);
+    root.querySelectorAll && root.querySelectorAll(".reveal:not(.in)").forEach(el=>io.observe(el));
+  };
+
+  observe(document.body);
+
+  // pick up sections injected later (bestsellers, buy-again, reviews…)
+  new MutationObserver((muts)=>{
+    muts.forEach(m=>m.addedNodes.forEach(observe));
+  }).observe(document.body, {childList:true, subtree:true});
+
+  /* Failsafe: a .reveal that never intersects stays at opacity:0 forever,
+     which the user reads as a blank hole in the page. If anything is still
+     unrevealed once it has been scrolled past, force it visible. */
+  addEventListener("scroll", ()=>{
+    document.querySelectorAll(".reveal:not(.in)").forEach(el=>{
+      if(el.getBoundingClientRect().top < innerHeight) reveal(el);
+    });
+  }, {passive:true});
 }
 
 /* fly-to-cart animation */
@@ -346,10 +413,36 @@ document.addEventListener("pointerdown",(e)=>{
   }
 })();
 
+/* Any product photo that fails to load (dead CDN id, offline) degrades to a
+   neutral tinted tile instead of a broken-image icon + alt text. Capture
+   phase: `error` does not bubble from <img>. */
+document.addEventListener("error", (e)=>{
+  const img = e.target;
+  if(!(img instanceof HTMLImageElement) || img.dataset.fallback) return;
+  img.dataset.fallback = "1";
+  img.removeAttribute("src");
+  img.classList.add("img-fallback");
+}, true);
+
+/* app-bar gains a hairline + shadow only once the page is scrolled,
+   so it sits flat against the canvas at rest */
+function initStickyBar(){
+  const bar = document.querySelector(".appbar");
+  if(!bar) return;
+  let raf = 0;
+  const sync = () => {
+    raf = 0;
+    bar.classList.toggle("is-stuck", window.scrollY > 4);
+  };
+  addEventListener("scroll", () => { if(!raf) raf = requestAnimationFrame(sync); }, {passive:true});
+  sync();
+}
+
 /* run on load */
 document.addEventListener("DOMContentLoaded", ()=>{
   if(window.lucide) lucide.createIcons();
   updateCartBadges();
   initReveal();
+  initStickyBar();
   document.body.classList.add("page-enter");
 });

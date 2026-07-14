@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="assets/themes.js"></script>
 <link href="assets/theme.css" rel="stylesheet">
 </head>
 <body class="bg-[var(--cream)] text-[var(--ink)] pb-32">
@@ -20,10 +21,9 @@
 
 <main class="max-w-6xl mx-auto px-4 pt-6">
   <!-- pay summary -->
-  <div class="rounded-[26px] p-6 relative overflow-hidden reveal text-white" style="background:linear-gradient(140deg,#13603D 0%,#0E4D31 55%,#0b3d27 100%);box-shadow:0 20px 44px -20px rgba(14,77,49,.6)">
-    <div class="absolute inset-0 tex-dots opacity-60 pointer-events-none"></div>
+  <div class="rounded-[26px] p-6 relative overflow-hidden reveal text-white on-brand" style="background:linear-gradient(140deg,var(--primary-2) 0%,var(--primary) 55%,var(--primary-2) 100%);box-shadow:0 20px 44px -20px color-mix(in srgb, var(--primary) 60%, transparent)">
     <div class="absolute inset-x-0 top-0 h-1" style="background:linear-gradient(90deg,var(--gold),transparent 75%)"></div>
-    <div class="absolute -right-10 -bottom-12 w-40 h-40 rounded-full pointer-events-none" style="background:radial-gradient(circle at 40% 40%,rgba(233,200,119,.22),transparent 70%)"></div>
+    <div class="absolute -right-10 -bottom-12 w-40 h-40 rounded-full pointer-events-none" style="background:radial-gradient(circle at 40% 40%,color-mix(in srgb, var(--gold) 22%, transparent),transparent 70%)"></div>
     <div class="flex items-start justify-between relative">
       <div>
         <p class="text-[11px] font-bold tracking-[.18em] uppercase flex items-center gap-1.5" style="color:var(--gold)"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Total payable</p>
@@ -177,6 +177,6 @@
   document.getElementById("retry").onclick=showGateway;
   document.getElementById("change-method").onclick=()=>{gw.classList.add("hidden");gw.classList.remove("flex");};
   lucide.createIcons();
-</script>
+</script>
 </body>
 </html>
