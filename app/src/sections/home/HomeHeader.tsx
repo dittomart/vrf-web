@@ -4,29 +4,33 @@ import { ChevronDown, MapPin, Search, ShoppingBag, Timer, User } from 'lucide-re
 import { useStickyBar } from '@/hooks/useStickyBar';
 import { useCartCount } from '@/store/cartStore';
 import { useLocationStore } from '@/store/locationStore';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
+import { useGetCatalog } from '@/api/queries/catalog';
 
 /* home.html's <header class="appbar"> — logo tile, "Delivering to" chip, the
-   search pill with its rotating placeholder, cart and profile buttons. */
+   search pill with its rotating placeholder, cart and profile buttons.
 
-/** The rotating search placeholder, verbatim from home.html's inline script. */
-const WORDS = ['dosa', 'biryani', 'filter coffee', 'paneer masala', 'parotta'];
-
+   The placeholder cycles through dishes that are actually on the menu, so it
+   never advertises something the kitchen does not sell. */
 export function HomeHeader() {
   const stuck = useStickyBar();
   const n = useCartCount();
   const location = useLocationStore((s) => s.location);
+  const brand = useBrandInfo();
+  const { data: catalog } = useGetCatalog();
 
-  const [typed, setTyped] = useState('Search dosa, biryani…');
+  const words = (catalog?.flat ?? []).slice(0, 5).map((p) => p.name.toLowerCase());
+
+  const [wi, setWi] = useState(0);
   const [visible, setVisible] = useState(true);
-  const wi = useRef(0);
   const swapTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
+    if (words.length < 2) return;
     const iv = window.setInterval(() => {
-      wi.current = (wi.current + 1) % WORDS.length;
       setVisible(false);
       swapTimer.current = window.setTimeout(() => {
-        setTyped(`Search ${WORDS[wi.current]}…`);
+        setWi((i) => (i + 1) % words.length);
         setVisible(true);
       }, 250);
     }, 2400);
@@ -35,10 +39,10 @@ export function HomeHeader() {
       window.clearInterval(iv);
       if (swapTimer.current) window.clearTimeout(swapTimer.current);
     };
-  }, []);
+  }, [words.length]);
 
-  /* Same slice the prototype's script did: the first two comma-parts of the
-     saved address, falling back to the whole address. */
+  const typed = words.length > 0 ? `Search ${words[wi % words.length]}…` : 'Search the menu…';
+
   const parts = (location?.address ?? '')
     .split(',')
     .map((s) => s.trim())
@@ -50,7 +54,7 @@ export function HomeHeader() {
       <div className="max-w-6xl mx-auto px-4 py-2.5">
         <div className="flex items-center gap-3">
           <Link to="/home" className="logo-tile w-11 h-11 shadow-sm shrink-0 press">
-            <img src="/image.png" alt="VRF" />
+            <img src={brand.logo} alt={brand.brand} />
           </Link>
 
           <Link
@@ -75,21 +79,47 @@ export function HomeHeader() {
               {typed}
             </span>
             <span className="shrink-0 flex items-center gap-1 text-[11px] font-bold text-[var(--green)] pl-2 border-l border-[var(--line)]">
-              <Timer className="w-3.5 h-3.5" /> 35 min
+              <Timer className="w-3.5 h-3.5" /> {brand.eta} min
             </span>
           </Link>
 
           <Link to="/cart" className="ibtn ibtn-ghost shrink-0">
             <ShoppingBag className="w-5 h-5" />
-            <span data-cart-badge className={n === 0 ? 'hidden ibtn-badge' : 'ibtn-badge'}>
-              {n}
-            </span>
+            {/* unmounted, not just `hidden`: .ibtn-badge sets display:flex at the
+                same specificity as Tailwind's .hidden and wins the cascade, so a
+                hidden badge still paints a "0" over an empty cart */}
+            {n > 0 && (
+              <span data-cart-badge className="ibtn-badge">
+                {n}
+              </span>
+            )}
           </Link>
 
           <Link to="/profile" className="ibtn ibtn-ghost shrink-0">
             <User className="w-5 h-5" />
           </Link>
         </div>
+
+        {/* Mobile: the "delivering to" address gets its own row under the bar so
+            the customer always sees where we'll deliver and can tap to change it
+            (the desktop chip lives inline above and is hidden here). */}
+        <Link
+          to="/location"
+          className="sm:hidden mt-2 flex items-center gap-2 press active:opacity-70"
+        >
+          <span className="ichip ichip-green w-7 h-7 rounded-lg shrink-0">
+            <MapPin className="w-3.5 h-3.5" />
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block text-[9.5px] font-bold tracking-[.14em] uppercase text-[var(--brand)]">
+              Delivering to
+            </span>
+            <span className="block text-[13px] font-bold truncate text-[var(--ink)]">{area}</span>
+          </span>
+          <span className="shrink-0 flex items-center gap-0.5 text-[11px] font-bold text-[var(--green)]">
+            Change <ChevronDown className="w-3.5 h-3.5" />
+          </span>
+        </Link>
       </div>
     </header>
   );

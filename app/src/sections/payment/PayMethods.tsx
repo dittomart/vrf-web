@@ -1,18 +1,50 @@
-import { BadgeCheck, Check, CreditCard, ShieldCheck, Smartphone, Wallet } from 'lucide-react';
+import {
+  BadgeCheck,
+  Banknote,
+  Check,
+  CreditCard,
+  ShieldCheck,
+  Smartphone,
+  Wallet,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { SmartImage } from '@/shared/SmartImage';
+import { money } from '@/utils/fmt';
+import { isCodGateway } from '@/api/queries/usePaymentGateways';
+import type { Gateway } from '@/types';
 
-/** payment.html's three methods, in its order. No cash on delivery. */
-export type PayMethod = 'UPI' | 'Card' | 'Wallet';
-
-export const PAY_METHODS: PayMethod[] = ['UPI', 'Card', 'Wallet'];
-
-interface Props {
-  method: PayMethod;
-  onSelect: (m: PayMethod) => void;
+function iconFor(code: string): LucideIcon {
+  if (isCodGateway(code)) return Banknote;
+  if (/upi|phonepe|gpay|paytm/i.test(code)) return Smartphone;
+  if (/wallet/i.test(code)) return Wallet;
+  return CreditCard;
 }
 
-/* "Pay using" — the sec-head, the UPI-first radio list, and the
-   charged-once reassurance card. */
-export function PayMethods({ method, onSelect }: Props) {
+/* "Pay using" — the store's own active gateways, in the order the backend
+   returned them.
+
+   The wallet is NOT one of the radios: it is an independent toggle. Wallet money
+   can pay for part of an order and a gateway for the rest, so making it a
+   mutually-exclusive choice would make the part-paid case unreachable. */
+export function PayMethods({
+  gateways,
+  selected,
+  onSelect,
+  walletBalance,
+  useWallet,
+  onToggleWallet,
+  walletCoversAll,
+  isLoading,
+}: {
+  gateways: Gateway[];
+  selected: string;
+  onSelect: (code: string) => void;
+  walletBalance: number;
+  useWallet: boolean;
+  onToggleWallet: (on: boolean) => void;
+  walletCoversAll: boolean;
+  isLoading: boolean;
+}) {
   return (
     <div>
       <div className="reveal mb-3" data-d="1">
@@ -27,83 +59,82 @@ export function PayMethods({ method, onSelect }: Props) {
         </div>
       </div>
 
-      {/* UPI FIRST */}
-      <div
-        className="ui-card-lux overflow-hidden divide-y divide-[var(--line)] stagger reveal"
-        data-d="2"
-      >
-        <label
-          className={method === 'UPI' ? 'pay opt-row is-sel' : 'pay opt-row'}
-          onClick={() => onSelect('UPI')}
-        >
-          <div className="ichip ichip-brand">
-            <Smartphone className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm">UPI</p>
-            <p className="text-xs text-[var(--ink-2)] mt-0.5">GPay · PhonePe · Paytm · BHIM</p>
-          </div>
-          <span className="badge badge-green shrink-0">POPULAR</span>
-          <span className="opt-check shrink-0">
-            <Check className="w-3.5 h-3.5" />
-          </span>
-          <input
-            type="radio"
-            name="pay"
-            className="hidden"
-            checked={method === 'UPI'}
-            onChange={() => onSelect('UPI')}
-          />
-        </label>
-
-        <label
-          className={method === 'Card' ? 'pay opt-row is-sel' : 'pay opt-row'}
-          onClick={() => onSelect('Card')}
-        >
-          <div className="ichip ichip-green">
-            <CreditCard className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm">Credit / Debit Card</p>
-            <p className="text-xs text-[var(--ink-2)] mt-0.5">Visa · Mastercard · RuPay</p>
-          </div>
-          <span className="opt-check shrink-0">
-            <Check className="w-3.5 h-3.5" />
-          </span>
-          <input
-            type="radio"
-            name="pay"
-            className="hidden"
-            checked={method === 'Card'}
-            onChange={() => onSelect('Card')}
-          />
-        </label>
-
-        <label
-          className={method === 'Wallet' ? 'pay opt-row is-sel' : 'pay opt-row'}
-          onClick={() => onSelect('Wallet')}
-        >
+      {walletBalance > 0 && (
+        <label className="ui-card-lux overflow-hidden reveal mb-3 pay opt-row" data-d="2">
           <div className="ichip ichip-gold">
             <Wallet className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm">Wallets</p>
-            <p className="text-xs text-[var(--ink-2)] mt-0.5">Paytm · Amazon Pay · Mobikwik</p>
+            <p className="font-bold text-sm">Use wallet balance</p>
+            <p className="text-xs text-[var(--ink-2)] mt-0.5">
+              {money(walletBalance)} available
+              {useWallet && !walletCoversAll ? ' · covers part of this order' : ''}
+            </p>
           </div>
-          <span className="opt-check shrink-0">
-            <Check className="w-3.5 h-3.5" />
+          <span className={`acct-switch${useWallet ? ' is-on' : ''}`}>
+            <span />
           </span>
           <input
-            type="radio"
-            name="pay"
+            type="checkbox"
             className="hidden"
-            checked={method === 'Wallet'}
-            onChange={() => onSelect('Wallet')}
+            checked={useWallet}
+            onChange={(e) => onToggleWallet(e.target.checked)}
           />
         </label>
-      </div>
+      )}
 
-      {/* charged-once reassurance */}
+      {/* the wallet already covers the bill — there is nothing left to charge */}
+      {!walletCoversAll && (
+        <div className="ui-card-lux overflow-hidden divide-y divide-[var(--line)] stagger reveal" data-d="2">
+          {isLoading && (
+            <div className="p-4 text-sm text-[var(--ink-2)]">Loading payment methods…</div>
+          )}
+
+          {!isLoading && gateways.length === 0 && (
+            <div className="p-4 text-sm text-[var(--ink-2)]">
+              This kitchen has no payment method enabled yet. Ask the store to switch one on in the
+              admin panel.
+            </div>
+          )}
+
+          {gateways.map((g) => {
+            const Ico = iconFor(g.code);
+            const on = selected === g.code;
+            return (
+              <label
+                key={g.id}
+                className={on ? 'pay opt-row is-sel' : 'pay opt-row'}
+                onClick={() => onSelect(g.code)}
+              >
+                <div className="ichip ichip-brand">
+                  {g.logo ? (
+                    <SmartImage src={g.logo} alt="" className="w-5 h-5 object-contain" />
+                  ) : (
+                    <Ico className="w-5 h-5" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm">{g.name || g.code}</p>
+                  {g.description ? (
+                    <p className="text-xs text-[var(--ink-2)] mt-0.5">{g.description}</p>
+                  ) : null}
+                </div>
+                <span className="opt-check shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </span>
+                <input
+                  type="radio"
+                  name="pay"
+                  className="hidden"
+                  checked={on}
+                  onChange={() => onSelect(g.code)}
+                />
+              </label>
+            );
+          })}
+        </div>
+      )}
+
       <div className="ui-card ui-card-pad mt-4 flex items-center gap-3 reveal" data-d="3">
         <span className="ichip ichip-green">
           <BadgeCheck className="w-5 h-5" />

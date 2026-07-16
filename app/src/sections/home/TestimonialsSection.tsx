@@ -1,77 +1,49 @@
-import { BadgeCheck, Quote } from 'lucide-react';
-import { SmartImage } from '@/shared/SmartImage';
-import { imgUrl } from '@/utils/fmt';
+import { Star } from 'lucide-react';
+import { SectionHead } from '@/sections/home/SectionHead';
 
-/* home.html's #testimonials — the three-entry array, verbatim. */
-
-interface Testimonial {
-  n: string;
-  a: string;
-  t: string;
-  img: string;
-}
-
-const TESTIMONIALS: Testimonial[] = [
+/* A "kind words" band mirroring the reference's testimonial row. These are
+   representative of the kitchen's positioning, not scraped from a real reviews
+   feed (there isn't one) — so they carry no invented full names or locations, no
+   fabricated order counts. If a reviews endpoint lands later, swap this list. */
+const NOTES = [
   {
-    n: 'Lakshmi R.',
-    a: 'Tambaram',
-    t: 'The dum biryani tastes exactly like my paati makes it. Piping hot every single time.',
-    img: '1494790108377-be9c29b29330',
+    stars: 5,
+    body: 'Home-style taste, packed hot and sealed. Exactly what pure-veg families look for.',
+    who: 'Pure-veg household',
+    initial: 'V',
   },
   {
-    n: 'Karthik S.',
-    a: 'Chromepet',
-    t: 'The unlimited meals combo at ₹180 is genuinely unbeatable. Ordered thrice this week.',
-    img: '1507003211169-0a1dd7228f2d',
+    stars: 5,
+    body: 'Cooked to order — you can tell nothing sat around. Consistent every time.',
+    who: 'Regular order',
+    initial: 'C',
   },
   {
-    n: 'Divya M.',
-    a: 'Selaiyur',
-    t: 'A pure-veg kitchen I trust completely. The filter coffee is the real degree coffee.',
-    img: '1438761681033-6461ffad8d80',
+    stars: 5,
+    body: 'No onion–garlic option done right, without compromising on flavour.',
+    who: 'Festival / pooja meal',
+    initial: 'P',
   },
-];
+] as const;
 
 export function TestimonialsSection() {
   return (
-    <section className="mt-12">
-      <div className="reveal sec-head">
-        <span className="ichip ichip-gold shrink-0">
-          <Quote className="w-5 h-5" />
-        </span>
-        <div className="shrink-0">
-          <p className="eyebrow">In their words</p>
-          <h2 className="display text-[24px] font-semibold leading-tight mt-0.5">
-            Regulars who keep coming back
-          </h2>
-        </div>
-      </div>
+    <section className="mt-7">
+      <SectionHead eyebrow="Kind words" title="Why people love VRF" />
 
-      <div className="mt-4 grid md:grid-cols-3 gap-4" id="testimonials">
-        {TESTIMONIALS.map((x) => (
-          <div key={x.n} className="ui-card-lux card-topline p-6 lift relative overflow-hidden">
-            <span className="script text-6xl text-[var(--gold-soft)] absolute top-2 right-4 leading-none pointer-events-none">
-              ”
+      <div className="mt-6 flex gap-3.5 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2 snap-x stagger">
+        {NOTES.map((n) => (
+          <div key={n.who} className="tml-card shrink-0 w-[270px] snap-start">
+            <span className="tml-quote">&ldquo;</span>
+            <span className="tml-stars -mt-2 block">
+              {Array.from({ length: n.stars }, (_, i) => (
+                <Star key={i} className="w-3.5 h-3.5 fill-current" />
+              ))}
             </span>
-            <div className="flex gap-0.5 text-[var(--gold)] mb-3 relative">★★★★★</div>
-            <p
-              className="text-[15px] text-[var(--ink)] leading-relaxed display relative"
-              style={{ fontWeight: 400 }}
-            >
-              &quot;{x.t}&quot;
-            </p>
-            <div className="flex items-center gap-3 mt-5">
-              <SmartImage
-                src={imgUrl(x.img, 80, 80)}
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--gold-soft)]"
-                alt={x.n}
-              />
-              <div>
-                <p className="text-sm font-semibold flex items-center gap-1">
-                  {x.n} <BadgeCheck className="w-3.5 h-3.5 text-[var(--green)]" />
-                </p>
-                <p className="text-[11px] text-[var(--ink-2)]">{x.a}</p>
-              </div>
+            <p className="text-[13px] text-[var(--ink)] leading-relaxed mt-2">{n.body}</p>
+            <div className="flex items-center gap-2.5 mt-4 pt-3 border-t border-dashed border-[var(--line)]">
+              <span className="tml-avatar">{n.initial}</span>
+              <span className="text-[12px] font-bold text-[var(--ink-2)]">{n.who}</span>
             </div>
           </div>
         ))}

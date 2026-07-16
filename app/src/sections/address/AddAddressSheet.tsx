@@ -1,25 +1,23 @@
-import { useState } from 'react';
-import { Briefcase, CheckCircle, House, MapPin, Navigation, Search, X } from 'lucide-react';
-import { SERVICE_AREA_PINS } from '@/api/_seed';
-import { toast } from '@/store/appStore';
-import { reverseGeo } from '@/utils/geo';
-
-export interface Coords {
-  name: string;
-  lat: number;
-  lng: number;
-}
+import { useEffect, useState } from 'react';
+import { AlertCircle, Briefcase, CheckCircle, House, MapPin, Navigation, X } from 'lucide-react';
+import { useCoordinateToAddress } from '@/api/mutations/useAddresses';
+import { useAppStore, toast } from '@/store/appStore';
+import { useAuthStore } from '@/store/authStore';
+import { useLocationStore } from '@/store/locationStore';
+import { reverseGeo, distanceKm } from '@/utils/geo';
+import type { Address } from '@/types';
 
 export interface AddressDraft {
+  id?: string;
   label: string;
   houseNo: string;
   landmark: string;
-  coords: Coords;
+  receiverName: string;
+  phone: string;
+  street: string;
+  lat: number;
+  lng: number;
 }
-
-/* address.html — the `areas` list the manual search filters over. Same
-   serviceable-area pins the location screen uses, so the two cannot drift. */
-const AREAS: Coords[] = SERVICE_AREA_PINS;
 
 const TAGS = [
   { tag: 'Home', Icon: House },
@@ -34,71 +32,109 @@ const TAG_ON =
 
 const GPS_IDLE = 'Detect my location (GPS)';
 
+/* address.html's sheet. Coordinates only ever come from the device: an address
+   the kitchen cannot route a rider to is worse than no address, so Save stays
+   locked until a real fix lands, and a pin outside the delivery radius is
+   rejected here rather than at the payment screen. */
 export function AddAddressSheet({
   open,
+  editing,
   onClose,
   onSave,
+  saving,
 }: {
   open: boolean;
+  editing?: Address | null;
   onClose: () => void;
   onSave: (draft: AddressDraft) => void;
+  saving?: boolean;
 }) {
-  const [coords, setCoords] = useState<Coords | null>(null);
-  const [tag, setTag] = useState<string>('Home');
+  const store = useAppStore((s) => s.storeLocation);
+  const user = useAuthStore((s) => s.user);
+  const userLoc = useLocationStore((s) => s.location);
+  const coordinateToAddress = useCoordinateToAddress();
+
+  const [coords, setCoords] = useState<{ name: string; lat: number; lng: number } | null>(null);
+  const [tag, setTag] = useState('Home');
   const [flat, setFlat] = useState('');
   const [landmark, setLandmark] = useState('');
-  const [search, setSearch] = useState('');
-  const [results, setResults] = useState<Coords[] | null>(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [gpsLbl, setGpsLbl] = useState(GPS_IDLE);
 
-  /* address.html's setCoords(): shows the coord box and mirrors the place
-     name into the search field. */
-  const capture = (a: Coords) => {
-    setCoords(a);
-    setSearch(a.name);
-    setResults(null);
-  };
+  /* Reopening the sheet on a different address must not leave the previous
+     one's coordinates behind — that is how a customer ends up with two rows
+     pinned to the same doorstep. */
+  useEffect(() => {
+    if (!open) return;
 
-  const reset = () => {
-    setCoords(null);
-    setFlat('');
-    setLandmark('');
-    setSearch('');
-    setResults(null);
+    if (editing) {
+      setCoords(
+        Number.isFinite(editing.latitude) && !(editing.latitude === 0 && editing.longitude === 0)
+          ? { name: editing.street, lat: editing.latitude, lng: editing.longitude }
+          : null
+      );
+      setTag(editing.label || 'Home');
+      setFlat(editing.houseNo);
+      setLandmark(editing.landmark);
+      setName(editing.receiverName || user?.name || '');
+      setPhone(editing.phone || user?.phone || '');
+    } else {
+      // seed from the pin the customer already dropped on the location screen
+      setCoords(
+        userLoc && Number.isFinite(userLoc.lat) && !(userLoc.lat === 0 && userLoc.lng === 0)
+          ? { name: userLoc.address, lat: userLoc.lat, lng: userLoc.lng }
+          : null
+      );
+      setTag('Home');
+      setFlat('');
+      setLandmark('');
+      setName(user?.name ?? '');
+      setPhone(user?.phone ?? '');
+    }
     setGpsLbl(GPS_IDLE);
-  };
+  }, [open, editing, user, userLoc]);
+
+  const dist =
+    coords && store ? distanceKm(coords.lat, coords.lng, store.latitude, store.longitude) : null;
+  const outOfRange =
+    dist != null && store != null && store.deliveryRadius > 0 && dist > store.deliveryRadius;
 
   const onGps = () => {
-    /* Coordinates only ever come from navigator.geolocation — there is no
-       synthetic stand-in. Without it, Save stays disabled and the user is
-       pointed at the manual area search. */
     if (!navigator.geolocation || !window.isSecureContext) {
-      toast('GPS unavailable here — search your area below', 'map-pin');
+      toast('GPS is unavailable here — open the app over https or localhost', 'map-pin');
       return;
     }
+
     setGpsLbl('Detecting…');
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const pt = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      (pos) => {
+        void (async () => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
           setGpsLbl('Finding your area…');
-          // real place name (never hangs — 4s timeout race)
-          const label = await Promise.race<string | null>([
-            reverseGeo(pt.lat, pt.lng).catch(() => null),
-            new Promise<string | null>((r) => setTimeout(() => r(null), 4000)),
-          ]);
+
+          // the backend's own geocoder first, OpenStreetMap as the backstop —
+          // neither is allowed to hang the sheet
+          let label = '';
+          try {
+            label = await coordinateToAddress.mutateAsync({ lat, lng });
+          } catch {
+            label = '';
+          }
+          if (!label) label = (await reverseGeo(lat, lng)) ?? '';
+
           setGpsLbl(GPS_IDLE);
-          capture({ name: label || 'My current location', lat: pt.lat, lng: pt.lng });
+          setCoords({ name: label || 'My current location', lat, lng });
           toast('Location captured ✓', 'check-circle');
-        } catch {
-          setGpsLbl(GPS_IDLE);
-          toast('Something went wrong — search below', 'alert-circle');
-        }
+        })();
       },
       (err) => {
         setGpsLbl(GPS_IDLE);
         toast(
-          err.code === 1 ? 'Location blocked — search your area below' : "Couldn't detect — search below",
+          err.code === 1
+            ? 'Location blocked — allow it to save an address'
+            : "Couldn't detect your location — try again",
           'alert-circle'
         );
       },
@@ -106,23 +142,27 @@ export function AddAddressSheet({
     );
   };
 
-  const onSearch = (v: string) => {
-    setSearch(v);
-    setCoords(null); // typing invalidates the captured pin → Save locks again
-    const q = v.toLowerCase();
-    if (!q) {
-      setResults(null);
-      return;
-    }
-    setResults(AREAS.filter((a) => a.name.toLowerCase().includes(q)));
-  };
-
-  const ok = !!coords && flat.trim().length > 0;
+  const ok =
+    !!coords &&
+    !outOfRange &&
+    flat.trim().length > 0 &&
+    name.trim().length > 0 &&
+    /^\d{10}$/.test(phone.replace(/\D/g, '')) &&
+    !saving;
 
   const submit = () => {
-    if (!coords) return;
-    onSave({ label: tag, houseNo: flat.trim(), landmark: landmark.trim(), coords });
-    reset();
+    if (!coords || !ok) return;
+    onSave({
+      id: editing?.id,
+      label: tag,
+      houseNo: flat.trim(),
+      landmark: landmark.trim(),
+      receiverName: name.trim(),
+      phone: phone.replace(/\D/g, ''),
+      street: coords.name,
+      lat: coords.lat,
+      lng: coords.lng,
+    });
   };
 
   return (
@@ -133,15 +173,14 @@ export function AddAddressSheet({
       <div className="bg-[var(--card)] w-full max-w-2xl rounded-t-[26px] md:rounded-[26px] p-5 max-h-[90vh] overflow-y-auto anim-slidedown border border-[var(--line)]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="eyebrow-g eyebrow">New location</p>
-            <h2 className="sec-title mt-0.5">Add address</h2>
+            <p className="eyebrow-g eyebrow">{editing ? 'Edit location' : 'New location'}</p>
+            <h2 className="sec-title mt-0.5">{editing ? 'Edit address' : 'Add address'}</h2>
           </div>
           <button onClick={onClose} className="ibtn ibtn-ghost shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* coordinate capture */}
         <p className="text-xs font-bold text-[var(--ink-2)] mb-2 flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5" /> We need exact coordinates for delivery *
         </p>
@@ -152,62 +191,43 @@ export function AddAddressSheet({
         >
           <Navigation className="w-5 h-5" /> <span id="gps-lbl">{gpsLbl}</span>
         </button>
-        <div className="div-label my-4">OR SEARCH MANUALLY</div>
-        <div className="fld-wrap">
-          <Search className="fld-ico w-4 h-4" />
-          <input
-            id="addr-search"
-            value={search}
-            onChange={(e) => onSearch(e.target.value)}
-            placeholder="Search your area / landmark"
-            className="fld"
-          />
+
+        {coords ? (
           <div
-            id="addr-results"
-            className={`${results ? '' : 'hidden '}mt-2 rounded-xl border border-[var(--line)] overflow-hidden divide-y divide-[var(--line)] shadow-[var(--shadow-md)]`}
+            id="coord-box"
+            className="mt-3 rounded-xl p-3.5 flex items-center gap-3 border"
+            style={{
+              background: outOfRange
+                ? 'color-mix(in srgb, var(--brand) 8%, transparent)'
+                : 'color-mix(in srgb, var(--primary) 6%, transparent)',
+              borderColor: outOfRange
+                ? 'color-mix(in srgb, var(--brand) 30%, transparent)'
+                : 'color-mix(in srgb, var(--primary) 20%, transparent)',
+            }}
           >
-            {results && results.length > 0 ? (
-              results.map((a) => (
-                <button
-                  key={a.name}
-                  onClick={() => capture(a)}
-                  className="w-full text-left px-4 py-3 hover:bg-[var(--ivory-2)] flex items-center gap-2 text-sm bg-[var(--card)]"
-                >
-                  <MapPin className="w-4 h-4 text-[var(--brand)]" />
-                  {a.name}
-                </button>
-              ))
-            ) : (
-              <p className="px-4 py-3 text-sm text-[var(--ink-2)] bg-[var(--card)]">No match</p>
-            )}
+            <span className={`ichip w-9 h-9 ${outOfRange ? 'ichip-brand' : 'ichip-green'}`}>
+              {outOfRange ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+            </span>
+            <div className="text-xs min-w-0">
+              <p className="font-bold truncate" id="coord-addr">
+                {coords.name}
+              </p>
+              <p className="mt-0.5" id="coord-latlng">
+                {outOfRange ? (
+                  <span className="inline-flex items-center gap-1 text-[var(--brand)] font-semibold">
+                    {dist?.toFixed(1)} km away — outside the {store?.deliveryRadius} km delivery area
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[var(--green)] font-semibold">
+                    <CheckCircle className="w-3 h-3" /> Location captured
+                    {dist != null ? ` · ${dist.toFixed(1)} km from the kitchen` : ''}
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        {/* captured coords indicator */}
-        <div
-          id="coord-box"
-          className={`${coords ? '' : 'hidden '}mt-3 rounded-xl p-3.5 flex items-center gap-3 border`}
-          style={{
-            background: 'color-mix(in srgb, var(--primary) 6%, transparent)',
-            borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)',
-          }}
-        >
-          <span className="ichip ichip-green w-9 h-9">
-            <CheckCircle className="w-5 h-5" />
-          </span>
-          <div className="text-xs min-w-0">
-            <p className="font-bold truncate" id="coord-addr">
-              {coords?.name}
-            </p>
-            <p className="mt-0.5" id="coord-latlng">
-              <span className="inline-flex items-center gap-1 text-[var(--green)] font-semibold">
-                <CheckCircle className="w-3 h-3" /> GPS verified · location captured
-              </span>
-            </p>
-          </div>
-        </div>
-
-        {/* details */}
         <div className="mt-5 space-y-3.5">
           <div>
             <label className="fld-label">Flat / House no, Floor *</label>
@@ -225,7 +245,27 @@ export function AddAddressSheet({
               id="landmark"
               value={landmark}
               onChange={(e) => setLandmark(e.target.value)}
-              placeholder="e.g. near Bharathi Park"
+              placeholder="e.g. near the bus stand"
+              className="fld"
+            />
+          </div>
+          <div>
+            <label className="fld-label">Receiver name *</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Who is receiving this order?"
+              className="fld"
+            />
+          </div>
+          <div>
+            <label className="fld-label">Phone *</label>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              inputMode="numeric"
+              maxLength={10}
+              placeholder="10-digit mobile number"
               className="fld"
             />
           </div>
@@ -257,10 +297,10 @@ export function AddAddressSheet({
           }
           style={ok ? undefined : { background: 'var(--ink-2)', opacity: 0.55 }}
         >
-          Save address
+          {saving ? 'Saving…' : 'Save address'}
         </button>
         <p className="text-[11px] text-[var(--ink-2)] text-center mt-2">
-          Save unlocks once GPS/search captures your coordinates.
+          Save unlocks once GPS captures a deliverable location.
         </p>
       </div>
     </div>

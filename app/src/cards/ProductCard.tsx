@@ -1,64 +1,80 @@
 import { Link } from 'react-router-dom';
-import { Flame, Star } from 'lucide-react';
+import { Flame, Plus, Star } from 'lucide-react';
 import { SmartImage } from '@/shared/SmartImage';
 import { useCartStore } from '@/store/cartStore';
 import { toast } from '@/store/appStore';
 import { flyToCart } from '@/utils/flyToCart';
-import { discountPct, money, prodImg } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import { getDisplayPrice } from '@/utils/productPricing';
 import type { Product } from '@/types';
 
-/* Section-by-section translation of home.html's prodCard(p) template — the
-   same card renders the Bestsellers grid, Recommended grid, category listing
-   and wishlist. */
+/* home.html's prodCard(p). The price is whatever the customer can actually pay
+   the least of — for a dish sold by portion that is the cheapest portion, not
+   the item row's ₹0. ADD buys exactly that. */
 export function ProductCard({ p }: { p: Product }) {
   const add = useCartStore((s) => s.add);
-  const off = discountPct(p.price, p.mrp);
+  const { price, oldPrice, discountPercent } = getDisplayPrice(p);
+  const off = discountPercent ?? 0;
 
   return (
-    <div className="ui-card card-topline overflow-hidden flex flex-col lift">
-      <Link to={`/product/${p.id}`} className="relative frame block">
-        <SmartImage src={prodImg(p, 320, 240)} className="w-full h-32 sm:h-36 object-cover" alt={p.name} />
-        <span className="absolute top-2.5 left-2.5 rounded-md p-0.5 bg-white shadow-sm">
-          <span className="veg-dot" />
+    <div className="dish-card lift">
+      <Link to={`/product/${p.id}`} className="relative frame block dish-media">
+        <SmartImage src={p.img} className="w-full h-36 object-cover" alt={p.name} />
+        <span className="dish-scrim" aria-hidden="true" />
+
+        <span className="absolute top-3 left-3 flex items-center gap-1.5">
+          {p.isVeg && (
+            <span className="rounded-md p-0.5 bg-white shadow-sm">
+              <span className="veg-dot" />
+            </span>
+          )}
+          {p.best && (
+            <span className="dish-chip dish-chip-gold">
+              <Flame className="w-3 h-3" /> Bestseller
+            </span>
+          )}
+          {p.isNew && !p.best && (
+            <span className="dish-chip dish-chip-gold">
+              <Star className="w-2.5 h-2.5 fill-current" /> New
+            </span>
+          )}
         </span>
-        {off > 0 && <span className="absolute top-2.5 right-2.5 badge badge-accent shadow-sm">{off}% OFF</span>}
-        {p.best && (
-          <span className="absolute bottom-2.5 left-2.5 badge badge-gold shadow-sm">
-            <Flame className="w-3 h-3" /> {p.ordered}× ordered
-          </span>
+        {off > 0 && (
+          <span className="absolute top-3 right-3 dish-chip dish-chip-accent">{off}% OFF</span>
         )}
-      </Link>
-
-      <div className="p-3.5 flex flex-col flex-1">
-        <div className="flex items-center gap-2">
-          <Link to={`/product/${p.id}`} className="font-bold text-sm leading-tight line-clamp-1 flex-1">
-            {p.name}
-          </Link>
-          <span className="shrink-0 flex items-center gap-0.5 text-[10px] font-bold badge badge-gold !py-0.5 !px-1.5">
-            <Star className="w-2.5 h-2.5 fill-current" />
-            4.8
-          </span>
-        </div>
-
-        <p className="text-[11px] text-[var(--ink-2)] line-clamp-2 mt-1 flex-1 leading-relaxed">{p.desc}</p>
-
-        <div className="flex items-end justify-between mt-2.5 tnum">
-          <div className="leading-none">
-            <span className="display font-bold text-[16px] text-[var(--green)]">{money(p.price)}</span>
-            <span className="text-[11px] text-[var(--ink-2)] line-through ml-1">{money(p.mrp)}</span>
-          </div>
-        </div>
 
         <button
           onClick={(e) => {
-            add(p.id);
+            e.preventDefault();
+            add(p);
             toast(`Added ${p.name}`);
             flyToCart(e.currentTarget);
           }}
-          className="w-full mt-2.5 pill pill-green press justify-center !text-xs !py-2"
+          className="dish-add press absolute -bottom-5 right-4 z-10"
+          aria-label={`Add ${p.name}`}
         >
-          ADD +
+          <Plus className="w-5 h-5" />
         </button>
+      </Link>
+
+      <div className="px-4 pt-4 pb-3.5">
+        <Link
+          to={`/product/${p.id}`}
+          className="display font-semibold text-[15px] leading-tight line-clamp-1 block"
+        >
+          {p.name}
+        </Link>
+        <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
+          {p.desc || 'Freshly made to order'}
+        </p>
+
+        <div className="flex items-center gap-2 mt-2.5 tnum">
+          <span className="dish-price">{money(price)}</span>
+          {oldPrice ? (
+            <span className="text-[12px] text-[var(--ink-2)] line-through">{money(oldPrice)}</span>
+          ) : null}
+          {off > 0 && <span className="dish-save">Save {off}%</span>}
+        </div>
       </div>
     </div>
   );

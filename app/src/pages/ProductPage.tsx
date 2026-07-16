@@ -9,7 +9,6 @@ import {
   Leaf,
   ShoppingBag,
   Sparkles,
-  Star,
   Timer,
   Truck,
   Utensils,
@@ -17,40 +16,62 @@ import {
 } from 'lucide-react';
 import { useGetProduct } from '@/api/queries/catalog';
 import { ProductGallery } from '@/sections/product/ProductGallery';
-import { VariantPicker, type Variant } from '@/sections/product/VariantPicker';
+import { VariantPicker } from '@/sections/product/VariantPicker';
 import { FrequentlyBought } from '@/sections/product/FrequentlyBought';
 import { AddToCartBar } from '@/sections/product/AddToCartBar';
 import { useCartStore, useCartCount } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { toast } from '@/store/appStore';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
 import { flyToCart } from '@/utils/flyToCart';
-import { discountPct, money } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import {
+  computeUnitPrice,
+  defaultCustomizations,
+  getDisplayPrice,
+  lineIdOf,
+} from '@/utils/productPricing';
+import type { Customization } from '@/types';
 
-/* product.html — the dish page: gallery, headline + trust chips, price block,
-   stat tiles, serving-size variants, the frequently-bought rail, the three
-   assurance cards, and the fixed add-to-cart bar. */
+/* product.html — the dish page. The portion picker, the price and the add-to-cart
+   line all come from the item's real addon groups, so what the customer sees is
+   what /place-order is told. */
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const brand = useBrandInfo();
 
   const { data: product, isLoading } = useGetProduct(id);
 
-  const add = useCartStore((s) => s.add);
+  const addLine = useCartStore((s) => s.addLine);
   const count = useCartCount();
 
   const wishIds = useWishlistStore((s) => s.ids);
   const toggleWish = useWishlistStore((s) => s.toggle);
 
   const [qty, setQty] = useState(1);
-  const [portion, setPortion] = useState('Regular');
-  const [priceMult, setPriceMult] = useState(1);
+  const [chosen, setChosen] = useState<Customization[]>([]);
 
   const goTimer = useRef<number | null>(null);
-  useEffect(() => () => { if (goTimer.current) window.clearTimeout(goTimer.current); }, []);
+  useEffect(
+    () => () => {
+      if (goTimer.current) window.clearTimeout(goTimer.current);
+    },
+    []
+  );
+
+  /* Reset the picker whenever the dish changes — including when the customer
+     taps through from the "frequently bought" rail, which keeps this component
+     mounted and only swaps the id. */
+  useEffect(() => {
+    setQty(1);
+    setChosen(product ? defaultCustomizations(product) : []);
+  }, [product, id]);
 
   const p = product ?? null;
   const saved = p ? wishIds.includes(p.id) : false;
-  const unitPrice = p ? Math.round(p.price * priceMult) : 0;
+  const unitPrice = p ? computeUnitPrice(p, chosen) : 0;
+  const display = p ? getDisplayPrice(p) : null;
 
   const onFav = (e: MouseEvent<HTMLButtonElement>) => {
     if (!p) return;
@@ -64,15 +85,20 @@ export default function ProductPage() {
 
   const onAdd = (e: MouseEvent<HTMLButtonElement>) => {
     if (!p) return;
-    add(p.id, qty);
+    addLine({
+      lineId: lineIdOf(p.id, chosen),
+      productId: p.id,
+      restaurantId: p.restaurantId,
+      name: p.name,
+      image: p.img,
+      basePrice: p.price,
+      unitPrice,
+      qty,
+      customizations: chosen,
+    });
     flyToCart(e.currentTarget);
     toast(`Added ${qty} × ${p.name}`);
     goTimer.current = window.setTimeout(() => navigate('/cart'), 700);
-  };
-
-  const onVariant = (v: Variant) => {
-    setPortion(v.n);
-    setPriceMult(v.m);
   };
 
   return (
@@ -90,9 +116,11 @@ export default function ProductPage() {
           </h1>
           <Link to="/cart" className="ibtn ibtn-ghost shrink-0 relative">
             <ShoppingBag className="w-5 h-5" />
-            <span data-cart-badge className={count === 0 ? 'hidden ibtn-badge' : 'ibtn-badge'}>
-              {count}
-            </span>
+            {count > 0 && (
+              <span data-cart-badge className="ibtn-badge">
+                {count}
+              </span>
+            )}
           </Link>
         </div>
       </header>
@@ -114,15 +142,16 @@ export default function ProductPage() {
         <>
           <div className="max-w-6xl mx-auto px-4 pt-4">
             <div className="product-layout">
-              {/* gallery: a contained 4:3 frame, not a full-viewport-height photo */}
               <ProductGallery p={p} />
 
               <div className="relative anim-fadein min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="badge badge-green mb-2">
-                      <span className="veg-dot" /> PURE VEG
-                    </div>
+                    {p.isVeg && (
+                      <div className="badge badge-green mb-2">
+                        <span className="veg-dot" /> PURE VEG
+                      </div>
+                    )}
                     <h1 id="p-name" className="display text-[26px] font-extrabold leading-tight">
                       {p.name}
                     </h1>
@@ -137,64 +166,80 @@ export default function ProductPage() {
                 </div>
 
                 <div className="flex items-center flex-wrap gap-2 mt-3">
-                  <span className="flex items-center gap-1 text-xs font-bold badge badge-gold">
-                    <Star className="w-3.5 h-3.5 fill-current" /> 4.8
-                  </span>
                   <span
                     className="flex items-center gap-1.5 text-xs font-semibold badge"
                     style={{ background: 'var(--ivory-2)', color: 'var(--ink-2)' }}
                   >
-                    <Timer className="w-3.5 h-3.5" /> 35 min
+                    <Timer className="w-3.5 h-3.5" /> {brand.eta} min
                   </span>
-                  <span className="flex items-center gap-1.5 text-xs font-semibold badge badge-accent">
-                    <Flame className="w-3.5 h-3.5" /> Home-style
-                  </span>
+                  {p.best && (
+                    <span className="flex items-center gap-1.5 text-xs font-semibold badge badge-accent">
+                      <Flame className="w-3.5 h-3.5" /> Bestseller
+                    </span>
+                  )}
                 </div>
 
-                <p id="p-desc" className="text-[var(--ink-2)] mt-4 leading-relaxed">
-                  {p.desc}
-                </p>
+                {p.desc ? (
+                  <p id="p-desc" className="text-[var(--ink-2)] mt-4 leading-relaxed">
+                    {p.desc}
+                  </p>
+                ) : null}
 
                 <div className="rule-gold my-5" />
 
                 <div className="flex items-end gap-2.5">
-                  <span id="p-price" className="display text-[32px] font-bold tnum text-[var(--green)] leading-none">
+                  <span
+                    id="p-price"
+                    className="display text-[32px] font-bold tnum text-[var(--green)] leading-none"
+                  >
                     {money(unitPrice)}
                   </span>
-                  <span id="p-mrp" className="text-[var(--ink-2)] line-through mb-0.5 tnum">
-                    {money(p.mrp)}
-                  </span>
-                  <span id="p-off" className="mb-0.5 badge badge-accent">
-                    {discountPct(p.price, p.mrp)}% OFF
-                  </span>
+                  {display?.oldPrice ? (
+                    <>
+                      <span id="p-mrp" className="text-[var(--ink-2)] line-through mb-0.5 tnum">
+                        {money(display.oldPrice)}
+                      </span>
+                      <span id="p-off" className="mb-0.5 badge badge-accent">
+                        {display.discountPercent}% OFF
+                      </span>
+                    </>
+                  ) : null}
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div className="stat-tile !py-2.5">
-                    <Truck className="w-4 h-4 mx-auto text-[var(--green)]" />
-                    <p className="text-[10px] font-bold mt-1">Free above ₹349</p>
-                  </div>
+                  {brand.freeDeliveryAbove > 0 && (
+                    <div className="stat-tile !py-2.5">
+                      <Truck className="w-4 h-4 mx-auto text-[var(--green)]" />
+                      <p className="text-[10px] font-bold mt-1">
+                        Free above {money(brand.freeDeliveryAbove)}
+                      </p>
+                    </div>
+                  )}
                   <div className="stat-tile !py-2.5">
                     <Flame className="w-4 h-4 mx-auto text-[var(--brand)]" />
                     <p className="text-[10px] font-bold mt-1">Served hot</p>
                   </div>
                   <div className="stat-tile !py-2.5">
                     <Leaf className="w-4 h-4 mx-auto text-[var(--green)]" />
-                    <p className="text-[10px] font-bold mt-1">No onion garlic opt.</p>
+                    <p className="text-[10px] font-bold mt-1">Cooked to order</p>
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center gap-2.5">
-                  <span className="ichip ichip-brand shrink-0">
-                    <Utensils className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <p className="eyebrow eyebrow-g mb-0.5">Serving size</p>
-                    <p className="sec-title leading-none">Choose your portion</p>
-                  </div>
-                </div>
+                {p.addonGroups.length > 0 && (
+                  <>
+                    <div className="mt-6 flex items-center gap-2.5">
+                      <span className="ichip ichip-brand shrink-0">
+                        <Utensils className="w-5 h-5" />
+                      </span>
+                      <div>
+                        <p className="eyebrow eyebrow-g mb-0.5">Make it yours</p>
+                        <p className="sec-title leading-none">Choose your options</p>
+                      </div>
+                    </div>
 
-                <VariantPicker price={p.price} portion={portion} onSelect={onVariant} />
+                    <VariantPicker groups={p.addonGroups} chosen={chosen} onChange={setChosen} />
+                  </>
+                )}
 
                 <div className="mt-9">
                   <div className="sec-head mb-3">

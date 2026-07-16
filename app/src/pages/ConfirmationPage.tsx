@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Bike,
@@ -16,33 +16,35 @@ import {
 
 import '@/styles/confirmation.css';
 
-import { LOGO, VRF } from '@/api/_seed';
-import { getProduct } from '@/api/queries/catalog';
+import { useGetOrder } from '@/api/queries/useOrders';
 import { SmartImage } from '@/shared/SmartImage';
 import { toast } from '@/store/appStore';
-import { useLocationStore } from '@/store/locationStore';
 import { useOrderStore } from '@/store/orderStore';
 import { useSavedOrdersStore } from '@/store/savedOrdersStore';
-import { imgUrl, money, prodImg } from '@/utils/fmt';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
+import { money } from '@/utils/fmt';
 import { confetti } from '@/utils/confetti';
 
-/* confirmation.html — the ticket receipt, the faux barcode, the confetti burst
-   and the save-order prompt, all driven by the last placed order. */
+/* confirmation.html — the ticket receipt, driven by the order that was actually
+   placed. It is also the PayU return target (/running-order/:uniqueOrderId), so
+   it must stand on its own with nothing but an id in the URL: the server order is
+   the source, and the snapshot taken at checkout only fills the gap while
+   /brand/{slug}/get-orders catches up. */
 export default function ConfirmationPage() {
-  const orders = useOrderStore((s) => s.orders);
+  const { uniqueOrderId } = useParams<{ uniqueOrderId: string }>();
+  const brand = useBrandInfo();
+
+  const lastOrder = useOrderStore((s) => s.lastOrder);
   const lastOrderId = useOrderStore((s) => s.lastOrderId);
-  const location = useLocationStore((s) => s.location);
   const saveCombo = useSavedOrdersStore((s) => s.save);
   const [saved, setSaved] = useState(false);
 
-  const order = useMemo(
-    () => orders.find((o) => o.id === lastOrderId) ?? orders[0] ?? null,
-    [orders, lastOrderId]
-  );
+  const id = uniqueOrderId ?? lastOrderId ?? undefined;
+  const { order: serverOrder, isLoading } = useGetOrder(id);
 
-  const oid = order?.id ?? 'VRF000000';
+  const order = serverOrder ?? (lastOrder && (!id || lastOrder.id === id) ? lastOrder : null);
+  const oid = order?.id ?? id ?? '';
 
-  /* faux barcode from order id — same seed arithmetic as the prototype */
   const bars = useMemo(() => {
     const seed = [...oid].reduce((a, c) => a + c.charCodeAt(0), 0);
     return Array.from({ length: 52 }, (_, i) => ((seed * (i + 3)) % 4) + 1);
@@ -50,24 +52,14 @@ export default function ConfirmationPage() {
 
   const bcNum = oid.replace(/(.{3})/g, '$1 ').trim();
 
-  const etaAddr = useMemo(() => {
-    const addr = location?.address;
-    if (!addr) return 'to your saved address';
-    const parts = addr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 2)
-      .join(', ');
-    return parts ? 'to ' + parts : 'to your saved address';
-  }, [location]);
+  const etaAddr = order?.address
+    ? `to ${[order.address.houseNo, order.address.street].filter(Boolean).join(', ')}`
+    : 'to your saved address';
 
   useEffect(() => {
     confetti(44);
   }, []);
 
-  /* Persist the combo so /profile's "Saved orders" can one-tap reorder it —
-     the prototype's vrf_favs unshift, now behind savedOrdersStore. */
   const onSave = () => {
     if (!order) return;
     saveCombo({
@@ -78,6 +70,29 @@ export default function ConfirmationPage() {
     setSaved(true);
     toast('Order saved to favourites', 'bookmark-plus');
   };
+
+  if (!order && isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-[var(--ink-2)]">
+        Loading your order…
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-8 text-center">
+        <div className="empty-emoji">
+          <ReceiptText className="w-9 h-9 text-[var(--brand)]" />
+        </div>
+        <p className="empty-title">Order not found</p>
+        <p className="empty-sub">We couldn&apos;t find {oid ? `order #${oid}` : 'that order'}.</p>
+        <Link to="/orders" className="pill pill-accent mt-4">
+          View my orders
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -97,15 +112,6 @@ export default function ConfirmationPage() {
           <span
             className="absolute w-28 h-28 rounded-full"
             style={{ border: '2px solid var(--gold)', animation: 'ringPulse 1.9s ease-out infinite' }}
-          />
-          <span
-            className="absolute w-28 h-28 rounded-full"
-            style={{
-              border: '2px solid var(--green)',
-              opacity: 0.4,
-              animation: 'ringPulse 1.9s ease-out infinite',
-              animationDelay: '.5s',
-            }}
           />
           <div
             className="w-24 h-24 rounded-full flex items-center justify-center shadow-[var(--shadow-lg)]"
@@ -133,7 +139,6 @@ export default function ConfirmationPage() {
           </div>
         </div>
 
-        {/* steam */}
         <div className="flex gap-2 mt-4 h-7 items-end text-[var(--brand)]/40">
           <span className="steam h-4" style={{ animationDelay: '0s' }} />
           <span className="steam h-6" style={{ animationDelay: '.5s' }} />
@@ -153,13 +158,6 @@ export default function ConfirmationPage() {
           className="w-full mt-6 relative overflow-hidden rounded-[22px] p-5 text-white shadow-[var(--shadow-lg)] a-scalein on-brand"
           style={{ background: 'linear-gradient(135deg,var(--green-2),var(--green) 60%,var(--primary-2))' }}
         >
-          <div
-            className="absolute -top-10 -right-8 w-28 h-28 rounded-full pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(circle,color-mix(in srgb, var(--gold) 32%, transparent),transparent 70%)',
-            }}
-          />
           <div className="relative flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-white/12 border border-white/15 flex items-center justify-center shrink-0">
               <Bike className="w-7 h-7 text-[var(--gold)]" />
@@ -169,7 +167,7 @@ export default function ConfirmationPage() {
                 Estimated arrival
               </p>
               <p className="display text-2xl font-bold leading-none mt-1">
-                In about {order?.etaMin ?? VRF.eta} minutes
+                In about {order.etaMin || brand.eta} minutes
               </p>
               <p className="text-white/70 text-xs mt-1 truncate">{etaAddr}</p>
             </div>
@@ -180,7 +178,7 @@ export default function ConfirmationPage() {
           </div>
         </div>
 
-        {/* delivery ETA mini-timeline */}
+        {/* mini timeline */}
         <div className="w-full mt-6 px-1">
           <div className="flex items-center">
             <div className="flex flex-col items-center gap-1.5 shrink-0">
@@ -223,12 +221,8 @@ export default function ConfirmationPage() {
         </div>
 
         {/* TICKET */}
-        <div
-          className="conf-ticket w-full mt-8 a-scalein"
-          style={{ '--notch': '150px' } as CSSProperties}
-        >
+        <div className="conf-ticket w-full mt-8 a-scalein" style={{ '--notch': '150px' } as CSSProperties}>
           <div className="conf-ticket-top" />
-          {/* header strip */}
           <div
             className="px-5 py-4 flex items-center gap-3 rounded-t-[24px]"
             style={{
@@ -237,16 +231,16 @@ export default function ConfirmationPage() {
             }}
           >
             <div className="logo-tile w-11 h-11 shrink-0">
-              <SmartImage src={LOGO} alt="VRF" />
+              <SmartImage src={brand.logo} alt={brand.brand} />
             </div>
             <div className="min-w-0">
-              <p className="display font-bold text-[15px] leading-none">VRF Kitchen</p>
+              <p className="display font-bold text-[15px] leading-none">{brand.brand}</p>
               <p className="text-[11px] text-[var(--green)] font-semibold mt-1 flex items-center gap-1">
                 <Leaf className="w-3 h-3" /> Pure Vegetarian
               </p>
             </div>
             <span className="ml-auto badge badge-green shrink-0">
-              <CheckCircle className="w-3.5 h-3.5" /> Paid
+              <CheckCircle className="w-3.5 h-3.5" /> {order.paymentMethod || 'Placed'}
             </span>
           </div>
 
@@ -262,34 +256,27 @@ export default function ConfirmationPage() {
                   className="w-2 h-2 rounded-full bg-[var(--green)]"
                   style={{ animation: 'ringPulse 1.6s ease-out infinite' }}
                 />{' '}
-                {order?.etaMin ?? VRF.eta} min
+                {order.etaMin || brand.eta} min
               </span>
             </div>
           </div>
 
           <hr className="perf" />
 
-          {/* items */}
           <div className="px-5 py-4 space-y-2">
-            {order && order.items.length > 0 ? (
-              order.items.map((i) => {
-                const p = getProduct(i.id);
-                const img = p ? prodImg(p, 90, 90) : imgUrl('1589302168068-964664d93dc0', 90, 90);
-                return (
-                  <div key={i.id} className="flex items-center gap-3">
-                    <div className="frame rounded-lg shrink-0">
-                      <SmartImage src={img} className="w-10 h-10 rounded-lg object-cover" alt="" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate flex items-center gap-1.5">
-                        <span className="veg-dot" style={{ transform: 'scale(.72)' }} /> {i.name}
-                      </p>
-                      <p className="text-[11px] text-[var(--ink-2)] mt-0.5">Qty {i.qty}</p>
-                    </div>
-                    <span className="font-bold tnum text-sm shrink-0">{money(i.price * i.qty)}</span>
+            {order.items.length > 0 ? (
+              order.items.map((i, idx) => (
+                <div key={`${i.id}-${idx}`} className="flex items-center gap-3">
+                  <div className="frame rounded-lg shrink-0">
+                    <SmartImage src={i.image ?? ''} className="w-10 h-10 rounded-lg object-cover" alt="" />
                   </div>
-                );
-              })
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{i.name}</p>
+                    <p className="text-[11px] text-[var(--ink-2)] mt-0.5">Qty {i.qty}</p>
+                  </div>
+                  <span className="font-bold tnum text-sm shrink-0">{money(i.price * i.qty)}</span>
+                </div>
+              ))
             ) : (
               <p className="text-sm text-[var(--ink-2)]">Your items are being prepared.</p>
             )}
@@ -297,19 +284,17 @@ export default function ConfirmationPage() {
 
           <hr className="perf" />
 
-          {/* total */}
           <div className="px-5 py-4 flex justify-between items-center">
             <div>
-              <p className="eyebrow eyebrow-g">Total paid</p>
+              <p className="eyebrow eyebrow-g">Total</p>
               <p className="text-[11px] text-[var(--ink-2)] mt-0.5">incl. taxes &amp; delivery</p>
             </div>
             <span className="display text-[28px] font-bold tnum text-[var(--green)]">
-              {money(order?.total ?? 0)}
+              {money(order.total)}
             </span>
           </div>
 
           <hr className="perf" />
-          {/* barcode footer */}
           <div className="px-5 py-4">
             <div className="barcode">
               {bars.map((w, i) => (
@@ -322,7 +307,6 @@ export default function ConfirmationPage() {
           </div>
         </div>
 
-        {/* save order prompt */}
         <div
           className="w-full ui-card-lux card-topline ui-card-pad mt-4 flex items-center gap-3"
           style={{ background: 'var(--gold-soft)', borderColor: 'var(--gold)' }}
@@ -347,8 +331,7 @@ export default function ConfirmationPage() {
           </button>
         </div>
 
-        {/* actions */}
-        <Link to="/tracking" className="w-full mt-5 cta-lux shine ripple pill justify-center py-4">
+        <Link to={`/tracking/${oid}`} className="w-full mt-5 cta-lux shine ripple pill justify-center py-4">
           <MapPin className="w-5 h-5" /> Track my order live
         </Link>
         <div className="w-full mt-3 grid grid-cols-2 gap-3">
@@ -365,10 +348,7 @@ export default function ConfirmationPage() {
             <Utensils className="w-4 h-4 text-[var(--brand)]" /> Order more
           </Link>
         </div>
-        <Link
-          to="/home"
-          className="mt-4 text-[var(--ink-2)] text-sm font-semibold flex items-center gap-1.5 press"
-        >
+        <Link to="/home" className="mt-4 text-[var(--ink-2)] text-sm font-semibold flex items-center gap-1.5 press">
           <ArrowLeft className="w-4 h-4" /> Continue browsing
         </Link>
       </div>

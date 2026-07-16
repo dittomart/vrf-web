@@ -1,20 +1,21 @@
 import { Lock, ShieldCheck, X } from 'lucide-react';
 import { SmartImage } from '@/shared/SmartImage';
-import type { PayMethod } from './PayMethods';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
 
-/** payment.html's gateway modal is a two-face machine: `processing` while the
-    (fake) gateway works, `fail` when it rejects — the retry / change-method
-    branch. `closed` = the modal is not mounted. */
+/** The modal is a two-face machine: `processing` while /place-order is in
+    flight, `fail` when it comes back rejected. `closed` = not mounted. */
 export type GatewayPhase = 'closed' | 'processing' | 'fail';
 
 interface Props {
   phase: GatewayPhase;
-  method: PayMethod;
+  /** the gateway code the customer picked, as the store spells it */
+  method: string;
   onRetry: () => void;
   onChangeMethod: () => void;
 }
 
 export function GatewayModal({ phase, method, onRetry, onChangeMethod }: Props) {
+  const brand = useBrandInfo();
   if (phase === 'closed') return null;
 
   return (
@@ -23,7 +24,7 @@ export function GatewayModal({ phase, method, onRetry, onChangeMethod }: Props) 
         {phase === 'processing' && (
           <div>
             <div className="logo-tile w-12 h-12 mx-auto mb-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
-              <SmartImage src="/image.png" alt="VRF" />
+              <SmartImage src={brand.logo} alt={brand.brand} />
             </div>
             <div className="relative w-16 h-16 mx-auto">
               <div

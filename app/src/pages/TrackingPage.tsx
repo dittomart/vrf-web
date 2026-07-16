@@ -1,83 +1,100 @@
-import { useEffect, useRef, useState, type ComponentType } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { type ComponentType } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Bike,
   CheckCheck,
   ChefHat,
+  ExternalLink,
   MessageCircle,
   PackageCheck,
   Phone,
   ReceiptText,
-  RotateCcw,
   Route,
+  X,
 } from 'lucide-react';
 
-import { VRF } from '@/api/_seed';
+import { useGetOrder, useTrackOrder } from '@/api/queries/useOrders';
 import { TrackingMap } from '@/sections/tracking/TrackingMap';
 import { SmartImage } from '@/shared/SmartImage';
-import { toast } from '@/store/appStore';
-import { useCartStore } from '@/store/cartStore';
 import { useOrderStore } from '@/store/orderStore';
+import { digitsOnly, useBrandInfo } from '@/hooks/useBrandInfo';
 import { useReveal } from '@/hooks/useReveal';
 import { useStickyBar } from '@/hooks/useStickyBar';
+import type { OrderStatus } from '@/types';
 
 interface Step {
+  key: OrderStatus;
   t: string;
   s: string;
-  /** the prototype's data-lucide name, as a component */
   e: ComponentType<{ className?: string }>;
 }
 
+/* The kitchen's real stages. The prototype auto-advanced these on a timer, which
+   told the customer their food was on the way whether or not it was. */
 const STEPS: Step[] = [
-  { t: 'Order Placed', s: "We've received your order", e: ReceiptText },
-  { t: 'Order Accepted', s: 'Kitchen confirmed your order', e: CheckCheck },
-  { t: 'Preparing food', s: 'Our chef is cooking it fresh', e: ChefHat },
-  { t: 'Out for delivery', s: 'Suresh is on the way with your food', e: Bike },
-  { t: 'Delivered', s: 'Enjoy your meal!', e: PackageCheck },
+  { key: 'placed', t: 'Order Placed', s: "We've received your order", e: ReceiptText },
+  { key: 'confirmed', t: 'Order Accepted', s: 'The kitchen confirmed your order', e: CheckCheck },
+  { key: 'preparing', t: 'Preparing food', s: 'Our chef is cooking it fresh', e: ChefHat },
+  { key: 'out-for-delivery', t: 'Out for delivery', s: 'Your food is on its way', e: Bike },
+  { key: 'delivered', t: 'Delivered', s: 'Enjoy your meal!', e: PackageCheck },
 ];
 
+function stepIndex(status: OrderStatus | undefined): number {
+  switch (status) {
+    case 'confirmed':
+      return 1;
+    case 'preparing':
+    case 'ready':
+      return 2;
+    case 'out-for-delivery':
+      return 3;
+    case 'delivered':
+      return 4;
+    default:
+      // placed, awaiting-payment, payment-failed, cancelled all sit at step 0
+      return 0;
+  }
+}
+
 export default function TrackingPage() {
-  const orders = useOrderStore((s) => s.orders);
+  const { uniqueOrderId } = useParams<{ uniqueOrderId: string }>();
   const lastOrderId = useOrderStore((s) => s.lastOrderId);
-  const add = useCartStore((s) => s.add);
-  const navigate = useNavigate();
+  const id = uniqueOrderId ?? lastOrderId ?? undefined;
+
+  const brand = useBrandInfo();
   const stuck = useStickyBar();
   useReveal();
 
-  /* start at "Preparing food", exactly like the prototype's `let cur = 2` */
-  const [cur, setCur] = useState(2);
-  const jumpTimer = useRef<number | null>(null);
+  const { order } = useGetOrder(id);
+  const { data: track } = useTrackOrder(id);
 
-  const order = orders.find((o) => o.id === lastOrderId) ?? orders[0] ?? null;
-  const oid = order?.id ?? 'VRF000000';
-
-  /* auto-advance every 4s until delivered */
-  useEffect(() => {
-    const auto = window.setInterval(() => {
-      setCur((c) => (c < STEPS.length - 1 ? c + 1 : c));
-    }, 4000);
-    return () => window.clearInterval(auto);
-  }, []);
-
-  useEffect(
-    () => () => {
-      if (jumpTimer.current !== null) window.clearTimeout(jumpTimer.current);
-    },
-    []
-  );
-
-  const jump = () => setCur((c) => (c < STEPS.length - 1 ? c + 1 : c));
-
-  const onReorder = () => {
-    (order?.items ?? []).forEach((i) => add(i.id, i.qty));
-    toast('Items added to cart', 'rotate-ccw');
-    jumpTimer.current = window.setTimeout(() => navigate('/cart'), 600);
-  };
+  // the live poll is the truth; the order row is the fallback until it answers
+  const status = track?.status ?? order?.status;
+  const cur = stepIndex(status);
+  const paymentFailed = status === 'payment-failed';
+  // a failed payment is a dead end just like a cancellation — same red X state
+  const cancelled = status === 'cancelled' || paymentFailed;
 
   const step = STEPS[cur];
-  const StatusIcon = step.e;
-  const eta = Math.max(2, VRF.eta - cur * 8);
+  const StatusIcon = cancelled ? X : step.e;
+  const eta = Math.max(2, brand.eta - cur * 8);
+  const phone = digitsOnly(track?.rider?.phone || brand.phone);
+
+  if (!id) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-8 text-center">
+        <div className="empty-emoji">
+          <ReceiptText className="w-9 h-9 text-[var(--brand)]" />
+        </div>
+        <p className="empty-title">Nothing to track</p>
+        <p className="empty-sub">Place an order and you can follow it live from here.</p>
+        <Link to="/orders" className="pill pill-accent mt-4">
+          My orders
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="page-enter bg-[var(--cream)] text-[var(--ink)] pb-28">
@@ -87,17 +104,15 @@ export default function TrackingPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="appbar-title">Track Order</h1>
-          <span className="ml-auto text-sm font-semibold text-[var(--green)]">#{oid}</span>
+          <span className="ml-auto text-sm font-semibold text-[var(--green)]">#{id}</span>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pt-6">
-        {/* map mock */}
         <TrackingMap step={cur} eta={eta} />
 
         <div className="lg-2col mt-4">
           <div>
-            {/* status banner */}
             <div
               className="relative ui-card ui-card-lux card-topline ui-card-pad mt-4 overflow-hidden reveal"
               data-d="1"
@@ -111,13 +126,31 @@ export default function TrackingPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="eyebrow eyebrow-g mb-0.5">Live status</p>
-                  <p className="display font-bold text-lg leading-tight">{step.t}</p>
-                  <p className="text-xs text-[var(--ink-2)] mt-0.5">{step.s}</p>
+                  <p className="display font-bold text-lg leading-tight">
+                    {paymentFailed ? 'Payment failed' : cancelled ? 'Order cancelled' : step.t}
+                  </p>
+                  <p className="text-xs text-[var(--ink-2)] mt-0.5">
+                    {paymentFailed
+                      ? "The payment didn't go through, so this order wasn't placed. You can try again from your cart."
+                      : cancelled
+                        ? 'This order was cancelled. No payment is due.'
+                        : step.s}
+                  </p>
                 </div>
               </div>
+
+              {track?.trackingUrl ? (
+                <a
+                  href={track.trackingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 btn-outline press text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Open live map
+                </a>
+              ) : null}
             </div>
 
-            {/* timeline */}
             <div className="ui-card ui-card-lux ui-card-pad mt-4 reveal" data-d="2">
               <div className="sec-head mb-4">
                 <span className="ichip ichip-green w-8 h-8 rounded-lg">
@@ -128,9 +161,9 @@ export default function TrackingPage() {
               <div className="space-y-0">
                 {STEPS.map((st, i) => {
                   const done = i < cur;
-                  const active = i === cur;
+                  const active = i === cur && !cancelled;
                   return (
-                    <div key={st.t} className="flex gap-3">
+                    <div key={st.key} className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -161,64 +194,48 @@ export default function TrackingPage() {
           </div>
 
           <div className="lg-aside">
-            {/* delivery partner */}
-            {cur >= 3 && (
+            {track?.rider ? (
               <div className="ui-card ui-card-lux card-topline ui-card-pad mt-4 flex items-center gap-3 reveal">
-                <div className="frame rounded-full shrink-0">
-                  <SmartImage
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
-                    className="w-12 h-12 rounded-full object-cover"
-                    alt="rider"
-                  />
-                </div>
+                {track.rider.photo ? (
+                  <div className="frame rounded-full shrink-0">
+                    <SmartImage
+                      src={track.rider.photo}
+                      className="w-12 h-12 rounded-full object-cover"
+                      alt={track.rider.name}
+                    />
+                  </div>
+                ) : null}
                 <div className="flex-1 min-w-0">
                   <p className="eyebrow eyebrow-g mb-0.5">Delivery partner</p>
-                  <p className="font-bold text-sm">Suresh K.</p>
-                  <p className="text-xs text-[var(--ink-2)]">
-                    On the way · <span className="text-[var(--brand)] font-semibold">★ 4.9</span>
-                  </p>
+                  <p className="font-bold text-sm">{track.rider.name}</p>
+                  {track.rider.rating > 0 ? (
+                    <p className="text-xs text-[var(--ink-2)]">
+                      <span className="text-[var(--brand)] font-semibold">★ {track.rider.rating}</span>
+                    </p>
+                  ) : null}
                 </div>
-                <a href={`tel:${VRF.phone}`} className="ichip ichip-green w-11 h-11 press">
-                  <Phone className="w-5 h-5" />
-                </a>
-                <a href={`https://wa.me/91${VRF.whatsapp}`} className="ichip ichip-green w-11 h-11 press">
+                {phone ? (
+                  <a href={`tel:${phone}`} className="ichip ichip-green w-11 h-11 press">
+                    <Phone className="w-5 h-5" />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+
+            {phone ? (
+              <a
+                href={`https://wa.me/${phone.length === 10 ? `91${phone}` : phone}`}
+                className="ui-card ui-card-pad mt-4 flex items-center gap-3 press"
+              >
+                <span className="ichip ichip-green w-11 h-11">
                   <MessageCircle className="w-5 h-5" />
-                </a>
-              </div>
-            )}
-
-            {/* reorder CTA (shown when delivered) */}
-            {cur >= 4 && (
-              <div className="relative cta-lux text-white rounded-[22px] p-5 mt-4 flex items-center gap-3.5 shadow-lg overflow-hidden">
-                <div
-                  className="absolute -top-8 -right-6 w-28 h-28 rounded-full blur-2xl pointer-events-none"
-                  style={{
-                    background:
-                      'radial-gradient(circle,color-mix(in srgb, var(--gold) 40%, transparent),transparent 70%)',
-                  }}
-                />
-                <div className="relative w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
-                  <RotateCcw className="w-6 h-6" />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm">Need help with this order?</p>
+                  <p className="text-xs text-[var(--ink-2)] mt-0.5">Message the kitchen on WhatsApp</p>
                 </div>
-                <div className="relative flex-1 min-w-0">
-                  <p className="script text-base leading-none" style={{ color: 'var(--gold)' }}>
-                    Enjoyed your meal?
-                  </p>
-                  <p className="font-bold text-sm mt-1">Reorder the same in one tap</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onReorder}
-                  className="relative bg-white text-[var(--green)] text-xs font-bold px-4 py-2.5 rounded-xl press shine"
-                >
-                  Reorder
-                </button>
-              </div>
-            )}
-
-            <button type="button" onClick={jump} className="w-full mt-5 text-xs text-[var(--ink-2)] underline">
-              Demo: skip to next status
-            </button>
+              </a>
+            ) : null}
           </div>
         </div>
       </main>

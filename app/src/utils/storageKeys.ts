@@ -7,6 +7,7 @@ export const LEGACY_STORAGE_PREFIX = 'dittomart_';
 export const STORAGE = {
   theme: `${STORAGE_PREFIX}theme`,
   mode: `${STORAGE_PREFIX}mode`,
+  app: `${STORAGE_PREFIX}app`,
   cart: `${STORAGE_PREFIX}cart`,
   orders: `${STORAGE_PREFIX}orders`,
   wishlist: `${STORAGE_PREFIX}wishlist`,

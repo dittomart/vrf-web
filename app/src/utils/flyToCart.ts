@@ -1,8 +1,11 @@
 /** The dot that arcs from an ADD button into the cart icon.
     Ported from app.js flyToCart(). */
 export function flyToCart(srcEl: HTMLElement | null): void {
+  /* The badge only exists once the cart has something in it, so the very first
+     add — the one worth animating — has to aim at the cart button itself. */
   const cart =
     document.querySelector<HTMLElement>('[data-cart-badge]') ??
+    document.querySelector<HTMLElement>('header a[href="/cart"]') ??
     document.querySelector<HTMLElement>('#bottom-nav a[href="/cart"]');
   if (!srcEl || !cart) return;
 

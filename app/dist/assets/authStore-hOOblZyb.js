@@ -1,1 +1,0 @@
-import{l,p as o,S as e}from"./index-BZlAHKod.js";const t=l()(o(r=>({user:null,loggedIn:!1,login:s=>r({user:s,loggedIn:!0}),logout:()=>{[e.cart,e.orders,e.wishlist,e.favs,e.addresses,e.bill,e.lastOrder].forEach(s=>localStorage.removeItem(s)),r({user:null,loggedIn:!1})}}),{name:e.auth,version:2}));export{t as u};

@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Bike, Lock, ReceiptText, ShieldCheck } from 'lucide-react';
 import { money } from '@/utils/fmt';
-import { VRF } from '@/api/_seed';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
 
-/* payment.html's "pay summary" — the brand-gradient total card with the gold
-   hairline, the radial glow and the secure/ETA footer. */
+/* payment.html's "pay summary" — the brand-gradient total card. */
 export function PaySummary({ total }: { total: number }) {
+  const brand = useBrandInfo();
+
   return (
     <div
       className="rounded-[26px] p-6 relative overflow-hidden reveal text-white on-brand"
@@ -51,7 +52,7 @@ export function PaySummary({ total }: { total: number }) {
         </span>
         <span className="w-1 h-1 rounded-full bg-white/30" />
         <span className="flex items-center gap-1.5">
-          <Bike className="w-3.5 h-3.5" style={{ color: 'var(--gold)' }} /> ~{VRF.eta} min delivery
+          <Bike className="w-3.5 h-3.5" style={{ color: 'var(--gold)' }} /> ~{brand.eta} min delivery
         </span>
       </div>
     </div>

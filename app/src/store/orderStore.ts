@@ -1,45 +1,38 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { STORAGE } from '@/utils/storageKeys';
-import type { Address, Bill, Order } from '@/types';
+import type { Bill, Order } from '@/types';
 
 interface OrderState {
-  orders: Order[];
-  lastOrderId: string | null;
+  /** the bill the cart last computed — read by /payment so the amount shown is
+      the amount owed even when the user deep-links past the cart */
   bill: Bill | null;
-  addresses: Address[];
+  /** unique_order_id of the order just placed — /confirmation and /tracking
+      resolve it against the server, this is only the handoff */
+  lastOrderId: string | null;
+  /** a snapshot of that order, so the confirmation screen paints instantly
+      instead of waiting on /brand/{slug}/get-orders to invalidate */
+  lastOrder: Order | null;
+  /** the saved address the user picked for this checkout (backend address id) */
   selectedAddressId: string | null;
-  placeOrder: (order: Order) => void;
+
   setBill: (bill: Bill | null) => void;
-  addAddress: (address: Address) => void;
-  removeAddress: (id: string) => void;
-  selectAddress: (id: string) => void;
+  setLastOrder: (order: Order) => void;
+  selectAddress: (id: string | null) => void;
 }
 
 export const useOrderStore = create<OrderState>()(
   persist(
     (set) => ({
-      orders: [],
-      lastOrderId: null,
       bill: null,
-      addresses: [],
+      lastOrderId: null,
+      lastOrder: null,
       selectedAddressId: null,
-      placeOrder: (order) =>
-        set((s) => ({ orders: [order, ...s.orders], lastOrderId: order.id })),
+
       setBill: (bill) => set({ bill }),
-      addAddress: (address) =>
-        set((s) => ({
-          addresses: [...s.addresses, address],
-          // first address saved becomes the selected one automatically
-          selectedAddressId: s.selectedAddressId ?? address.id,
-        })),
-      removeAddress: (id) =>
-        set((s) => ({
-          addresses: s.addresses.filter((a) => a.id !== id),
-          selectedAddressId: s.selectedAddressId === id ? null : s.selectedAddressId,
-        })),
-      selectAddress: (id) => set({ selectedAddressId: id }),
+      setLastOrder: (order) => set({ lastOrder: order, lastOrderId: order.id }),
+      selectAddress: (selectedAddressId) => set({ selectedAddressId }),
     }),
-    { name: STORAGE.orders, version: 2 }
+    { name: STORAGE.orders, version: 3 }
   )
 );

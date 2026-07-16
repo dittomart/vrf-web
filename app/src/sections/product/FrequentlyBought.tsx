@@ -1,35 +1,44 @@
 import { Link } from 'react-router-dom';
-import { PRODUCTS } from '@/api/_seed';
+import { useGetCatalog } from '@/api/queries/catalog';
 import { SmartImage } from '@/shared/SmartImage';
 import { useCartStore } from '@/store/cartStore';
 import { toast } from '@/store/appStore';
 import { flyToCart } from '@/utils/flyToCart';
-import { money, prodImg } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import { getDisplayPrice } from '@/utils/productPricing';
 import type { Product } from '@/types';
 
-/* product.html — "Frequently bought together": the sides rail. The prototype
-   picks the first five breads / beverages / desserts that are not this dish.
-   The id stays #fbt — theme.css sizes the rail's children off it. */
+/* product.html — "Frequently bought together". The prototype hardcoded the
+   sides categories; the real menu has whatever categories the kitchen made, so
+   the rail offers the cheapest dishes from OTHER categories — the things people
+   actually add on top of a main. The id stays #fbt: theme.css sizes the rail's
+   children off it. */
 export function FrequentlyBought({ p }: { p: Product }) {
+  const { data: catalog } = useGetCatalog();
   const add = useCartStore((s) => s.add);
 
-  const fbt = PRODUCTS.filter(
-    (x) => x.id !== p.id && (x.cat === 'breads' || x.cat === 'beverages' || x.cat === 'desserts')
-  ).slice(0, 5);
+  const fbt = (catalog?.flat ?? [])
+    .filter((x) => x.id !== p.id && x.cat !== p.cat)
+    .sort((a, b) => getDisplayPrice(a).price - getDisplayPrice(b).price)
+    .slice(0, 5);
+
+  if (fbt.length === 0) return null;
 
   return (
     <div id="fbt" className="rail -mx-1 px-1 pb-1">
       {fbt.map((x) => (
         <div key={x.id} className="shrink-0 w-32 ui-card p-2.5 lift">
           <Link to={`/product/${x.id}`} className="frame block rounded-xl">
-            <SmartImage src={prodImg(x, 200, 150)} className="w-full h-16 object-cover rounded-xl" alt={x.name} />
+            <SmartImage src={x.img} className="w-full h-16 object-cover rounded-xl" alt={x.name} />
           </Link>
           <p className="text-xs font-bold mt-2 line-clamp-1">{x.name}</p>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-xs font-bold tnum text-[var(--green)]">{money(x.price)}</span>
+            <span className="text-xs font-bold tnum text-[var(--green)]">
+              {money(getDisplayPrice(x).price)}
+            </span>
             <button
               onClick={(e) => {
-                add(x.id);
+                add(x);
                 toast(`Added ${x.name}`);
                 flyToCart(e.currentTarget);
               }}

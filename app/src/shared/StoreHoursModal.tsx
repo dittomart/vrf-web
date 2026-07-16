@@ -1,10 +1,19 @@
 import { MapPin, X } from 'lucide-react';
-import { VRF } from '@/api/_seed';
+import { useAppStore } from '@/store/appStore';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
+import { isStoreOpenNow, weekHours } from '@/utils/storeHours';
 
-/* Static store hours — the prototype deliberately keeps NO open/closed logic in
-   the frontend. Copy is verbatim from home.html's #hours-modal. */
+/* The kitchen's real opening hours, off the store's schedule. When the admin
+   runs the store by hand there is no schedule to show — only whether it is open
+   right now, which is the thing the customer actually came here to find out. */
 export function StoreHoursModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const store = useAppStore((s) => s.storeLocation);
+  const brand = useBrandInfo();
+
   if (!open) return null;
+
+  const week = weekHours(store).filter((d) => d.hours);
+  const openNow = isStoreOpenNow(store);
 
   return (
     <div
@@ -21,23 +30,43 @@ export function StoreHoursModal({ open, onClose }: { open: boolean; onClose: () 
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between py-1.5 border-b border-[var(--line)]">
-            <span>All days</span>
-            <span className="font-semibold">{VRF.hours}</span>
-          </div>
-          <div className="flex items-start gap-2 py-1.5 text-[var(--ink-2)]">
-            <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[var(--green)]" />
-            <span className="text-[12px] leading-relaxed">
-              {VRF.addressLine}, {VRF.area}, {VRF.city}, {VRF.state} {VRF.pincode}
-              <br />
-              {VRF.landmark}
-            </span>
-          </div>
+
+        <div className="mb-3">
+          <span className={openNow ? 'badge badge-green' : 'badge badge-accent'}>
+            {openNow ? 'Open now' : 'Closed right now'}
+          </span>
         </div>
-        <p className="text-[11px] text-[var(--ink-2)] mt-4">
-          Orders placed outside these hours are held and confirmed once we reopen.
-        </p>
+
+        <div className="space-y-2 text-sm">
+          {week.length > 0 ? (
+            week.map((d) => (
+              <div key={d.day} className="flex justify-between py-1.5 border-b border-[var(--line)]">
+                <span>{d.day}</span>
+                <span className="font-semibold">{d.hours}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-[var(--ink-2)] text-[13px] py-1.5">
+              This kitchen opens and closes by hand rather than on a fixed schedule.
+            </p>
+          )}
+
+          {brand.address ? (
+            <div className="flex items-start gap-2 py-1.5 text-[var(--ink-2)]">
+              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[var(--green)]" />
+              <span className="text-[12px] leading-relaxed">
+                {brand.address}
+                {brand.landmark ? (
+                  <>
+                    <br />
+                    {brand.landmark}
+                  </>
+                ) : null}
+              </span>
+            </div>
+          ) : null}
+        </div>
+
         <button onClick={onClose} className="w-full mt-4 btn-primary press font-semibold py-3 rounded-2xl">
           Got it
         </button>

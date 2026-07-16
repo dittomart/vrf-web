@@ -1,1 +1,0 @@
-import{r as n}from"./index-BZlAHKod.js";function i(){const[s,o]=n.useState(!1);return n.useEffect(()=>{let e=0;const t=()=>{e=0,o(window.scrollY>4)},r=()=>{e||(e=requestAnimationFrame(t))};return window.addEventListener("scroll",r,{passive:!0}),t(),()=>{window.removeEventListener("scroll",r),e&&cancelAnimationFrame(e)}},[]),s}export{i as u};

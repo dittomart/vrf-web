@@ -1,22 +1,38 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bookmark, Repeat, RotateCcw, Utensils } from 'lucide-react';
+
+import { useGetCatalog } from '@/api/queries/catalog';
 import { useCartStore } from '@/store/cartStore';
 import { useSavedOrdersStore, type SavedCombo } from '@/store/savedOrdersStore';
 import { toast } from '@/store/appStore';
 
-/* profile.html's left column — "Your combos / Saved orders" (#favs), fed by the
-   combos the confirmation screen saves. */
+/* profile.html's "Saved orders" (#favs), fed by the combos the confirmation
+   screen saves. Reordering resolves each dish against the live menu, so a saved
+   combo picks up today's price rather than the one frozen at save time. */
 export function SavedCombos() {
   const favs = useSavedOrdersStore((s) => s.favs);
   const add = useCartStore((s) => s.add);
+  const { data: catalog } = useGetCatalog();
   const navigate = useNavigate();
   const timer = useRef<number>();
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const reorderFav = (combo: SavedCombo) => {
-    combo.items.forEach((i) => add(i.id, i.qty));
+    let added = 0;
+    for (const i of combo.items) {
+      const p = catalog?.flat.find((x) => x.id === i.id);
+      if (!p) continue;
+      add(p, i.qty);
+      added += 1;
+    }
+
+    if (added === 0) {
+      toast('These dishes are off the menu right now', 'alert-circle');
+      return;
+    }
+
     toast('Added to cart', 'rotate-ccw');
     timer.current = window.setTimeout(() => navigate('/cart'), 600);
   };

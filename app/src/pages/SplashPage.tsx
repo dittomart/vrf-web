@@ -4,17 +4,56 @@ import { Leaf, Timer, Star } from 'lucide-react';
 
 import '@/styles/splash.css';
 import { useLocationStore } from '@/store/locationStore';
+import { useAppStore } from '@/store/appStore';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
+import { distanceKm, reverseGeo } from '@/utils/geo';
+
+/* Detect the pin silently, in the background — no gate, no popup. The app opens
+   regardless of where the customer is; whether we deliver to them is answered at
+   checkout, not on the doorstep. A denied or slow GPS just means the pin fills
+   in later (from a saved address, or the address they type at checkout). */
+function detectLocationSilently() {
+  if (typeof navigator === 'undefined' || !navigator.geolocation || !window.isSecureContext) return;
+  if (useLocationStore.getState().location?.lat != null) return; // already have one
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      void (async () => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const store = useAppStore.getState().storeLocation;
+        const name = (await reverseGeo(lat, lng).catch(() => null)) ?? 'Your current location';
+        const dist = store ? distanceKm(lat, lng, store.latitude, store.longitude) : 0;
+        const serviceable = !store || store.deliveryRadius <= 0 || dist <= store.deliveryRadius;
+        useLocationStore.getState().setLocation({
+          address: name,
+          area: name.split(',')[0].trim(),
+          lat,
+          lng,
+          serviceable,
+          distanceKm: Math.round(dist * 10) / 10,
+        });
+      })();
+    },
+    () => {
+      /* denied / unavailable — the app still opens; the pin comes from the
+         address the customer picks at checkout instead. */
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
 
 /* index.html — the light premium splash. Its <style> block is already ported
    to @/styles/splash.css (.splash / .mark / .arc / .dot3 / .rise / .gold-rule). */
 export default function SplashPage() {
   const navigate = useNavigate();
+  const brand = useBrandInfo();
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      const loc = useLocationStore.getState().location;
-      navigate(loc?.serviceable && loc.lat != null ? '/home' : '/location', { replace: true });
-    }, 2600);
+    // kick off GPS in the background; it fills the pin in without gating anyone
+    detectLocationSilently();
+    // the app opens regardless of location — always go home
+    const t = setTimeout(() => navigate('/home', { replace: true }), 2600);
     return () => clearTimeout(t);
   }, [navigate]);
 
@@ -28,21 +67,23 @@ export default function SplashPage() {
             <circle cx="50" cy="50" r="47" />
           </svg>
           <div className="tile">
-            <img src="/image.png" alt="VRF Kitchen" />
+            <img src={brand.logo} alt={brand.brand} />
           </div>
         </div>
 
-        <p
-          className="text-[11px] font-bold tracking-[.3em] uppercase mt-9 rise"
-          style={{ animationDelay: '.35s', color: 'var(--brand)' }}
-        >
-          Vijay Raghavan&apos;s
-        </p>
+        {brand.city ? (
+          <p
+            className="text-[11px] font-bold tracking-[.3em] uppercase mt-9 rise"
+            style={{ animationDelay: '.35s', color: 'var(--brand)' }}
+          >
+            {brand.city}
+          </p>
+        ) : null}
         <h1
           className="display text-[44px] font-semibold leading-none mt-2 rise text-[var(--ink)]"
           style={{ animationDelay: '.45s' }}
         >
-          VRF Kitchen
+          {brand.brand}
         </h1>
         <p className="script text-2xl mt-2 rise" style={{ animationDelay: '.58s', color: 'var(--gold)' }}>
           Pure Veg, perfected

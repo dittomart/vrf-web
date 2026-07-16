@@ -1,31 +1,36 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, Flame } from 'lucide-react';
-import { PRODUCTS } from '@/api/_seed';
+import { useGetCatalog } from '@/api/queries/catalog';
 import { ProductCard } from '@/cards/ProductCard';
+import { SectionHead } from '@/sections/home/SectionHead';
 
-/* home.html's #bestsellers grid — PRODUCTS.filter(p => p.best). */
+/* home.html's #bestsellers grid. The prototype's `best` flag is now the two
+   flags the admin actually sets on an item: recommended or popular. */
 export function BestsellersSection() {
-  const items = PRODUCTS.filter((p) => p.best);
+  const { data: catalog, isLoading } = useGetCatalog();
+  const items = (catalog?.flat ?? []).filter((p) => p.best).slice(0, 8);
+
+  if (isLoading) {
+    return (
+      <section className="mt-7">
+        <div className="mt-5 grid-products">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="ui-card overflow-hidden">
+              <div className="w-full h-32 sm:h-36 img-fallback" />
+              <div className="p-3.5 space-y-2">
+                <div className="h-3 w-3/4 rounded bg-[var(--ivory-2)]" />
+                <div className="h-3 w-1/2 rounded bg-[var(--ivory-2)]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) return null;
 
   return (
-    <section className="mt-12">
-      <div className="flex items-end justify-between reveal gap-3">
-        <div className="min-w-0 flex items-center gap-3">
-          <span className="ichip ichip-brand shrink-0">
-            <Flame className="w-5 h-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="eyebrow">Loved by Chennai</p>
-            <h2 className="display text-[24px] font-semibold leading-tight mt-0.5">Bestsellers</h2>
-          </div>
-        </div>
-        <Link
-          to="/category"
-          className="shrink-0 text-sm font-semibold text-[var(--green)] press flex items-center gap-1"
-        >
-          See all <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
+    <section className="mt-7">
+      <SectionHead eyebrow="Loved by regulars" title="Bestsellers of the house" to="/category" />
 
       <div className="mt-5 grid-products" id="bestsellers">
         {items.map((p) => (

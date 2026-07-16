@@ -1,10 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Plus, ShoppingBag } from 'lucide-react';
 
-import { getProduct } from '@/api/queries/catalog';
-import { useCartStore, useCartSubtotal } from '@/store/cartStore';
+import { useCartStore } from '@/store/cartStore';
 import { useOrderStore } from '@/store/orderStore';
+import { useOrderTotals } from '@/hooks/useOrderTotals';
 import { useReveal } from '@/hooks/useReveal';
 
 import { DeliveryEtaCard } from '@/sections/cart/DeliveryEtaCard';
@@ -12,34 +12,32 @@ import { CartItemRow } from '@/sections/cart/CartItemRow';
 import { AddOnRail } from '@/sections/cart/AddOnRail';
 import { BillCard } from '@/sections/cart/BillCard';
 import { CheckoutBar } from '@/sections/cart/CheckoutBar';
-import { calcTotals } from '@/sections/cart/totals';
 
-/* Port of cart.html. The page script's render() drove four visibility toggles
-   (#empty, #cart-body, #cart-summary, #checkout-bar) off a single `hasItems`
-   flag — kept exactly, class-toggled rather than unmounted so theme.css's
+/* Port of cart.html. The four visibility toggles (#empty, #cart-body,
+   #cart-summary, #checkout-bar) still hang off a single `hasItems` flag and are
+   class-toggled rather than unmounted, so theme.css's
    `body:has(#checkout-bar:not(.hidden))` padding rule still fires. */
 export default function CartPage() {
   useReveal();
   const navigate = useNavigate();
 
-  const cart = useCartStore((s) => s.cart);
-  const subtotal = useCartSubtotal();
+  const lines = useCartStore((s) => s.lines);
   const setBill = useOrderStore((s) => s.setBill);
+  const totals = useOrderTotals();
 
-  const ids = useMemo(() => Object.keys(cart), [cart]);
-  const hasItems = ids.length > 0;
-  const totals = useMemo(() => calcTotals(subtotal), [subtotal]);
+  const hasItems = lines.length > 0;
 
-  /* the prototype stashed the bill in localStorage on every render so the
-     checkout pages could read it back */
+  /* Hand the bill to the payment screen. Both screens read the same
+     useOrderTotals cache, so this is a fallback for a deep link into /payment,
+     not the source of truth. */
   useEffect(() => {
     setBill({
-      subtotal: totals.sub,
-      deliveryCharge: totals.del,
+      subtotal: totals.subtotal,
+      deliveryCharge: totals.deliveryFee,
       tax: totals.tax,
       total: totals.total,
     });
-  }, [totals, setBill]);
+  }, [totals.subtotal, totals.deliveryFee, totals.tax, totals.total, setBill]);
 
   return (
     <div className="page-enter bg-[var(--cream)] text-[var(--ink)] pb-40">
@@ -53,9 +51,9 @@ export default function CartPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pt-4">
-        {/* On desktop: items + add-ons on the left, the bill in a sticky
-            right rail. */}
-        <div className="cart-layout">
+        {/* With an empty cart the bill aside is gone, so the two-column track
+            would leave a 360px hole on the right — collapse to one column. */}
+        <div className={hasItems ? 'cart-layout' : 'cart-layout is-empty'}>
           <div className="cart-main">
             <DeliveryEtaCard />
 
@@ -70,14 +68,11 @@ export default function CartPage() {
             </div>
 
             <div id="cart-items" className="space-y-3 stagger">
-              {ids.map((id) => {
-                const p = getProduct(id);
-                if (!p) return null;
-                return <CartItemRow key={id} product={p} qty={cart[id]} />;
-              })}
+              {lines.map((l) => (
+                <CartItemRow key={l.lineId} line={l} />
+              ))}
             </div>
 
-            {/* empty state */}
             <div id="empty" className={`${hasItems ? 'hidden ' : ''}empty-wrap`}>
               <div className="empty-emoji">
                 <ShoppingBag className="w-9 h-9 text-[var(--brand)]" />
@@ -90,7 +85,6 @@ export default function CartPage() {
             </div>
 
             <div id="cart-body" className={hasItems ? undefined : 'hidden'}>
-              {/* FBT */}
               <div className="mt-7 reveal">
                 <div className="sec-head mb-3">
                   <span className="ichip ichip-gold w-9 h-9 rounded-xl">
@@ -101,21 +95,18 @@ export default function CartPage() {
                     <p className="display font-bold text-lg leading-none">Complete your meal</p>
                   </div>
                 </div>
-                <AddOnRail cart={cart} />
+                <AddOnRail lines={lines} />
               </div>
             </div>
           </div>
-          {/* /.cart-main */}
 
-          {/* ===== sticky summary rail ===== */}
           <aside className={`cart-aside${hasItems ? '' : ' hidden'}`} id="cart-summary">
             <BillCard totals={totals} />
           </aside>
         </div>
-        {/* /.cart-layout */}
       </main>
 
-      <CheckoutBar total={totals.total} visible={hasItems} />
+      <CheckoutBar total={totals.total} visible={hasItems} disabled={totals.belowMin} />
     </div>
   );
 }

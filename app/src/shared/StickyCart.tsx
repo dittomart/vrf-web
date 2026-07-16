@@ -3,8 +3,7 @@ import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCartCount, useCartSubtotal } from '@/store/cartStore';
 import { money } from '@/utils/fmt';
 
-/* Floats above the bottom nav; slides away when the cart is empty.
-   Ported from home.html's #sticky-cart block + app.js renderStickyCart(). */
+/* Floats above the bottom nav; slides away when the cart is empty. */
 export function StickyCart() {
   const n = useCartCount();
   const subtotal = useCartSubtotal();

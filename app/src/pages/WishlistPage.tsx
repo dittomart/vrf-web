@@ -1,31 +1,35 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Bookmark, Heart, Star, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bookmark, Heart, Zap } from 'lucide-react';
 
+import { useGetCatalog } from '@/api/queries/catalog';
 import { SmartImage } from '@/shared/SmartImage';
-import { getProduct } from '@/api/queries/catalog';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCartStore } from '@/store/cartStore';
 import { toast } from '@/store/appStore';
 import { flyToCart } from '@/utils/flyToCart';
 import { useReveal } from '@/hooks/useReveal';
-import { discountPct, money, prodImg } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import { getDisplayPrice } from '@/utils/productPricing';
 import type { Product } from '@/types';
 
-/* wishlist.html renders its OWN card template — not the shared prodCard: the
-   heart sits top-right, the discount badge moves to bottom-left, the price is
-   `script` rather than `display`, and ADD is an inline btn-outline. So this is
-   a port of THAT markup, not @/cards/ProductCard. */
+/* wishlist.html renders its OWN card template — the heart sits top-right, the
+   discount badge bottom-left, the price is `script` rather than `display`. Ported
+   as that markup, against the live menu: a dish that has left the menu simply
+   drops out of the list. */
 function WishlistCard({ p, onRemove }: { p: Product; onRemove: (id: string) => void }) {
   const add = useCartStore((s) => s.add);
-  const off = discountPct(p.price, p.mrp);
+  const { price, oldPrice, discountPercent } = getDisplayPrice(p);
+  const off = discountPercent ?? 0;
 
   return (
     <div className="ui-card card-topline overflow-hidden lift flex flex-col">
       <Link to={`/product/${p.id}`} className="relative block frame">
-        <SmartImage src={prodImg(p, 300, 220)} className="w-full h-32 object-cover" alt={p.name} />
-        <span className="absolute top-2.5 left-2.5 bg-white/95 rounded-md p-0.5 shadow-sm">
-          <span className="veg-dot" />
-        </span>
+        <SmartImage src={p.img} className="w-full h-32 object-cover" alt={p.name} />
+        {p.isVeg && (
+          <span className="absolute top-2.5 left-2.5 bg-white/95 rounded-md p-0.5 shadow-sm">
+            <span className="veg-dot" />
+          </span>
+        )}
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -36,28 +40,26 @@ function WishlistCard({ p, onRemove }: { p: Product; onRemove: (id: string) => v
         >
           <Heart className="w-4 h-4 fill-[var(--brand)] text-[var(--brand)]" />
         </button>
-        {off > 0 && <span className="absolute bottom-2.5 left-2.5 badge badge-accent shadow-sm">{off}% OFF</span>}
+        {off > 0 && (
+          <span className="absolute bottom-2.5 left-2.5 badge badge-accent shadow-sm">{off}% OFF</span>
+        )}
       </Link>
 
       <div className="p-3.5 flex flex-col flex-1">
-        <div className="flex items-center gap-2">
-          <Link to={`/product/${p.id}`} className="font-bold text-sm line-clamp-1 flex-1">
-            {p.name}
-          </Link>
-          <span className="shrink-0 flex items-center gap-0.5 text-[10px] font-bold badge badge-gold !py-0.5 !px-1.5">
-            <Star className="w-2.5 h-2.5 fill-current" />
-            4.8
-          </span>
-        </div>
+        <Link to={`/product/${p.id}`} className="font-bold text-sm line-clamp-1">
+          {p.name}
+        </Link>
         <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 flex-1">{p.desc}</p>
         <div className="flex items-end justify-between mt-2.5">
           <div className="tnum leading-none">
-            <span className="script text-[18px] text-[var(--green)]">{money(p.price)}</span>
-            <span className="text-[11px] text-[var(--ink-2)] line-through ml-1">{money(p.mrp)}</span>
+            <span className="script text-[18px] text-[var(--green)]">{money(price)}</span>
+            {oldPrice ? (
+              <span className="text-[11px] text-[var(--ink-2)] line-through ml-1">{money(oldPrice)}</span>
+            ) : null}
           </div>
           <button
             onClick={(e) => {
-              add(p.id);
+              add(p);
               toast(`Added ${p.name}`);
               flyToCart(e.currentTarget);
             }}
@@ -75,9 +77,11 @@ export default function WishlistPage() {
   useReveal();
   const ids = useWishlistStore((s) => s.ids);
   const remove = useWishlistStore((s) => s.remove);
+  const { data: catalog } = useGetCatalog();
 
-  /* the prototype's getWishlist().map(getProduct).filter(Boolean) */
-  const wl = ids.map((id) => getProduct(id)).filter((p): p is Product => !!p);
+  const wl = ids
+    .map((id) => catalog?.flat.find((p) => p.id === id))
+    .filter((p): p is Product => !!p);
 
   return (
     <div className="page-enter pb-28 md:pb-10">

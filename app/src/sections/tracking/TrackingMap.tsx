@@ -1,9 +1,12 @@
 import { MapPin, Timer, UtensilsCrossed } from 'lucide-react';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
 
 /* tracking.html's inline SVG map mock, node-for-node. The rider group is
    translated as the order advances — the prototype set
    `transform: translate(cur*22px, -cur*12px)` with a 1s transition. */
 export function TrackingMap({ step, eta }: { step: number; eta: number }) {
+  const brand = useBrandInfo();
+
   return (
     <div
       className="relative rounded-[22px] overflow-hidden h-56 ui-card-lux card-topline reveal"
@@ -44,7 +47,7 @@ export function TrackingMap({ step, eta }: { step: number; eta: number }) {
       </div>
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
         <span className="badge badge-green bg-white/90">
-          <UtensilsCrossed className="w-3 h-3" /> VRF Kitchen
+          <UtensilsCrossed className="w-3 h-3" /> {brand.brand}
         </span>
         <span className="badge badge-accent bg-white/90">
           <MapPin className="w-3 h-3" /> Your door

@@ -1,11 +1,14 @@
 import { Bike, Flame, Leaf, Zap } from 'lucide-react';
-import { VRF } from '@/api/_seed';
 import { useLocationStore } from '@/store/locationStore';
+import { useBrandInfo } from '@/hooks/useBrandInfo';
 
-/* cart.html — "delivery eta" card, verbatim. */
+/* cart.html — the "delivery eta" card. The ETA is the store's own delivery_time. */
 export function DeliveryEtaCard() {
   const location = useLocationStore((s) => s.location);
-  const deliverTo = location?.address ? `to ${location.address.split(',')[0]}` : 'to your saved location';
+  const brand = useBrandInfo();
+  const deliverTo = location?.address
+    ? `to ${location.address.split(',')[0]}`
+    : 'to your saved location';
 
   return (
     <div className="relative ui-card ui-card-lux card-topline ui-card-pad overflow-hidden mb-5 reveal">
@@ -22,7 +25,7 @@ export function DeliveryEtaCard() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="eyebrow eyebrow-g mb-0.5">Estimated arrival</p>
-          <p className="display font-bold text-lg leading-tight">Delivery in {VRF.eta} minutes</p>
+          <p className="display font-bold text-lg leading-tight">Delivery in {brand.eta} minutes</p>
           <p className="text-xs text-[var(--ink-2)] truncate mt-0.5" id="deliver-to">
             {deliverTo}
           </p>

@@ -1,22 +1,18 @@
-import { IMG } from '@/api/_seed';
 import type { Product } from '@/types';
 
 /** ₹1,234 — the prototype's money() helper, verbatim. */
 export function money(n: number): string {
-  return '₹' + Number(n).toLocaleString('en-IN');
+  return '₹' + Number(Math.round(n)).toLocaleString('en-IN');
 }
 
-/** Unsplash photo URL, same params the prototype used. */
-export function imgUrl(id: string, w = 400, h = 300): string {
-  return `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&crop=entropy&auto=format&q=75`;
+/** The dish photo. Sizes came from the stock-photo CDN the prototype used; the
+    real image is whatever the kitchen uploaded, so they no longer apply. */
+export function prodImg(p: Product): string {
+  return p.img;
 }
 
-/** Product photo — the per-id override map wins over the product's own img. */
-export function prodImg(p: Product, w = 400, h = 300): string {
-  return imgUrl(IMG[p.id] || p.img, w, h);
-}
-
-/** Discount percentage off MRP, rounded — as the product cards show it. */
+/** Discount off the old price, rounded. 0 when there is no old price to beat. */
 export function discountPct(price: number, mrp: number): number {
+  if (!mrp || mrp <= price) return 0;
   return Math.round((1 - price / mrp) * 100);
 }

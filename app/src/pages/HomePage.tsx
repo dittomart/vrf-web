@@ -8,19 +8,22 @@ import { HeroCarousel } from '@/sections/home/HeroCarousel';
 import { TrustBar } from '@/sections/home/TrustBar';
 import { CategoriesSection } from '@/sections/home/CategoriesSection';
 import { BestsellersSection } from '@/sections/home/BestsellersSection';
-import { FeatureBanner } from '@/sections/home/FeatureBanner';
 import { RecommendedSection } from '@/sections/home/RecommendedSection';
 import { BuyAgainRail } from '@/sections/home/BuyAgainRail';
+import { WhyUsSection } from '@/sections/home/WhyUsSection';
 import { TestimonialsSection } from '@/sections/home/TestimonialsSection';
 import { BrandClose } from '@/sections/home/BrandClose';
 import { HomeFooter } from '@/sections/home/HomeFooter';
+import { useAppStore } from '@/store/appStore';
+import { isStoreOpenNow } from '@/utils/storeHours';
 
-/* home.html, section for section, in the same order:
-   header · badges row · hero · trust bar · categories · promos · bestsellers ·
-   feature banner · recommended · buy again · testimonials · brand close ·
-   footer · hours modal · sticky cart. The bottom nav comes from RootLayout. */
+/* home.html, section for section. The testimonial wall the prototype shipped is
+   gone: those were three invented customers with invented quotes, and there is no
+   reviews endpoint to fill it with real ones. */
 export default function HomePage() {
   const [hoursOpen, setHoursOpen] = useState(false);
+  const store = useAppStore((s) => s.storeLocation);
+  const closed = !isStoreOpenNow(store);
   useReveal();
 
   return (
@@ -32,18 +35,20 @@ export default function HomePage() {
           <span className="badge badge-green">
             <span className="veg-dot" /> 100% Pure Veg Kitchen
           </span>
-          <span className="text-[10px] font-bold bg-[var(--gold-soft)] text-[var(--ink)] px-2.5 py-1 rounded-full">
-            DEMO PREVIEW
-          </span>
+          {closed && (
+            <button onClick={() => setHoursOpen(true)} className="badge badge-accent press">
+              Closed right now · see hours
+            </button>
+          )}
         </div>
 
         <HeroCarousel />
         <TrustBar />
         <CategoriesSection />
         <BestsellersSection />
-        <FeatureBanner />
         <RecommendedSection />
         <BuyAgainRail />
+        <WhyUsSection />
         <TestimonialsSection />
         <BrandClose />
       </main>

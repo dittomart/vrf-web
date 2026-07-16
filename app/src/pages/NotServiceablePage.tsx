@@ -1,23 +1,28 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPinOff, Bell, Navigation, MessageCircle } from 'lucide-react';
+import { MapPinOff, Navigation, MessageCircle } from 'lucide-react';
 
 import '@/styles/location.css';
-import { VRF } from '@/api/_seed';
+import { useAppStore } from '@/store/appStore';
 import { useLocationStore } from '@/store/locationStore';
+import { digitsOnly, useBrandInfo } from '@/hooks/useBrandInfo';
 
+/* The customer is outside the delivery radius. The prototype offered a "notify
+   me" form that went nowhere — there is no endpoint behind it, so it is gone
+   rather than collecting numbers into the void. What is left is real: how far
+   out they are, and a way to reach the kitchen. */
 export default function NotServiceablePage() {
   const location = useLocationStore((s) => s.location);
-  const [notified, setNotified] = useState(false);
-  const [phone, setPhone] = useState('');
+  const store = useAppStore((s) => s.storeLocation);
+  const brand = useBrandInfo();
 
   const area = location?.address ? location.address.split(',').slice(0, 2).join(', ') : 'your area';
+  const whatsapp = digitsOnly(brand.whatsapp);
 
   return (
     <div className="page-enter min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
       <div className="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center px-8 text-center py-12">
         <div className="logo-tile w-16 h-16 mb-8 a-scalein" style={{ boxShadow: 'var(--shadow-md)' }}>
-          <img src="/image.png" alt="VRF Kitchen" />
+          <img src={brand.logo} alt={brand.brand} />
         </div>
 
         <div className="empty-emoji drift anim-pop">
@@ -29,51 +34,34 @@ export default function NotServiceablePage() {
           <br />
           <span className="script text-[var(--brand)]">just yet</span>
         </h1>
-        <p className="text-[var(--ink-2)] mt-3 leading-relaxed">
-          VRF Kitchen isn&apos;t delivering to <b className="text-[var(--ink)]">{area}</b> yet. We&apos;re expanding fast
-          — you&apos;ll be the first to know.
-        </p>
 
-        <div className="mt-7 w-full ui-card ui-card-pad text-left" style={{ padding: '1.25rem' }}>
-          <p className="text-sm font-semibold mb-1 flex items-center gap-2">
-            <Bell className="w-4 h-4 text-[var(--green)]" /> Get notified when we reach you
-          </p>
-          <p className="text-[12px] text-[var(--ink-2)] mb-3">We&apos;ll ping you the moment your area goes live.</p>
-          <div className="flex gap-2">
-            {/* not-serviceable.html re-declares .field with a tighter radius */}
-            <div className="field flex-1 flex items-center px-3.5" style={{ borderRadius: '.85rem' }}>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Your mobile number"
-                type="tel"
-                className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-[var(--ink-2)]"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => setNotified(true)}
-              className="pill pill-green ripple press"
-              style={{ padding: '.75rem 1.15rem' }}
-            >
-              {notified ? 'Added ✓' : 'Notify me'}
-            </button>
-          </div>
-        </div>
+        <p className="text-[var(--ink-2)] mt-3 leading-relaxed">
+          {brand.brand} isn&apos;t delivering to <b className="text-[var(--ink)]">{area}</b> yet.
+          {location?.distanceKm != null && store && store.deliveryRadius > 0 ? (
+            <>
+              {' '}
+              You&apos;re {location.distanceKm} km from the kitchen, and we deliver within{' '}
+              {store.deliveryRadius} km.
+            </>
+          ) : null}
+        </p>
 
         <Link
           to="/location"
-          className="w-full mt-4 pill pill-accent ripple press justify-center"
+          className="w-full mt-7 pill pill-accent ripple press justify-center"
           style={{ paddingTop: '1rem', paddingBottom: '1rem' }}
         >
           <Navigation className="w-5 h-5" /> Try a different location
         </Link>
-        <a
-          href={`https://wa.me/91${VRF.whatsapp}`}
-          className="mt-4 text-sm text-[var(--ink-2)] flex items-center gap-1.5 press"
-        >
-          <MessageCircle className="w-4 h-4 text-[var(--green)]" /> Chat with us on WhatsApp
-        </a>
+
+        {whatsapp ? (
+          <a
+            href={`https://wa.me/${whatsapp.length === 10 ? `91${whatsapp}` : whatsapp}`}
+            className="mt-4 text-sm text-[var(--ink-2)] flex items-center gap-1.5 press"
+          >
+            <MessageCircle className="w-4 h-4 text-[var(--green)]" /> Chat with us on WhatsApp
+          </a>
+        ) : null}
       </div>
     </div>
   );

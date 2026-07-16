@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, ShoppingBag, UtensilsCrossed } from 'lucide-react';
-import { CATEGORIES, PRODUCTS } from '@/api/_seed';
+import { useGetCatalog, useGetCategories } from '@/api/queries/catalog';
 import { MenuHero } from '@/sections/category/MenuHero';
 import { CategoryChips } from '@/sections/category/CategoryChips';
 import { FilterBar, type SortKey } from '@/sections/category/FilterBar';
@@ -9,10 +9,12 @@ import { MenuProductCard } from '@/sections/category/MenuProductCard';
 import { StickyCart } from '@/shared/StickyCart';
 import { useCartCount } from '@/store/cartStore';
 import { useReveal } from '@/hooks/useReveal';
+import { getDisplayPrice } from '@/utils/productPricing';
 
 /* category.html — the full menu: hero panel, category rail, sort/filter bar,
    then the filtered grid. The prototype's render() is a pure function of
-   (activeCat, sort, onlyBest, query), so it becomes a useMemo. */
+   (activeCat, sort, onlyBest, query), so it stays a useMemo — the list it filters
+   is now the live menu. */
 export default function CategoryPage() {
   useReveal();
 
@@ -24,20 +26,29 @@ export default function CategoryPage() {
   const [query, setQuery] = useState('');
 
   const count = useCartCount();
+  const { data: catalog, isLoading } = useGetCatalog();
+  const { data: categories = [] } = useGetCategories();
 
   const items = useMemo(() => {
-    let list = PRODUCTS.slice();
+    let list = (catalog?.flat ?? []).slice();
     if (activeCat !== 'all') list = list.filter((p) => p.cat === activeCat);
     if (onlyBest) list = list.filter((p) => p.best);
-    const q = query.trim().toLowerCase();
-    if (q) list = list.filter((p) => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
-    if (sort === 'low') list.sort((a, b) => a.price - b.price);
-    else if (sort === 'high') list.sort((a, b) => b.price - a.price);
-    else list.sort((a, b) => b.ordered - a.ordered);
-    return list;
-  }, [activeCat, onlyBest, query, sort]);
 
-  const cat = CATEGORIES.find((c) => c.id === activeCat);
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (p) => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)
+      );
+    }
+
+    if (sort === 'low') list.sort((a, b) => getDisplayPrice(a).price - getDisplayPrice(b).price);
+    else if (sort === 'high') list.sort((a, b) => getDisplayPrice(b).price - getDisplayPrice(a).price);
+    else list.sort((a, b) => Number(b.best) - Number(a.best));
+
+    return list;
+  }, [catalog, activeCat, onlyBest, query, sort]);
+
+  const cat = categories.find((c) => c.id === activeCat);
   const title = cat ? cat.name : 'Full Menu';
 
   const selectCat = (id: string) => {
@@ -64,29 +75,26 @@ export default function CategoryPage() {
             </label>
             <Link to="/cart" className="ibtn relative shrink-0">
               <ShoppingBag className="w-5 h-5" />
-              <span data-cart-badge className={count === 0 ? 'hidden ibtn-badge' : 'ibtn-badge'}>
-                {count}
-              </span>
+              {count > 0 && (
+                <span data-cart-badge className="ibtn-badge">
+                  {count}
+                </span>
+              )}
             </Link>
           </div>
         </div>
       </header>
 
-      {/* ============ MENU HERO — photo-textured brand panel ============ */}
       <MenuHero title={title} count={items.length} />
 
-      {/* CATEGORY RAIL */}
       <CategoryChips active={activeCat} onSelect={selectCat} />
 
-      {/* FILTER BAR */}
       <FilterBar
         sort={sort}
         onSort={setSort}
         onlyBest={onlyBest}
         onToggleBest={() => setOnlyBest((b) => !b)}
       />
-
-      {/* COUPON TICKET */}
 
       <main className="max-w-6xl mx-auto px-4">
         <div className="sec-head reveal mb-5">
@@ -99,7 +107,7 @@ export default function CategoryPage() {
               {title}
             </h2>
             <p id="cat-count" className="text-sm text-[var(--ink-2)]">
-              {items.length} pure-veg dishes
+              {items.length} {items.length === 1 ? 'dish' : 'dishes'}
             </p>
           </div>
         </div>
@@ -110,7 +118,21 @@ export default function CategoryPage() {
           ))}
         </div>
 
-        {items.length === 0 && (
+        {isLoading && items.length === 0 && (
+          <div className="grid-products">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className="ui-card overflow-hidden">
+                <div className="w-full h-32 img-fallback" />
+                <div className="p-3 space-y-2">
+                  <div className="h-3 w-3/4 rounded bg-[var(--ivory-2)]" />
+                  <div className="h-3 w-1/2 rounded bg-[var(--ivory-2)]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && items.length === 0 && (
           <div id="empty" className="empty-wrap">
             <div className="empty-emoji">
               <UtensilsCrossed className="w-9 h-9 text-[var(--brand)]" />

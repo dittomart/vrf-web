@@ -1,85 +1,102 @@
 import { Link } from 'react-router-dom';
 import { Flame, Plus, Star } from 'lucide-react';
 import { SmartImage } from '@/shared/SmartImage';
-import { useCartStore } from '@/store/cartStore';
+import { useCartStore, useProductQty } from '@/store/cartStore';
 import { toast } from '@/store/appStore';
 import { flyToCart } from '@/utils/flyToCart';
-import { discountPct, money, prodImg } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import { defaultCustomizations, getDisplayPrice, lineIdOf } from '@/utils/productPricing';
 import type { Product } from '@/types';
 
-/* category.html ships its OWN card()/stepper() templates — visibly different
-   from the shared ProductCard: a bestseller gradient ribbon across the photo,
-   a "Save N%" badge next to the price, the script-face price, and an inline
-   ADD → quantity-bar swap instead of a plain ADD pill. Ported as-is. */
+/* category.html ships its own card: the bestseller ribbon across the photo, the
+   "Save N%" badge, the script-face price, and the ADD → stepper swap.
+
+   The stepper drives the line this card created — the dish with its cheapest
+   portion. A different portion of the same dish, chosen on the product page, is
+   its own line and its own row in the cart. */
 export function MenuProductCard({ p }: { p: Product }) {
-  const cart = useCartStore((s) => s.cart);
   const add = useCartStore((s) => s.add);
   const setQty = useCartStore((s) => s.setQty);
+  const q = useProductQty(p.id);
 
-  const off = discountPct(p.price, p.mrp);
-  const q = cart[p.id] || 0;
+  const { price, oldPrice, discountPercent } = getDisplayPrice(p);
+  const off = discountPercent ?? 0;
+  const lineId = lineIdOf(p.id, defaultCustomizations(p));
 
   return (
-    <div className="ui-card card-topline overflow-hidden flex flex-col lift">
-      <Link to={`/product/${p.id}`} className="relative frame block">
-        <SmartImage src={prodImg(p, 300, 220)} className="w-full h-32 object-cover" alt={p.name} />
-        <span className="absolute top-2.5 left-2.5 rounded-md p-0.5 bg-white shadow-sm">
-          <span className="veg-dot" />
+    <div className="dish-card lift">
+      <Link to={`/product/${p.id}`} className="relative frame block dish-media">
+        <SmartImage src={p.img} className="w-full h-36 object-cover" alt={p.name} />
+        <span className="dish-scrim" aria-hidden="true" />
+
+        {/* top-row badges */}
+        <span className="absolute top-3 left-3 flex items-center gap-1.5">
+          {p.isVeg && (
+            <span className="rounded-md p-0.5 bg-white shadow-sm">
+              <span className="veg-dot" />
+            </span>
+          )}
+          {p.best && (
+            <span className="dish-chip dish-chip-gold">
+              <Flame className="w-3 h-3" /> Bestseller
+            </span>
+          )}
+          {p.isNew && !p.best && (
+            <span className="dish-chip dish-chip-gold">
+              <Star className="w-2.5 h-2.5 fill-current" /> New
+            </span>
+          )}
         </span>
-        {off > 0 && <span className="absolute top-2.5 right-2.5 badge badge-accent shadow-sm">{off}% OFF</span>}
-        {p.best && (
-          <span className="absolute bottom-0 left-0 bg-gradient-to-r from-[var(--brand)] to-transparent text-white text-[10px] font-bold px-2.5 py-1 tracking-wide flex items-center gap-1">
-            <Flame className="w-3 h-3 fill-current" /> BESTSELLER · {p.ordered}×
-          </span>
+        {off > 0 && (
+          <span className="absolute top-3 right-3 dish-chip dish-chip-accent">{off}% OFF</span>
         )}
-      </Link>
 
-      <div className="p-3 flex flex-col flex-1">
-        <div className="flex items-center gap-2">
-          <Link to={`/product/${p.id}`} className="font-bold text-sm leading-tight line-clamp-1 flex-1">
-            {p.name}
-          </Link>
-          <span className="shrink-0 flex items-center gap-0.5 text-[10px] font-bold badge badge-gold !py-0.5 !px-1.5">
-            <Star className="w-2.5 h-2.5 fill-current" />
-            4.8
-          </span>
-        </div>
-
-        <p className="text-[11px] text-[var(--ink-2)] line-clamp-2 mt-1 flex-1 leading-relaxed">{p.desc}</p>
-
-        <div className="flex items-end justify-between mt-2.5">
-          <div className="tnum leading-none">
-            <span className="script text-[18px] text-[var(--green)]">{money(p.price)}</span>
-            <span className="text-[11px] text-[var(--ink-2)] line-through ml-1">{money(p.mrp)}</span>
-          </div>
-          {off > 0 && <span className="badge badge-green !py-0.5 !px-1.5 text-[10px] font-bold">Save {off}%</span>}
-        </div>
-
-        <div data-add={p.id} className="mt-2.5">
-          {/* Adding to cart is THE primary action on a card, so it wears the brand
-              green — not the brass accent, which is reserved for decoration. */}
+        {/* the round ADD/stepper floats over the photo's bottom-right corner */}
+        <div data-add={p.id} className="absolute -bottom-5 right-4 z-10">
           {q === 0 ? (
             <button
               onClick={(e) => {
-                add(p.id);
+                e.preventDefault();
+                add(p);
                 toast('Added');
                 flyToCart(e.currentTarget);
               }}
-              className="btn-add press"
+              className="dish-add press"
+              aria-label={`Add ${p.name}`}
             >
-              ADD <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-5 h-5" />
             </button>
           ) : (
-            <div className="qty-bar anim-scalein">
-              <button aria-label="Decrease" onClick={() => setQty(p.id, q - 1)} className="press">
+            <div className="dish-step anim-scalein">
+              <button aria-label="Decrease" onClick={(e) => { e.preventDefault(); setQty(lineId, q - 1); }} className="press">
                 −
               </button>
               <span className="tnum">{q}</span>
-              <button aria-label="Increase" onClick={() => setQty(p.id, q + 1)} className="press">
+              <button aria-label="Increase" onClick={(e) => { e.preventDefault(); setQty(lineId, q + 1); }} className="press">
                 +
               </button>
             </div>
           )}
+        </div>
+      </Link>
+
+      <div className="px-4 pt-4 pb-3.5">
+        <Link
+          to={`/product/${p.id}`}
+          className="display font-semibold text-[15px] leading-tight line-clamp-1 block"
+        >
+          {p.name}
+        </Link>
+        <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
+          {p.desc || 'Freshly made to order'}
+        </p>
+
+        <div className="flex items-center gap-2 mt-2.5 tnum">
+          <span className="dish-price">{money(price)}</span>
+          {oldPrice ? (
+            <span className="text-[12px] text-[var(--ink-2)] line-through">{money(oldPrice)}</span>
+          ) : null}
+          {off > 0 && <span className="dish-save">Save {off}%</span>}
         </div>
       </div>
     </div>

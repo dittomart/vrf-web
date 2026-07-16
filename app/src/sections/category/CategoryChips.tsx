@@ -1,13 +1,9 @@
 import { Grid2x2 } from 'lucide-react';
-import { CATEGORIES } from '@/api/_seed';
+import { useGetCategories } from '@/api/queries/catalog';
 import { Icon } from '@/ui/Icon';
-import type { Category } from '@/types';
 
-/* category.html — CATEGORY RAIL. renderChips() prepended a synthetic
-   { id:"all", name:"All", icon:"grid-2x2" } chip to CATEGORIES; grid-2x2 is the
-   one icon the seed never names, so it is rendered directly. */
-const ALL: Category = { id: 'all', name: 'All', icon: 'grid-2x2' };
-
+/* category.html — CATEGORY RAIL. The "All" chip is synthetic (it is not a
+   category on the store); every other chip is one the kitchen enabled. */
 export function CategoryChips({
   active,
   onSelect,
@@ -15,9 +11,22 @@ export function CategoryChips({
   active: string;
   onSelect: (id: string) => void;
 }) {
+  const { data: categories = [] } = useGetCategories();
+
   return (
     <div className="max-w-6xl mx-auto px-4 pt-5 flex gap-2.5 overflow-x-auto no-scrollbar" id="chips">
-      {[ALL, ...CATEGORIES].map((c) => (
+      <button
+        data-cat="all"
+        onClick={() => onSelect('all')}
+        className={`cat-chip shrink-0 ${active === 'all' ? 'is-active' : ''}`}
+      >
+        <span className="cat-chip-ico">
+          <Grid2x2 />
+        </span>
+        <span>All</span>
+      </button>
+
+      {categories.map((c) => (
         <button
           key={c.id}
           data-cat={c.id}
@@ -25,7 +34,7 @@ export function CategoryChips({
           className={`cat-chip shrink-0 ${active === c.id ? 'is-active' : ''}`}
         >
           <span className="cat-chip-ico">
-            {c.id === 'all' ? <Grid2x2 /> : <Icon name={c.icon} />}
+            <Icon name={c.icon} />
           </span>
           <span>{c.name}</span>
         </button>

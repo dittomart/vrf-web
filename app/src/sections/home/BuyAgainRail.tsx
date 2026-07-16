@@ -1,20 +1,35 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, RotateCcw } from 'lucide-react';
-import { useBuyAgain } from '@/api/queries/catalog';
+import { useGetCatalog } from '@/api/queries/catalog';
+import { useGetOrders } from '@/api/queries/useOrders';
 import { SmartImage } from '@/shared/SmartImage';
 import { useCartStore } from '@/store/cartStore';
 import { toast } from '@/store/appStore';
 import { flyToCart } from '@/utils/flyToCart';
-import { money, prodImg } from '@/utils/fmt';
+import { money } from '@/utils/fmt';
+import { getDisplayPrice } from '@/utils/productPricing';
 
-/* home.html's #buy-again horizontal rail — order history when there is any,
-   else the demo seed. Reorder adds to the cart and toasts with rotate-ccw. */
+/* home.html's #buy-again rail, fed by the customer's real order history.
+
+   Each previously-ordered item is looked up in the live menu so it reorders at
+   TODAY's price and today's variant — the price frozen on the old order row is
+   history, not an offer. A dish that has since left the menu simply drops out of
+   the rail rather than adding an unbuyable line to the cart. */
 export function BuyAgainRail() {
-  const items = useBuyAgain();
+  const { orders } = useGetOrders();
+  const { data: catalog } = useGetCatalog();
   const add = useCartStore((s) => s.add);
 
+  const ids = [...new Set(orders.flatMap((o) => o.items.map((i) => i.id)))].slice(0, 8);
+  const items = ids
+    .map((id) => catalog?.flat.find((p) => p.id === id))
+    .filter((p): p is NonNullable<typeof p> => !!p)
+    .slice(0, 6);
+
+  if (items.length === 0) return null;
+
   return (
-    <section className="mt-12">
+    <section className="mt-8">
       <div className="flex items-end justify-between reveal gap-3">
         <div className="min-w-0 flex items-center gap-3">
           <span className="ichip ichip-gold shrink-0">
@@ -37,17 +52,13 @@ export function BuyAgainRail() {
         {items.map((p) => (
           <div key={p.id} className="shrink-0 w-32 card rounded-[18px] p-2.5 lift">
             <div className="frame rounded-xl">
-              <SmartImage
-                src={prodImg(p, 220, 170)}
-                className="w-full h-20 object-cover rounded-xl"
-                alt={p.name}
-              />
+              <SmartImage src={p.img} className="w-full h-20 object-cover rounded-xl" alt={p.name} />
             </div>
             <p className="text-xs font-semibold mt-2 line-clamp-1">{p.name}</p>
-            <p className="text-xs font-semibold tnum">{money(p.price)}</p>
+            <p className="text-xs font-semibold tnum">{money(getDisplayPrice(p).price)}</p>
             <button
               onClick={(e) => {
-                add(p.id);
+                add(p);
                 toast('Reordered', 'rotate-ccw');
                 flyToCart(e.currentTarget);
               }}

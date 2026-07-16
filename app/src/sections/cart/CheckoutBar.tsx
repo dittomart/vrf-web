@@ -4,8 +4,20 @@ import { money } from '@/utils/fmt';
 
 /* cart.html — the fixed checkout bar. theme.css reserves the page's bottom
    padding with `body:has(#checkout-bar:not(.hidden))`, so this element stays
-   mounted at all times and only toggles the `hidden` class. */
-export function CheckoutBar({ total, visible }: { total: number; visible: boolean }) {
+   mounted at all times and only toggles the `hidden` class.
+
+   `disabled` is the store's minimum-order rule: the backend would reject the
+   order anyway, so the bar blocks it here rather than letting the customer walk
+   all the way to the payment screen first. */
+export function CheckoutBar({
+  total,
+  visible,
+  disabled = false,
+}: {
+  total: number;
+  visible: boolean;
+  disabled?: boolean;
+}) {
   const navigate = useNavigate();
 
   return (
@@ -23,14 +35,15 @@ export function CheckoutBar({ total, visible }: { total: number; visible: boolea
           </div>
           <button
             onClick={() => navigate('/address')}
-            className="flex-1 pill cta-lux-accent ripple shine justify-center"
+            disabled={disabled}
+            className="flex-1 pill cta-lux-accent ripple shine justify-center disabled:opacity-50"
           >
             Choose address <ArrowRight className="w-5 h-5" />
           </button>
         </div>
         <p className="text-[11px] text-[var(--ink-2)] flex items-center justify-center gap-1.5 mt-2.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-[var(--green)]" /> Safe &amp; secure checkout · Inclusive of all
-          taxes
+          <ShieldCheck className="w-3.5 h-3.5 text-[var(--green)]" /> Safe &amp; secure checkout ·
+          Inclusive of all taxes
         </p>
       </div>
     </div>
