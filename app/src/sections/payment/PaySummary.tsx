@@ -28,20 +28,20 @@ export function PaySummary({ total }: { total: number }) {
         }}
       />
       <div className="flex items-start justify-between relative">
-        <div>
+        <div className="min-w-0">
           <p
             className="text-[11px] font-bold tracking-[.18em] uppercase flex items-center gap-1.5"
             style={{ color: 'var(--gold)' }}
           >
             <ShieldCheck className="w-3.5 h-3.5" /> Total payable
           </p>
-          <p className="display font-extrabold text-[42px] leading-none mt-2.5 tnum text-white">
+          <p className="display font-extrabold text-[34px] sm:text-[42px] leading-none mt-2.5 tnum text-white min-w-0 break-words">
             {money(total)}
           </p>
         </div>
         <Link
           to="/cart"
-          className="text-xs font-bold text-white bg-white/15 border border-white/25 px-3.5 py-2 rounded-full press flex items-center gap-1.5 backdrop-blur"
+          className="text-xs font-bold text-white bg-white/15 border border-white/25 px-3.5 py-2 rounded-full press flex items-center gap-1.5 backdrop-blur shrink-0"
         >
           <ReceiptText className="w-3.5 h-3.5" /> View bill
         </Link>

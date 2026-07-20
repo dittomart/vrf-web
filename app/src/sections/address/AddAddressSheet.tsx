@@ -26,9 +26,9 @@ const TAGS = [
 ] as const;
 
 const TAG_OFF =
-  'tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-2.5 text-sm font-semibold';
+  'tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--line)] rounded-xl py-3 text-sm font-semibold';
 const TAG_ON =
-  'tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--brand)] text-[var(--brand)] rounded-xl py-2.5 text-sm font-semibold';
+  'tagbtn flex-1 flex items-center gap-1.5 justify-center border-2 border-[var(--brand)] text-[var(--brand)] rounded-xl py-3 text-sm font-semibold';
 
 const GPS_IDLE = 'Detect my location (GPS)';
 
@@ -170,7 +170,7 @@ export function AddAddressSheet({
       id="sheet"
       className={`fixed inset-0 z-50 ${open ? 'flex' : 'hidden'} items-end justify-center bg-black/50 p-0 md:p-4`}
     >
-      <div className="bg-[var(--card)] w-full max-w-2xl rounded-t-[26px] md:rounded-[26px] p-5 max-h-[90vh] overflow-y-auto anim-slidedown border border-[var(--line)]">
+      <div className="bg-[var(--card)] w-full max-w-2xl rounded-t-[26px] md:rounded-[26px] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] max-h-[90vh] overflow-y-auto anim-slidedown border border-[var(--line)]">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="eyebrow-g eyebrow">{editing ? 'Edit location' : 'New location'}</p>

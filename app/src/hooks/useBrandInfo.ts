@@ -35,6 +35,8 @@ export function useBrandInfo() {
     deliveryCharge: store?.deliveryCharge ?? 0,
 
     phone,
+    /** every number to reach the store on, primary first, no repeats */
+    phones: dedupePhones([phone, ...(store?.phoneList ?? [])]),
     whatsapp: store?.whatsapp || brand?.whatsapp || phone,
   };
 }
@@ -42,4 +44,18 @@ export function useBrandInfo() {
 /** Only the digits, for tel: and wa.me links. */
 export function digitsOnly(phone: string): string {
   return (phone || '').replace(/\D/g, '');
+}
+
+/** The same line reaches the store whether the admin typed the country code or
+    not, so `+917200881280` and `7200881280` are one number, listed once. */
+function dedupePhones(phones: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const p of phones) {
+    const key = digitsOnly(p).slice(-10);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
 }

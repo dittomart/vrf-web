@@ -45,7 +45,7 @@ export function WhyUsSection() {
                 <Icon className="w-5 h-5" />
               </span>
               <p className="font-bold text-[13.5px] mt-3.5">{f.title}</p>
-              <p className="text-[11.5px] text-[var(--ink-2)] mt-1 leading-relaxed">{f.body}</p>
+              <p className="text-xs text-[var(--ink-2)] mt-1 leading-relaxed">{f.body}</p>
             </div>
           );
         })}

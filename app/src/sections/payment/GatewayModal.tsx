@@ -20,7 +20,7 @@ export function GatewayModal({ phase, method, onRetry, onChangeMethod }: Props) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="ui-card-lux card-topline w-full max-w-sm p-7 text-center anim-scalein">
+      <div className="ui-card-lux card-topline w-full max-w-sm p-6 sm:p-7 text-center anim-scalein">
         {phase === 'processing' && (
           <div>
             <div className="logo-tile w-12 h-12 mx-auto mb-4" style={{ boxShadow: 'var(--shadow-sm)' }}>

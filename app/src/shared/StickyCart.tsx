@@ -11,7 +11,7 @@ export function StickyCart() {
   return (
     <div
       id="sticky-cart"
-      className={`fixed bottom-28 md:bottom-4 inset-x-0 z-30 px-4 transition-transform duration-300 ${
+      className={`fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] md:bottom-4 inset-x-0 z-30 px-4 transition-transform duration-300 ${
         n === 0 ? 'translate-y-40' : ''
       }`}
     >

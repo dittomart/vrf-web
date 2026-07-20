@@ -41,7 +41,7 @@ export function AddOnRail({ lines }: { lines: CartLine[] }) {
                 add(x);
                 toast('Added');
               }}
-              className="w-7 h-7 rounded-full btn-accent text-white text-sm font-bold press flex items-center justify-center"
+              className="w-11 h-11 rounded-full btn-accent text-white text-sm font-bold press flex items-center justify-center"
             >
               +
             </button>

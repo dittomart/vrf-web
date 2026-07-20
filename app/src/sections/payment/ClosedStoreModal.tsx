@@ -13,7 +13,7 @@ export function ClosedStoreModal({ open, onBackHome, onDismiss }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="ui-card-lux card-topline w-full max-w-sm p-7 text-center anim-scalein">
+      <div className="ui-card-lux card-topline w-full max-w-sm p-6 sm:p-7 text-center anim-scalein">
         <div className="empty-emoji">
           <Moon className="w-9 h-9 text-[var(--brand)]" />
         </div>

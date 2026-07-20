@@ -116,6 +116,16 @@ function overrideOf(v: unknown): number | null {
   return truthy(v) ? 1 : 0;
 }
 
+/** `restaurants.phone_list` is a comma-separated string typed by the admin, so
+    it arrives with whatever spacing they used — and an empty column must map to
+    no numbers rather than one blank entry. */
+function parsePhoneList(v: unknown): string[] {
+  return String(v ?? '')
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
 function mapLocation(l: ApiLocation): StoreLocation {
   const taxPercent = num(l.tax_percentage);
   return {
@@ -130,6 +140,7 @@ function mapLocation(l: ApiLocation): StoreLocation {
     pincode: String(l.pincode ?? ''),
     landmark: String(l.landmark ?? ''),
     phone: String(l.phone ?? ''),
+    phoneList: parsePhoneList(l.phone_list),
     whatsapp: String(l.whatsapp ?? l.phone ?? ''),
     latitude: num(l.latitude),
     longitude: num(l.longitude),

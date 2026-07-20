@@ -152,7 +152,7 @@ export default function ProductPage() {
                         <span className="veg-dot" /> PURE VEG
                       </div>
                     )}
-                    <h1 id="p-name" className="display text-[26px] font-extrabold leading-tight">
+                    <h1 id="p-name" className="display text-[22px] sm:text-[26px] font-extrabold leading-tight line-clamp-2">
                       {p.name}
                     </h1>
                   </div>

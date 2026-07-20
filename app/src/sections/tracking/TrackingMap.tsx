@@ -45,9 +45,9 @@ export function TrackingMap({ step, eta }: { step: number; eta: number }) {
       <div className="absolute top-3 left-3 glass rounded-full px-3.5 py-1.5 text-xs font-bold shadow flex items-center gap-1.5 border border-[var(--line)]">
         <Timer className="w-4 h-4 text-[var(--brand)]" /> <span>{eta}</span> min away
       </div>
-      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-        <span className="badge badge-green bg-white/90">
-          <UtensilsCrossed className="w-3 h-3" /> {brand.brand}
+      <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="badge badge-green bg-white/90 max-w-full min-w-0">
+          <UtensilsCrossed className="w-3 h-3 shrink-0" /> <span className="truncate">{brand.brand}</span>
         </span>
         <span className="badge badge-accent bg-white/90">
           <MapPin className="w-3 h-3" /> Your door

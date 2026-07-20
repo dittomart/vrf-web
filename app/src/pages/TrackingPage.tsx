@@ -144,7 +144,7 @@ export default function TrackingPage() {
                   href={track.trackingUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 btn-outline press text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-1.5"
+                  className="mt-3 btn-outline press text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center justify-center gap-1.5 min-h-[44px]"
                 >
                   <ExternalLink className="w-3.5 h-3.5" /> Open live map
                 </a>

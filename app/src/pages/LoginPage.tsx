@@ -377,7 +377,7 @@ export default function LoginPage() {
                 <span className="font-semibold text-[var(--ink)]">{masked}</span>
               </p>
 
-              <div className="flex gap-2 mt-6 justify-between">
+              <div className="flex gap-1.5 sm:gap-2 mt-6 justify-between">
                 {otp.map((v, i) => (
                   <input
                     key={i}
@@ -428,7 +428,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => void sendOtp(!!name)}
-                      className="text-[var(--green)] font-semibold"
+                      className="text-[var(--green)] font-semibold px-2 py-2 min-h-[44px] inline-flex items-center"
                     >
                       Resend code
                     </button>

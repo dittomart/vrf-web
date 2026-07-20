@@ -64,7 +64,7 @@ export function AddressCard({ address: a, selected: on, onSelect, onEdit, onRemo
             e.stopPropagation();
             onRemove(a.id);
           }}
-          className="flex-1 text-xs font-bold text-[var(--ink-2)] py-1.5 rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--brand)]"
+          className="flex-1 text-xs font-bold text-[var(--ink-2)] py-2.5 min-h-[44px] rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--brand)]"
         >
           <Trash2 className="w-3.5 h-3.5" /> Remove
         </button>
@@ -74,7 +74,7 @@ export function AddressCard({ address: a, selected: on, onSelect, onEdit, onRemo
             e.stopPropagation();
             onEdit(a);
           }}
-          className="flex-1 text-xs font-bold text-[var(--ink-2)] py-1.5 rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--green)]"
+          className="flex-1 text-xs font-bold text-[var(--ink-2)] py-2.5 min-h-[44px] rounded-lg press flex items-center justify-center gap-1.5 hover:text-[var(--green)]"
         >
           <Pencil className="w-3.5 h-3.5" /> Edit
         </button>

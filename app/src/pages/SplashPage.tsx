@@ -80,7 +80,7 @@ export default function SplashPage() {
           </p>
         ) : null}
         <h1
-          className="display text-[44px] font-semibold leading-none mt-2 rise text-[var(--ink)]"
+          className="display text-[clamp(2rem,11vw,44px)] font-semibold leading-none mt-2 rise text-[var(--ink)] max-w-full break-words"
           style={{ animationDelay: '.45s' }}
         >
           {brand.brand}
@@ -92,7 +92,7 @@ export default function SplashPage() {
         <div className="gold-rule mt-6 rise" style={{ animationDelay: '.7s' }} />
 
         {/* feature chips */}
-        <div className="flex items-center gap-2.5 mt-6 rise" style={{ animationDelay: '.82s' }}>
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6 rise" style={{ animationDelay: '.82s' }}>
           <span
             className="flex items-center gap-1.5 text-[11px] font-bold bg-white border border-[var(--line)] px-3 py-1.5 rounded-full"
             style={{ boxShadow: 'var(--shadow-sm)' }}
@@ -125,7 +125,7 @@ export default function SplashPage() {
       </div>
 
       <p
-        className="absolute bottom-6 text-[10px] text-[var(--ink-2)] font-bold tracking-[.28em] uppercase"
+        className="absolute bottom-6 text-[11px] text-[var(--ink-2)] font-bold tracking-[.28em] uppercase"
         style={{ opacity: 0.6 }}
       >
         Taste · Time · Quality

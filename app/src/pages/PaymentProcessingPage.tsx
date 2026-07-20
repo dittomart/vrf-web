@@ -140,7 +140,7 @@ export default function PaymentProcessingPage() {
                 { replace: true }
               )
             }
-            className="mt-3 text-xs font-bold text-[var(--ink-2)] press"
+            className="mt-3 text-xs font-bold text-[var(--ink-2)] press min-h-[44px] inline-flex items-center justify-center"
           >
             I&apos;ve paid — track my order
           </button>

@@ -26,7 +26,7 @@ export function TrustBar() {
      to the same baseline. A vertical layout (icon on top) keeps each tile narrow
      enough that all four fit a phone width. */
   return (
-    <section className="mt-4 grid grid-cols-4 gap-2 stagger">
+    <section className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 stagger">
       {stats.map((s) => {
         const Icon = s.icon;
         return (
@@ -36,9 +36,9 @@ export function TrustBar() {
             </span>
             <p className="display font-bold text-[15px] leading-none text-[var(--green)] mt-2">
               {s.big}
-              {s.small ? <span className="text-[10px]">{s.small}</span> : null}
+              {s.small ? <span className="text-[11px]">{s.small}</span> : null}
             </p>
-            <p className="text-[10px] font-semibold mt-0.5 text-[var(--ink-2)] text-center leading-tight">
+            <p className="text-[11px] font-semibold mt-0.5 text-[var(--ink-2)] text-center leading-tight">
               {s.label}
             </p>
           </div>

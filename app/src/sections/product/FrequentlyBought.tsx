@@ -25,8 +25,9 @@ export function FrequentlyBought({ p }: { p: Product }) {
   if (fbt.length === 0) return null;
 
   return (
-    <div id="fbt" className="rail -mx-1 px-1 pb-1">
-      {fbt.map((x) => (
+    <div className="rail-wrap">
+      <div id="fbt" className="rail -mx-1 px-1 pb-1">
+        {fbt.map((x) => (
         <div key={x.id} className="shrink-0 w-32 ui-card p-2.5 lift">
           <Link to={`/product/${x.id}`} className="frame block rounded-xl">
             <SmartImage src={x.img} className="w-full h-16 object-cover rounded-xl" alt={x.name} />
@@ -48,7 +49,8 @@ export function FrequentlyBought({ p }: { p: Product }) {
             </button>
           </div>
         </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

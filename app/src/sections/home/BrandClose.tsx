@@ -19,7 +19,7 @@ export function BrandClose() {
               A pure-veg kitchen cooking South Indian classics for {brand.city}.
             </p>
           ) : null}
-          <div className="flex items-center justify-center gap-2 mt-5">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
             <span className="badge badge-green">
               <Leaf className="w-3.5 h-3.5" /> Pure veg
             </span>

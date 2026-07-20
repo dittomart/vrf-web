@@ -14,10 +14,10 @@ export function CategoriesSection() {
   if (isLoading) {
     return (
       <section className="mt-7">
-        <div className="mt-5 flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
+        <div className="mt-5 flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4">
           {Array.from({ length: 5 }, (_, i) => (
-            <div key={i} className="shrink-0 w-24 flex flex-col items-center gap-2">
-              <div className="w-24 h-24 rounded-[20px] img-fallback" />
+            <div key={i} className="shrink-0 w-[5.5rem] flex flex-col items-center gap-2">
+              <div className="w-20 h-20 rounded-full img-fallback" />
               <span className="h-3 w-14 rounded bg-[var(--ivory-2)]" />
             </div>
           ))}

@@ -182,13 +182,13 @@ export function OrderCard({ order }: { order: Order }) {
               journey, a finished or cancelled one shows the receipt. */}
           <Link
             to={`/tracking/${order.id}`}
-            className="text-xs font-bold btn-outline px-4 py-2.5 rounded-xl press"
+            className="text-xs font-bold btn-outline px-4 py-3 min-h-[44px] rounded-xl press"
           >
             {isLive ? 'Track' : 'View'}
           </Link>
           <button
             onClick={reorder}
-            className="text-xs font-bold cta-lux-accent px-4 py-2.5 rounded-xl flex items-center gap-1.5 press ripple"
+            className="text-xs font-bold cta-lux-accent px-4 py-3 min-h-[44px] rounded-xl flex items-center gap-1.5 press ripple"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reorder
           </button>

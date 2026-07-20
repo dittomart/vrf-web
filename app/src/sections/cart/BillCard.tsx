@@ -34,18 +34,18 @@ export function BillCard({ totals }: { totals: OrderTotals }) {
 
       <div className="space-y-2.5">
         <div className="krow">
-          <span className="text-[var(--ink-2)]">Item total</span>
-          <span className="font-semibold" id="b-sub">
+          <span className="text-[var(--ink-2)] min-w-0">Item total</span>
+          <span className="font-semibold shrink-0 tnum" id="b-sub">
             {money(subtotal)}
           </span>
         </div>
 
         <div className="krow">
-          <span className="text-[var(--ink-2)]">
+          <span className="text-[var(--ink-2)] min-w-0">
             Delivery charge
             {distanceKm != null ? ` (${distanceKm.toFixed(1)} km)` : ''}
           </span>
-          <span className="font-semibold" id="b-del">
+          <span className="font-semibold shrink-0 tnum" id="b-del">
             {isLoading ? (
               <span className="text-[var(--ink-2)]">…</span>
             ) : !deliveryFeeKnown ? (
@@ -62,16 +62,16 @@ export function BillCard({ totals }: { totals: OrderTotals }) {
 
         {tax > 0 && (
           <div className="krow">
-            <span className="text-[var(--ink-2)]">Taxes &amp; charges ({taxPercent}%)</span>
-            <span className="font-semibold" id="b-tax">
+            <span className="text-[var(--ink-2)] min-w-0">Taxes &amp; charges ({taxPercent}%)</span>
+            <span className="font-semibold shrink-0 tnum" id="b-tax">
               {money(tax)}
             </span>
           </div>
         )}
 
         <div className="border-t border-dashed border-[var(--line)] pt-3 mt-1 krow font-bold text-base">
-          <span>{deliveryFeeKnown ? 'To pay' : 'Subtotal'}</span>
-          <span id="b-total" className="display text-lg">
+          <span className="min-w-0">{deliveryFeeKnown ? 'To pay' : 'Subtotal'}</span>
+          <span id="b-total" className="display text-lg shrink-0 tnum">
             {money(total)}
           </span>
         </div>

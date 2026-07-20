@@ -13,7 +13,7 @@ export function ToastHost() {
         <div
           key={t.id}
           className="vrf-toast fixed left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 px-4 py-3 rounded-full text-sm font-semibold anim-scalein"
-          style={{ bottom: `${6 + i * 3.5}rem` }}
+          style={{ bottom: `calc(${7.5 + i * 3.5}rem + env(safe-area-inset-bottom))` }}
         >
           <Icon name={t.icon} className="w-4 h-4" style={{ color: 'var(--gold)' }} />
           <span>{t.msg}</span>

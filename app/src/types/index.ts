@@ -187,6 +187,8 @@ export interface StoreLocation {
   pincode: string;
   landmark: string;
   phone: string;
+  /** additional numbers the admin entered as a comma-separated list */
+  phoneList: string[];
   whatsapp: string;
   latitude: number;
   longitude: number;

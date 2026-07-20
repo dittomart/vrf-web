@@ -36,7 +36,7 @@ function WishlistCard({ p, onRemove }: { p: Product; onRemove: (id: string) => v
             onRemove(p.id);
             toast('Removed from wishlist', 'heart');
           }}
-          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 flex items-center justify-center shadow-sm press"
+          className="absolute top-2.5 right-2.5 w-11 h-11 rounded-full bg-white/95 flex items-center justify-center shadow-sm press"
         >
           <Heart className="w-4 h-4 fill-[var(--brand)] text-[var(--brand)]" />
         </button>
@@ -49,12 +49,12 @@ function WishlistCard({ p, onRemove }: { p: Product; onRemove: (id: string) => v
         <Link to={`/product/${p.id}`} className="font-bold text-sm line-clamp-1">
           {p.name}
         </Link>
-        <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 flex-1">{p.desc}</p>
+        <p className="text-xs text-[var(--ink-2)] line-clamp-1 mt-1 flex-1">{p.desc}</p>
         <div className="flex items-end justify-between mt-2.5">
           <div className="tnum leading-none">
             <span className="script text-[18px] text-[var(--green)]">{money(price)}</span>
             {oldPrice ? (
-              <span className="text-[11px] text-[var(--ink-2)] line-through ml-1">{money(oldPrice)}</span>
+              <span className="text-xs text-[var(--ink-2)] line-through ml-1">{money(oldPrice)}</span>
             ) : null}
           </div>
           <button

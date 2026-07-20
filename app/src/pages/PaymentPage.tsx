@@ -323,7 +323,7 @@ export default function PaymentPage() {
         </div>
       </main>
 
-      <div className="fixed bottom-0 inset-x-0 z-30 glass border-t border-[var(--line)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div id="pay-bar" className="fixed bottom-0 inset-x-0 z-30 glass border-t border-[var(--line)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <button
           type="button"
           onClick={onPay}

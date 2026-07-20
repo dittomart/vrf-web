@@ -148,7 +148,7 @@ export default function LocationPage() {
 
   return (
     <div className="page-enter min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
-      <div className="max-w-md mx-auto min-h-screen flex flex-col px-6">
+      <div className="max-w-md mx-auto min-h-screen flex flex-col px-4 sm:px-6">
         <div className="pt-12 pb-2 text-center">
           <div className="logo-tile w-20 h-20 mx-auto a-scalein" style={{ boxShadow: 'var(--shadow-md)' }}>
             <img src={brand.logo} alt={brand.brand} />
@@ -161,7 +161,7 @@ export default function LocationPage() {
         </div>
 
         <div className="flex-1 pt-6 pb-8">
-          <div className="relative ui-card-lux card-topline a-fadeup overflow-hidden" style={{ padding: '1.6rem' }}>
+          <div className="relative ui-card-lux card-topline a-fadeup overflow-hidden" style={{ padding: '1.2rem' }}>
             <div className="relative">
               <div className="flex justify-center mb-4">
                 <div className="relative w-16 h-16 rounded-full btn-primary flex items-center justify-center">
@@ -247,7 +247,7 @@ export default function LocationPage() {
               <h3 className="display font-semibold text-2xl mt-1 leading-tight">Location detected</h3>
 
               <div
-                className="mt-4 rounded-2xl p-4 text-left flex items-center gap-3 border"
+                className="mt-4 rounded-2xl p-3 sm:p-4 text-left flex items-center gap-3 border"
                 style={{
                   background:
                     'linear-gradient(120deg,color-mix(in srgb, var(--primary) 6%, transparent),var(--ivory-2))',
@@ -294,7 +294,7 @@ export default function LocationPage() {
                 </button>
               ) : null}
 
-              <button type="button" onClick={cancelLoc} className="w-full mt-2 text-[var(--ink-2)] text-sm py-2 press">
+              <button type="button" onClick={cancelLoc} className="w-full mt-2 text-[var(--ink-2)] text-sm py-3 min-h-[44px] press">
                 {pending.serviceable ? 'Choose a different location' : 'Continue'}
               </button>
             </div>

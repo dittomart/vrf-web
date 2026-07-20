@@ -60,7 +60,7 @@ export function AccountHero() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="display font-bold text-[25px] leading-tight truncate">
+            <p className="display font-bold text-[clamp(20px,6vw,25px)] leading-tight truncate">
               {loggedIn && user?.name ? user.name : 'Guest'}
             </p>
             <p className="text-white/75 text-sm mt-1 flex items-center gap-1.5 truncate">

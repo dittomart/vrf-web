@@ -50,7 +50,7 @@ export function ProductCard({ p }: { p: Product }) {
             toast(`Added ${p.name}`);
             flyToCart(e.currentTarget);
           }}
-          className="dish-add press absolute -bottom-5 right-4 z-10"
+          className="dish-add press absolute -bottom-4 right-3 sm:-bottom-5 sm:right-4 z-10"
           aria-label={`Add ${p.name}`}
         >
           <Plus className="w-5 h-5" />
@@ -64,7 +64,7 @@ export function ProductCard({ p }: { p: Product }) {
         >
           {p.name}
         </Link>
-        <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
+        <p className="text-xs text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
           {p.desc || 'Freshly made to order'}
         </p>
 

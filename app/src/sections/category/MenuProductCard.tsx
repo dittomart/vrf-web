@@ -52,7 +52,7 @@ export function MenuProductCard({ p }: { p: Product }) {
         )}
 
         {/* the round ADD/stepper floats over the photo's bottom-right corner */}
-        <div data-add={p.id} className="absolute -bottom-5 right-4 z-10">
+        <div data-add={p.id} className="absolute -bottom-4 right-3 sm:-bottom-5 sm:right-4 z-10">
           {q === 0 ? (
             <button
               onClick={(e) => {
@@ -87,7 +87,7 @@ export function MenuProductCard({ p }: { p: Product }) {
         >
           {p.name}
         </Link>
-        <p className="text-[11px] text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
+        <p className="text-xs text-[var(--ink-2)] line-clamp-1 mt-1 leading-relaxed">
           {p.desc || 'Freshly made to order'}
         </p>
 

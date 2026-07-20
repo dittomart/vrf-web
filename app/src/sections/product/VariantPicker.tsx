@@ -59,7 +59,7 @@ export function VariantPicker({
             {g.name}
             {g.type === 'MULTIPLE' ? ' (optional)' : ''}
           </p>
-          <div className="flex gap-2.5 flex-wrap">
+          <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
             {g.options.map((o) => {
               const on = isOn(g.id, o.id);
               return (
@@ -75,7 +75,7 @@ export function VariantPicker({
                 >
                   {o.name}
                   <br />
-                  <span className="text-[11px] font-medium text-[var(--ink-2)]">
+                  <span className="text-xs font-medium text-[var(--ink-2)]">
                     {o.price > 0 ? money(o.price) : 'Included'}
                   </span>
                 </button>

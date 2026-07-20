@@ -47,7 +47,7 @@ export default function ConfirmationPage() {
 
   const bars = useMemo(() => {
     const seed = [...oid].reduce((a, c) => a + c.charCodeAt(0), 0);
-    return Array.from({ length: 52 }, (_, i) => ((seed * (i + 3)) % 4) + 1);
+    return Array.from({ length: 36 }, (_, i) => ((seed * (i + 3)) % 4) + 1);
   }, [oid]);
 
   const bcNum = oid.replace(/(.{3})/g, '$1 ').trim();
@@ -181,41 +181,41 @@ export default function ConfirmationPage() {
         {/* mini timeline */}
         <div className="w-full mt-6 px-1">
           <div className="flex items-center">
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-0">
               <span
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 on-brand"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white shrink-0 on-brand"
                 style={{ background: 'linear-gradient(160deg,var(--green),var(--green-2))' }}
               >
                 <Check className="w-4 h-4" />
               </span>
-              <span className="text-[10px] font-bold text-[var(--green)]">Placed</span>
+              <span className="text-[10px] font-bold text-[var(--green)] text-center leading-tight min-w-0 break-words">Placed</span>
             </div>
             <div
               className="flex-1 h-0.5 mx-1 rounded-full"
               style={{ background: 'linear-gradient(90deg,var(--green),var(--gold))' }}
             />
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-0">
               <span
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white shrink-0"
                 style={{ background: 'var(--gold)' }}
               >
                 <ChefHat className="w-4 h-4 text-[var(--ink)]" />
               </span>
-              <span className="text-[10px] font-bold text-[var(--ink)]">Cooking</span>
+              <span className="text-[10px] font-bold text-[var(--ink)] text-center leading-tight min-w-0 break-words">Cooking</span>
             </div>
             <div className="flex-1 h-0.5 mx-1 rounded-full bg-[var(--line)]" />
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <span className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-[var(--line)] bg-white shrink-0">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-0">
+              <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 border-[var(--line)] bg-white shrink-0">
                 <Bike className="w-4 h-4 text-[var(--ink-2)]" />
               </span>
-              <span className="text-[10px] font-semibold text-[var(--ink-2)]">On the way</span>
+              <span className="text-[10px] font-semibold text-[var(--ink-2)] text-center leading-tight min-w-0 break-words">On the way</span>
             </div>
             <div className="flex-1 h-0.5 mx-1 rounded-full bg-[var(--line)]" />
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <span className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-[var(--line)] bg-white shrink-0">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-0">
+              <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 border-[var(--line)] bg-white shrink-0">
                 <Home className="w-4 h-4 text-[var(--ink-2)]" />
               </span>
-              <span className="text-[10px] font-semibold text-[var(--ink-2)]">Delivered</span>
+              <span className="text-[10px] font-semibold text-[var(--ink-2)] text-center leading-tight min-w-0 break-words">Delivered</span>
             </div>
           </div>
         </div>
@@ -301,7 +301,7 @@ export default function ConfirmationPage() {
                 <i key={i} style={{ width: `${w}px` }} />
               ))}
             </div>
-            <p className="text-center text-[10px] text-[var(--ink-2)] font-mono tracking-[.3em] mt-2">
+            <p className="text-center text-[10px] text-[var(--ink-2)] font-mono tracking-[.2em] mt-2">
               {bcNum}
             </p>
           </div>
@@ -325,7 +325,7 @@ export default function ConfirmationPage() {
             type="button"
             onClick={onSave}
             disabled={saved}
-            className={`cta-lux text-white text-xs font-bold px-4 py-2.5 rounded-xl press shrink-0${saved ? ' opacity-70' : ''}`}
+            className={`cta-lux text-white text-xs font-bold px-4 py-2.5 min-h-[44px] rounded-xl press shrink-0${saved ? ' opacity-70' : ''}`}
           >
             {saved ? 'Saved ✓' : 'Save'}
           </button>
@@ -348,7 +348,7 @@ export default function ConfirmationPage() {
             <Utensils className="w-4 h-4 text-[var(--brand)]" /> Order more
           </Link>
         </div>
-        <Link to="/home" className="mt-4 text-[var(--ink-2)] text-sm font-semibold flex items-center gap-1.5 press">
+        <Link to="/home" className="mt-4 text-[var(--ink-2)] text-sm font-semibold py-2 inline-flex items-center gap-1.5 min-h-[44px] press">
           <ArrowLeft className="w-4 h-4" /> Continue browsing
         </Link>
       </div>

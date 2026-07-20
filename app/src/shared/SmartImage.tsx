@@ -26,7 +26,7 @@ export function SmartImage({ className = '', alt = '', ...props }: ImgHTMLAttrib
       src={src}
       loading={props.loading ?? 'lazy'}
       onError={() => setFailed(true)}
-      className={className}
+      className={`max-w-full ${className}`}
     />
   );
 }

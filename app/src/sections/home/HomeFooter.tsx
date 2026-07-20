@@ -7,7 +7,7 @@ import { digitsOnly, useBrandInfo } from '@/hooks/useBrandInfo';
    plausible-looking one nobody answers. */
 export function HomeFooter({ onOpenHours }: { onOpenHours: () => void }) {
   const brand = useBrandInfo();
-  const phone = digitsOnly(brand.phone);
+  const phones = brand.phones.filter((p) => digitsOnly(p));
   const whatsapp = digitsOnly(brand.whatsapp);
 
   return (
@@ -27,7 +27,7 @@ export function HomeFooter({ onOpenHours }: { onOpenHours: () => void }) {
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-6 mt-8 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 text-sm">
           <div>
             <p className="font-semibold text-white mb-2">Company</p>
             <button onClick={onOpenHours} className="block py-1 hover:text-white">
@@ -42,11 +42,15 @@ export function HomeFooter({ onOpenHours }: { onOpenHours: () => void }) {
           </div>
           <div>
             <p className="font-semibold text-white mb-2">Reach us</p>
-            {phone ? (
-              <a href={`tel:${phone}`} className="flex items-center gap-2 py-1 hover:text-white">
-                <Phone className="w-3.5 h-3.5" /> {brand.phone}
+            {phones.map((p) => (
+              <a
+                key={p}
+                href={`tel:${digitsOnly(p)}`}
+                className="flex items-center gap-2 py-1 hover:text-white"
+              >
+                <Phone className="w-3.5 h-3.5" /> {p}
               </a>
-            ) : null}
+            ))}
             {whatsapp ? (
               <a
                 href={`https://wa.me/${whatsapp.length === 10 ? `91${whatsapp}` : whatsapp}`}
@@ -58,7 +62,7 @@ export function HomeFooter({ onOpenHours }: { onOpenHours: () => void }) {
             {brand.address ? (
               <p className="flex items-start gap-2 py-1">
                 <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span>
+                <span className="min-w-0 break-words">
                   {brand.address}
                   {brand.landmark ? (
                     <>

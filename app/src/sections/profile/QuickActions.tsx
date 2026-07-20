@@ -21,8 +21,8 @@ export function QuickActions() {
         <span className="qtile-ico ichip-green">
           <ReceiptText className="w-5 h-5" />
         </span>
-        <span className="qtile-lbl">My Orders</span>
-        <span className="qtile-sub">
+        <span className="qtile-lbl min-w-0 truncate">My Orders</span>
+        <span className="qtile-sub min-w-0 truncate">
           {nOrders ? `${nOrders} order${nOrders > 1 ? 's' : ''}` : 'Track & reorder'}
         </span>
       </Link>
@@ -31,16 +31,16 @@ export function QuickActions() {
         <span className="qtile-ico ichip-gold">
           <MapPin className="w-5 h-5" />
         </span>
-        <span className="qtile-lbl">Addresses</span>
-        <span className="qtile-sub">{nAddr ? `${nAddr} saved` : 'Add one'}</span>
+        <span className="qtile-lbl min-w-0 truncate">Addresses</span>
+        <span className="qtile-sub min-w-0 truncate">{nAddr ? `${nAddr} saved` : 'Add one'}</span>
       </Link>
 
       <Link to="/wishlist" className="qtile">
         <span className="qtile-ico ichip-brand">
           <Heart className="w-5 h-5" />
         </span>
-        <span className="qtile-lbl">Wishlist</span>
-        <span className="qtile-sub">{nWish ? `${nWish} saved` : 'Nothing yet'}</span>
+        <span className="qtile-lbl min-w-0 truncate">Wishlist</span>
+        <span className="qtile-sub min-w-0 truncate">{nWish ? `${nWish} saved` : 'Nothing yet'}</span>
       </Link>
     </section>
   );

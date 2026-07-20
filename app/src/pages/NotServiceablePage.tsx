@@ -20,7 +20,7 @@ export default function NotServiceablePage() {
 
   return (
     <div className="page-enter min-h-screen bg-[var(--ivory)] text-[var(--ink)]">
-      <div className="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center px-8 text-center py-12">
+      <div className="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center px-6 sm:px-8 text-center py-12">
         <div className="logo-tile w-16 h-16 mb-8 a-scalein" style={{ boxShadow: 'var(--shadow-md)' }}>
           <img src={brand.logo} alt={brand.brand} />
         </div>
@@ -57,7 +57,7 @@ export default function NotServiceablePage() {
         {whatsapp ? (
           <a
             href={`https://wa.me/${whatsapp.length === 10 ? `91${whatsapp}` : whatsapp}`}
-            className="mt-4 text-sm text-[var(--ink-2)] flex items-center gap-1.5 press"
+            className="mt-4 text-sm text-[var(--ink-2)] inline-flex items-center gap-1.5 press py-3 min-h-[44px]"
           >
             <MessageCircle className="w-4 h-4 text-[var(--green)]" /> Chat with us on WhatsApp
           </a>

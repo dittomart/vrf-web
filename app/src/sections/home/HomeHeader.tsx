@@ -61,7 +61,7 @@ export function HomeHeader() {
             to="/location"
             className="hidden sm:flex flex-col justify-center min-w-0 press text-left gap-[3px] leading-none shrink-0 max-w-[160px]"
           >
-            <span className="flex items-center gap-1 text-[10px] font-bold tracking-[.14em] uppercase text-[var(--brand)]">
+            <span className="flex items-center gap-1 text-[11px] font-bold tracking-[.14em] uppercase text-[var(--brand)]">
               <MapPin className="w-3 h-3" /> Delivering to
             </span>
             <span className="flex items-center gap-1 min-w-0">
@@ -105,16 +105,16 @@ export function HomeHeader() {
             (the desktop chip lives inline above and is hidden here). */}
         <Link
           to="/location"
-          className="sm:hidden mt-2 flex items-center gap-2 press active:opacity-70"
+          className="sm:hidden mt-2 flex items-center gap-2 press active:opacity-70 min-w-0"
         >
           <span className="ichip ichip-green w-7 h-7 rounded-lg shrink-0">
             <MapPin className="w-3.5 h-3.5" />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
-            <span className="block text-[9.5px] font-bold tracking-[.14em] uppercase text-[var(--brand)]">
+            <span className="block text-[11px] font-bold tracking-[.14em] uppercase text-[var(--brand)]">
               Delivering to
             </span>
-            <span className="block text-[13px] font-bold truncate text-[var(--ink)]">{area}</span>
+            <span className="block text-[13px] font-bold truncate min-w-0 text-[var(--ink)]">{area}</span>
           </span>
           <span className="shrink-0 flex items-center gap-0.5 text-[11px] font-bold text-[var(--green)]">
             Change <ChevronDown className="w-3.5 h-3.5" />
